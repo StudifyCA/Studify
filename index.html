@@ -43,6 +43,10 @@ label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
 .blk{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--bd)}
 .blk:first-of-type{border-top:0}
 .blk .r{display:flex;gap:8px;align-items:center;white-space:nowrap}
+
+.stabs{display:flex;gap:6px;overflow-x:auto;position:sticky;top:0;z-index:4;background:var(--bg);padding:8px 0;margin:0 0 6px;-webkit-overflow-scrolling:touch}
+.stab{border:1px solid var(--bd);background:var(--card);color:var(--mut);padding:7px 14px;border-radius:99px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
+.stab.on{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:700}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);display:flex;justify-content:center;z-index:5}
 nav button{flex:1;max-width:150px;background:none;border:0;padding:10px 4px 12px;font:inherit;font-size:12px;color:var(--mut);cursor:pointer}
 nav button.on{color:var(--ac);font-weight:700}
@@ -1180,7 +1184,7 @@ function pushCard(){
   var o=pushPrefs();
   if(!o.on)return h+'<div class="mut">Get a daily study reminder and partner nudges, even when the app is closed.</div><div style="margin-top:8px"><button class="btn" data-act="pushon">Turn on notifications</button></div></div>';
   h+='<label style="color:var(--tx);display:flex;gap:6px;align-items:center"><input type="checkbox" data-chg="pushremind"'+(o.remind?' checked':'')+'> Daily study reminder</label>';
-  h+='<div class="row" style="margin:6px 0"><input type="time" id="push-time" data-chg="pushtime" value="'+esc(o.time||'06:30')+'" style="width:auto"></div>';
+  h+='<div class="row" style="margin:6px 0">'+timeSel('push-time',o.time||'06:30','pushtime')+'</div>';
   h+='<label style="color:var(--tx);display:flex;gap:6px;align-items:center"><input type="checkbox" data-chg="pushnudge"'+(o.nudge?' checked':'')+'> Show partner nudges as notifications</label>';
   h+='<div class="row" style="margin-top:10px"><button class="btn sec" data-act="pushtest">Send test</button><button class="btn danger sm" data-act="pushoff">Turn off</button></div>';
   return h+'</div>';
@@ -1951,7 +1955,7 @@ function viewAI(c){
   return h;
 }
 function viewAIOpen(c){
-  if(!cloud.cfg||cloud.state==='off'||cloud.state==='nolib'||!cloud.user)return '<div class="card"><h3>AI tutor</h3><p>Sign in to your cloud account first (Settings → Cloud account). The AI runs on your own Supabase project, so no key is ever kept in this page.</p><button class="btn" data-act="tab" data-t="settings">Go to Settings</button></div>';
+  if(!cloud.cfg||cloud.state==='off'||cloud.state==='nolib'||!cloud.user)return '<div class="card"><h3>AI tutor</h3><p>Sign in to your cloud account first (Settings → Cloud account). The AI runs on your own Supabase project, so no key is ever kept in this page.</p><button class="btn" data-act="tab" data-t="settings" data-s="acct">Go to Settings</button></div>';
   var a=ui.ai;
   var h='<div class="card"><h3>AI tutor</h3><div class="mut">Ask a doubt, get a topic explained, or get 5 practice questions. Up to 30 a day. Answers can be wrong: check important points in ICAI material.</div>'+
    '<label>What do you want?</label><select id="ai-mode" data-chg="aimode"><option value="ask"'+(a.mode==='ask'?' selected':'')+'>Answer my doubt</option><option value="explain"'+(a.mode==='explain'?' selected':'')+'>Explain a topic</option><option value="quiz"'+(a.mode==='quiz'?' selected':'')+'>Give me practice questions</option><option value="plan"'+(a.mode==='plan'?' selected':'')+'>Suggest how to study this week</option><option value="material"'+(a.mode==='material'?' selected':'')+'>Answer only from text I paste (from my material)</option></select>'+
@@ -2014,7 +2018,7 @@ async function loadAdmin(){
 }
 function idBanner(){
   if(!cloud.user||!cloud.icaiLoaded||cloud.icai)return '';
-  return '<div class="card" style="border-color:var(--ac)"><b>Add your ICAI registration number</b><div class="mut">One number = one account. Needed for Partner, groups and the leaderboard.</div><div style="margin-top:8px"><button class="btn sm" data-act="tab" data-t="settings">Add it now</button></div></div>';
+  return '<div class="card" style="border-color:var(--ac)"><b>Add your ICAI registration number</b><div class="mut">One number = one account. Needed for Partner, groups and the leaderboard.</div><div style="margin-top:8px"><button class="btn sm" data-act="tab" data-t="settings" data-s="acct">Add it now</button></div></div>';
 }
 function idCard(){
   if(!cloud.user)return '';
@@ -2043,13 +2047,13 @@ function lbCard(){
 }
 function viewPartner(c){
   if(cloud.user&&cloud.icaiLoaded&&!cloud.icai)return '<div class="card"><h3>Partner</h3><p>First add your ICAI registration number. One number = one account.</p></div>'+idCard();
-  if(!cloud.cfg||cloud.state==='off')return '<div class="card"><h3>Partner</h3><p>Partner features need the free cloud account. Setting it up takes about 10 minutes, once.</p><button class="btn" data-act="tab" data-t="settings">Open cloud setup</button></div>';
+  if(!cloud.cfg||cloud.state==='off')return '<div class="card"><h3>Partner</h3><p>Partner features need the free cloud account. Setting it up takes about 10 minutes, once.</p><button class="btn" data-act="tab" data-t="settings" data-s="acct">Open cloud setup</button></div>';
   if(cloud.state==='nolib')return '<div class="card"><h3>Partner</h3><p>The cloud library could not load. Check your internet and reload the page.</p></div>';
-  if(!cloud.user)return '<div class="card"><h3>Partner</h3><p>Sign in first (Settings → Cloud account).</p><button class="btn" data-act="tab" data-t="settings">Go to Settings</button></div>';
+  if(!cloud.user)return '<div class="card"><h3>Partner</h3><p>Sign in first (Settings → Cloud account).</p><button class="btn" data-act="tab" data-t="settings" data-s="acct">Go to Settings</button></div>';
   var me=cloud.user.id,myMail=String(cloud.user.email||'').toLowerCase();
   var po=S.profiles.map(function(p){var sel=shareProfile();return '<option value="'+esc(p.id)+'"'+(sel&&sel.id===p.id?' selected':'')+'>'+esc(p.name)+' • '+esc(LEVELS[p.level].name)+'</option>';}).join('');
   var h='<div class="card"><h3>Profile you share with your partner</h3><select data-chg="shareprof">'+po+'</select><div class="mut" style="margin-top:6px">Your partner only sees what you switch on for her below. Notes, mistakes, pending work and anything private are never shared.</div></div>';
-  h+=lbCard()+groupCard()+nudgeAllowCard();
+  var secGrp=groupCard(),secLb=lbCard();h+=nudgeAllowCard();
   h+='<div class="card"><h3>Invite a partner or friend</h3><div class="row"><input type="text" id="pt-email" placeholder="partner@email.com" style="flex:1;min-width:180px"><button class="btn" data-act="invite">Send invite</button></div><div class="mut" style="margin-top:6px">They need their own account (same app link). The invite shows up in their Partner tab.</div></div>';
   var live=cloud.links.filter(function(l){return l.status==='pending'||l.status==='accepted';});
   if(!live.length)h+='<div class="card mut">No connections yet.</div>';
@@ -2096,8 +2100,24 @@ function viewPartner(c){
       '<div style="margin-top:8px"><button class="btn sec sm" data-act="addgoal" data-l="'+esc(l.id)+'">Create goal</button></div></div>';
     h+='</div>';
   });
-  h+='<div class="mut">Study sessions, challenges and shared links work inside each study group.</div>';
-  return h;
+  secGrp+='<div class="mut">Study sessions, challenges and shared links work inside each study group.</div>';
+  var pt=ui.ptab||'ptn',pT=[['ptn','Partners'],['grp','Groups'],['lb','Leaderboard']];
+  var pbar='<div class="stabs" role="tablist">'+pT.map(function(t){return '<button class="chip stab'+(pt===t[0]?' on':'')+'" data-act="pstab" data-s="'+t[0]+'">'+t[1]+'</button>';}).join('')+'</div>';
+  if(ui.allSec)return h+secGrp+secLb;
+  return pbar+(pt==='grp'?secGrp:(pt==='lb'?secLb:h));
+}
+function timeSel(id,val,k){
+  var m=/^([01][0-9]|2[0-3]):([0-5][0-9])$/.exec(val||'')||['','06','30'],H=parseInt(m[1],10),mi=parseInt(m[2],10),pm=H>=12,h12=H%12||12,mr=Math.round(mi/5)*5;if(mr>=60)mr=55;
+  var at=k?' data-chg="'+k+'"':'',o='';
+  o+='<select id="'+id+'-h"'+at+' aria-label="Hour" style="width:auto">';for(var i=1;i<=12;i++)o+='<option value="'+i+'"'+(i===h12?' selected':'')+'>'+i+'</option>';o+='</select> ';
+  o+='<select id="'+id+'-m"'+at+' aria-label="Minute" style="width:auto">';for(var j=0;j<60;j+=5)o+='<option value="'+j+'"'+(j===mr?' selected':'')+'>'+(j<10?'0':'')+j+'</option>';o+='</select> ';
+  o+='<select id="'+id+'-p"'+at+' aria-label="AM or PM" style="width:auto"><option value="0"'+(pm?'':' selected')+'>AM</option><option value="1"'+(pm?' selected':'')+'>PM</option></select>';
+  return o;
+}
+function timeVal(id){
+  var h=parseInt(readv(id+'-h'),10),m=parseInt(readv(id+'-m'),10),p=parseInt(readv(id+'-p'),10);
+  if(!(h>=1&&h<=12)||!(m>=0&&m<60))return '';
+  var H=(h%12)+(p?12:0);return (H<10?'0':'')+H+':'+(m<10?'0':'')+m;
 }
 function readv(id){var e=document.getElementById(id);return e?e.value:'';}
 function guard(p){return p.catch(function(e){toast((e&&e.message)?e.message:'Something went wrong');});}
@@ -2380,16 +2400,27 @@ function viewSettings(c){
   html+='<label>Weekly rest day</label><select id="st-rest"><option value="-1"'+(P.rest<0?' selected':'')+'>No rest day</option>'+DAYN.map(function(d,i){return '<option value="'+i+'"'+(P.rest===i?' selected':'')+'>'+d+'</option>';}).join('')+'</select>';
   html+='<div style="margin-top:12px"><button class="btn" data-act="saveset">Save settings</button></div></div>';
   html+=journeyCard(P,c.A);
-  html+='<div class="card"><h3>Daily reminder</h3><div class="mut">Adds a repeating study reminder to your phone calendar. Open the downloaded file and choose your calendar app.</div><div class="row" style="margin-top:8px"><input type="time" id="rm-time" value="06:30" style="width:auto"><button class="btn sec" data-act="icsdl">Download reminder</button></div></div>';
   html+='<div class="card"><h3>Share this app</h3><div class="mut">Send the link to friends. Each person signs up with their own email and gets their own plan.</div><div style="margin-top:8px"><button class="btn sec" data-act="shareapp">Share app link</button></div></div>';
-  html+=instCard()+pushCard();
-  html+=idCard()+adminCard()+adminHub();
-  html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
-  html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
   html+='<div class="card"><h3>Backup</h3><div class="mut">Your data lives only in this browser. Export a backup file regularly and keep it safe. Importing adds profiles; it never overwrites existing ones.</div>'+(S.lastBackup?'<div class="mut" style="margin-top:6px">Last backup: '+esc(fmt(parse(S.lastBackup)))+'</div>':'')+'<div class="row" style="margin-top:10px"><button class="btn" data-act="exportshare">Back up and share</button><button class="btn sec" data-act="export">Export backup</button><button class="btn sec" data-act="import">Import backup</button><input type="file" id="impf" accept=".json,application/json" style="display:none" data-chg="importfile"></div></div>';
   html+='<div class="card"><h3>Danger zone</h3><button class="btn danger" data-act="delprof">Delete this profile</button></div>';
-  return html;
+  var secGen=html;html='';
+  html+='<div class="card"><h3>Daily reminder</h3><div class="mut">Adds a repeating study reminder to your phone calendar. Open the downloaded file and choose your calendar app.</div><div class="row" style="margin-top:8px">'+timeSel('rm-time','06:30')+'<button class="btn sec" data-act="icsdl">Download reminder</button></div></div>';
+  html+=instCard()+pushCard();
+  var secRem=html;html='';
+  html+=idCard();
+  html+=cloudCard();
+  html+='<div class="mut" style="margin:6px 0">App v1 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  var secAcct=html;html='';
+  html+=adminCard()+adminHub();var secAdm=html;html='';
+  html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
+  var secHelp=html;
+  var showAdm=!!(cloud.user&&cloud.isAdmin);
+  var tabs=[['gen','Profile'],['rem','Reminders'],['acct','Account']];if(showAdm)tabs.push(['adm','Admin']);tabs.push(['help','Help']);
+  var st=ui.stab||'gen';if(st==='adm'&&!showAdm)st='gen';
+  var bar='<div class="stabs" role="tablist">'+tabs.map(function(t){return '<button class="chip stab'+(st===t[0]?' on':'')+'" data-act="stab" data-s="'+t[0]+'">'+t[1]+'</button>';}).join('')+'</div>';
+  if(ui.allSec)return secGen+secRem+secAcct+secAdm+secHelp;
+  var map={gen:secGen,rem:secRem,acct:secAcct,adm:secAdm,help:secHelp};
+  return bar+map[st];
 }
 
 function modalHtml(c){
@@ -2463,7 +2494,9 @@ function allKeys(P){var L=LEVELS[P.level],k=[];Object.keys(L.groups).forEach(fun
 
 function act(a,d){
   var P=cur();
-  if(a==='tab'){ui.tab=d.t;render();window.scrollTo(0,0);if(d.t==='partner'&&cloud.user)refreshPartner();return;}
+  if(a==='stab'){ui.stab=d.s;render();window.scrollTo(0,0);return;}
+  if(a==='pstab'){ui.ptab=d.s;render();window.scrollTo(0,0);return;}
+  if(a==='tab'){ui.tab=d.t;if(d.t==='settings'&&d.s)ui.stab=d.s;render();window.scrollTo(0,0);if(d.t==='partner'&&cloud.user)refreshPartner();return;}
   if(a==='aiask'){aiAsk(P);return;}
   if(a==='applysyl'){var rr=applySyl(P);commit();toast(rr.added+' added'+(rr.removed?', '+rr.removed+' removed':'')+(rr.flagged?', '+rr.flagged+' marked removed':''));return;}
   if(a==='skipsyl'){P.sylVer=SYLVER;commit();return;}
@@ -2474,7 +2507,7 @@ function act(a,d){
   if(a==='tmcancel'){if(confirm('Discard this timer?')){tmSet(null);render();}return;}
   if(a==='tmstop'){var tt=tmGet();if(!tt)return;var mins=Math.max(5,Math.round(tmMs(tt)/60000));tmSet(null);ui.modal={type:'session',k:tt.k,min:mins,ch:tt.ch||'',timer:true,broke:tt.broke||0};render();return;}
   if(a==='icsdl'){
-    var txt=icsText(readv('rm-time')||'06:30',location.href.split('#')[0]);
+    var txt=icsText(timeVal('rm-time')||'06:30',location.href.split('#')[0]);
     try{var bl=new Blob([txt],{type:'text/calendar'}),u=URL.createObjectURL(bl),lk=document.createElement('a');lk.href=u;lk.download='studyos-reminder.ics';document.body.appendChild(lk);lk.click();lk.remove();setTimeout(function(){URL.revokeObjectURL(u);},2000);toast('Reminder file downloaded. Open it to add to your calendar.');}catch(e){toast('Could not create the file');}
     return;
   }
@@ -3025,7 +3058,7 @@ function startOnb(){
 }
 
 function chg(k,d,el){
-  if(k==='pushremind'||k==='pushnudge'||k==='pushtime'){var po=pushPrefs();if(k==='pushremind')po.remind=el.checked;else if(k==='pushnudge')po.nudge=el.checked;else if(/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(el.value))po.time=el.value;pushSave(po);guard(pushUpdate().then(function(){toast('Saved');}));return;}
+  if(k==='pushremind'||k==='pushnudge'||k==='pushtime'){var po=pushPrefs();if(k==='pushremind')po.remind=el.checked;else if(k==='pushnudge')po.nudge=el.checked;else{var tv=timeVal('push-time');if(/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(tv))po.time=tv;}pushSave(po);guard(pushUpdate().then(function(){toast('Saved');}));return;}
   if(k==='allownudge'){guard(rpc('set_allow_nudges',{p_allow:el.checked}).then(function(m){cloud.allowNudges=el.checked;toast(m);}));return;}
   if(k==='lang'){try{localStorage.setItem(LANGK,el.value);}catch(e){}render();return;}
   if(k==='hfidx'){if(ui.hf)ui.hf.idx=Number(el.value);return;}
