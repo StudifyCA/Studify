@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Studify CA</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#6366f1">
@@ -16,9 +16,12 @@
 [data-theme=dark]{--bg:#0f1220;--card:#181c2e;--tx:#eceefb;--mut:#9aa3c0;--bd:#2a3050;--ac:#8b86ff;--ac2:#232850;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
 *{box-sizing:border-box}
 body{margin:0;font:var(--fs,15px)/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx)}
-#app{max-width:900px;margin:0 auto;padding:12px 12px 90px}
+#app{max-width:900px;margin:0 auto;padding:12px 12px calc(90px + env(safe-area-inset-bottom,0px))}
 header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-header h1{font-size:18px;margin:0;flex:1}
+header h1{font-size:18px;margin:0;flex:0 1 auto;white-space:nowrap;min-width:0}
+header select{flex:1 1 0;min-width:0;width:auto}
+header .btn{flex:0 0 auto;min-width:36px}
+header img{flex:0 0 auto}
 .tagline{text-align:center;font-weight:700;margin:6px 0 10px;color:var(--ac)}.tagline2{text-align:center;margin:8px 0;color:var(--mut)}
 h2{font-size:16px;margin:18px 0 8px}
 h3{font-size:15px;margin:0 0 6px}
@@ -47,8 +50,9 @@ label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
 .stabs{display:flex;gap:6px;overflow-x:auto;position:sticky;top:0;z-index:4;background:var(--bg);padding:8px 0;margin:0 0 6px;-webkit-overflow-scrolling:touch}
 .stab{border:1px solid var(--bd);background:var(--card);color:var(--mut);padding:7px 14px;border-radius:99px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
 .stab.on{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:700}
-nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);display:flex;justify-content:center;z-index:5}
-nav button{flex:1;max-width:150px;background:none;border:0;padding:10px 4px 12px;font:inherit;font-size:12px;color:var(--mut);cursor:pointer}
+nav{position:fixed;left:0;right:0;bottom:0;height:calc(64px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--card);border-top:1px solid var(--bd);display:flex;justify-content:center;z-index:5;transition:transform .22s ease;will-change:transform}
+nav.nvh{transform:translateY(120%)}
+nav button{flex:1 1 0;min-width:0;max-width:150px;background:none;border:0;padding:8px 0 10px;font:inherit;font-size:11px;color:var(--mut);cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 nav button.on{color:var(--ac);font-weight:700}
 nav button b{display:block;font-size:18px}
 table{border-collapse:collapse;width:100%;font-size:13px}
@@ -813,8 +817,13 @@ function head(P){
     '<button class="btn sec sm" data-act="lang" title="Language">\ud83c\udf10</button><button class="btn sec sm" data-act="theme" title="Theme">\u25d0</button></header>'+
     cloudBadge()+offBanner()+(storageOK?'':'<div class="warnbox">Your browser is blocking saving. Data will be lost when you close this page. Use Settings \u2192 Export backup often.</div>');
 }
+var navHid=false,navY=0;
+(function(){var tick=false;window.addEventListener('scroll',function(){if(tick)return;tick=true;requestAnimationFrame(function(){tick=false;if(window.__noNavHide)return;var y=window.pageYOffset||0,d=y-navY;var n=document.querySelector('nav');
+  if(y<40||d<-8){if(navHid){navHid=false;if(n)n.classList.remove('nvh');}navY=y;}
+  else if(d>12){if(!navHid){navHid=true;if(n)n.classList.add('nvh');}navY=y;}
+});},{passive:true});})();
 function nav(){
-  return '<nav>'+tabs.map(function(t){return '<button class="'+(ui.tab===t[0]?'on':'')+'" data-act="tab" data-t="'+t[0]+'"><b>'+t[1]+'</b>'+t[2]+'</button>';}).join('')+'</nav>';
+  return '<nav'+(navHid?' class="nvh"':'')+'>'+tabs.map(function(t){return '<button class="'+(ui.tab===t[0]?'on':'')+'" data-act="tab" data-t="'+t[0]+'"><b>'+t[1]+'</b>'+t[2]+'</button>';}).join('')+'</nav>';
 }
 function nextAttemptOptions(sel){
   var base=aIdx(today()),o='';
@@ -2496,7 +2505,7 @@ function act(a,d){
   var P=cur();
   if(a==='stab'){ui.stab=d.s;render();window.scrollTo(0,0);return;}
   if(a==='pstab'){ui.ptab=d.s;render();window.scrollTo(0,0);return;}
-  if(a==='tab'){ui.tab=d.t;if(d.t==='settings'&&d.s)ui.stab=d.s;render();window.scrollTo(0,0);if(d.t==='partner'&&cloud.user)refreshPartner();return;}
+  if(a==='tab'){navHid=false;ui.tab=d.t;if(d.t==='settings'&&d.s)ui.stab=d.s;render();window.scrollTo(0,0);if(d.t==='partner'&&cloud.user)refreshPartner();return;}
   if(a==='aiask'){aiAsk(P);return;}
   if(a==='applysyl'){var rr=applySyl(P);commit();toast(rr.added+' added'+(rr.removed?', '+rr.removed+' removed':'')+(rr.flagged?', '+rr.flagged+' marked removed':''));return;}
   if(a==='skipsyl'){P.sylVer=SYLVER;commit();return;}
