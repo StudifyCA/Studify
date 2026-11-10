@@ -1956,7 +1956,7 @@ function loadUc(){
   cloud.client.rpc('user_count').then(function(r){var n=Number(r&&r.data);if(!r.error&&isFinite(n)&&n>=0){UCOUNT=n;renderKeep();}}).catch(function(){}).then(function(){ui.ucBusy=false;});
 }
 function viewAI(c){
-  if(AIOPEN)return viewAIOpen(c);
+  if(AIOPEN||(cloud.user&&cloud.isAdmin))return viewAIOpen(c);
   setTimeout(loadUc,0);
   var n=UCOUNT,h='<div class="card"><h3>\ud83d\udd12 AI tutor (locked for now)</h3><p>The AI tutor will open for everyone when we cross '+UC_GOAL+' users. Until then you can use everything else in the app: plan, timer, revision, papers, partner.</p>';
   if(n!==null){var pc=Math.min(100,Math.round(n/UC_GOAL*100));h+='<div class="mut">Users so far: <b>'+n+' / '+UC_GOAL+'</b></div><div style="height:10px;background:var(--bd);border-radius:6px;margin-top:6px;overflow:hidden"><div style="height:10px;width:'+pc+'%;background:var(--ac)"></div></div>';}
@@ -1966,7 +1966,7 @@ function viewAI(c){
 function viewAIOpen(c){
   if(!cloud.cfg||cloud.state==='off'||cloud.state==='nolib'||!cloud.user)return '<div class="card"><h3>AI tutor</h3><p>Sign in to your cloud account first (Settings → Cloud account). The AI runs on your own Supabase project, so no key is ever kept in this page.</p><button class="btn" data-act="tab" data-t="settings" data-s="acct">Go to Settings</button></div>';
   var a=ui.ai;
-  var h='<div class="card"><h3>AI tutor</h3><div class="mut">Ask a doubt, get a topic explained, or get 5 practice questions. Up to 30 a day. Answers can be wrong: check important points in ICAI material.</div>'+
+  var h='<div class="card"><h3>AI tutor</h3>'+(AIOPEN?'':'<div class="mut" style="color:var(--ac)">Admin preview: locked for other users until we cross '+UC_GOAL+'.</div>')+'<div class="mut">Ask a doubt, get a topic explained, or get 5 practice questions. Up to 30 a day. Answers can be wrong: check important points in ICAI material.</div>'+
    '<label>What do you want?</label><select id="ai-mode" data-chg="aimode"><option value="ask"'+(a.mode==='ask'?' selected':'')+'>Answer my doubt</option><option value="explain"'+(a.mode==='explain'?' selected':'')+'>Explain a topic</option><option value="quiz"'+(a.mode==='quiz'?' selected':'')+'>Give me practice questions</option><option value="plan"'+(a.mode==='plan'?' selected':'')+'>Suggest how to study this week</option><option value="material"'+(a.mode==='material'?' selected':'')+'>Answer only from text I paste (from my material)</option></select>'+
    (a.mode==='material'?'<label>Paste text from your study material (up to 6000 characters)</label><textarea id="ai-mat" maxlength="6000" style="min-height:140px" placeholder="Paste the paragraph / page from your book here">'+esc(a.mat||'')+'</textarea><div class="mut">The AI will use only this text. If the answer is not in it, it will say so.</div>':'')+
    '<label>Your question or topic</label><textarea id="ai-q" maxlength="2000" placeholder="Example: Explain AS 10 with a simple example">'+esc(a.q)+'</textarea>'+
