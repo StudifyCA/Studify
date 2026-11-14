@@ -328,6 +328,67 @@ function tmPush(){
   tmPushT=setTimeout(function(){rpc('timer_put',{p_state:st,p_rev:rev,p_every:o.brk?o.every:0}).catch(function(){});},150);
 }
 function tmSave(v){tmSet(v);tmPush();}
+
+/* ---------- Windows desktop app bridge (active only inside the Studify CA Windows app) ---------- */
+var DSK=window.studifyDesktop||null,dsk={away:0,awayStart:0,dis:0,sid:'',ldT:0,fg:null,warned:false};
+var DAK='ca_studyos_dskallow';
+function dskAllowed(){try{var a=JSON.parse(localStorage.getItem(DAK)||'[]');return a instanceof Array?a:[];}catch(e){return [];}}
+function dskSetAllowed(a){try{localStorage.setItem(DAK,JSON.stringify(a));}catch(e){}}
+var DN={chrome:'Google Chrome',msedge:'Microsoft Edge',firefox:'Firefox',brave:'Brave',opera:'Opera',winword:'Word',excel:'Excel',powerpnt:'PowerPoint',acrord32:'Adobe Reader',acrobat:'Adobe Acrobat',notepad:'Notepad',code:'VS Code',whatsapp:'WhatsApp',telegram:'Telegram',spotify:'Spotify',vlc:'VLC',explorer:'File Explorer',discord:'Discord',applicationframehost:'Windows apps (Photos, Calculator...)','studify ca':'Studify CA',electron:'Studify CA'};
+function dskName(p){return DN[p]||p;}
+function dskMin(m){return (m>=60?Math.floor(m/60)+'h ':'')+(m%60)+'m';}
+function dskOnActive(a){
+  if(!a)return;
+  dsk.fg=a;
+  var t=tmGet(),run=!!(t&&t.t0&&!t.paused&&!t.rest);
+  if(t&&t.sid!==dsk.sid){dsk.sid=t.sid;dsk.dis=0;dsk.away=0;dsk.awayStart=0;dsk.warned=false;}
+  var ok=a.self||a.idle>300||dskAllowed().indexOf(a.proc)>=0;
+  if(!run||ok){
+    var back=run&&dsk.away>=5;
+    dsk.away=0;dsk.awayStart=0;dsk.warned=false;
+    if(back)renderKeep();
+    return;
+  }
+  var dt=a.dt||2;
+  if(!dsk.awayStart)dsk.awayStart=Date.now()-dt*1000;
+  dsk.away+=dt;dsk.dis+=dt;
+  if(dsk.away>=10){
+    if(tmOpts().strict){
+      t.acc=(t.acc||0)+Math.max(0,dsk.awayStart-t.t0);t.t0=0;t.paused=true;delete t.manual;t.broke=(t.broke||0)+1;
+      dsk.away=0;dsk.awayStart=0;dsk.warned=false;
+      tmSave(t);render();
+      try{DSK.notify('Focus broken','Timer paused: you switched to '+dskName(a.proc)+'. Come back to Studify CA and tap Resume.');}catch(e){}
+    }else if(!dsk.warned){
+      dsk.warned=true;
+      try{DSK.notify('Back to studying','You are in '+dskName(a.proc)+' while your study timer is running.');}catch(e){}
+    }
+  }
+}
+function dskLoad(){
+  if(!DSK||Date.now()-dsk.ldT<15000)return;
+  dsk.ldT=Date.now();
+  try{DSK.getUsage().then(function(u){ui.dskU=u;renderKeep();}).catch(function(){});}catch(e){}
+}
+function dskCard(){
+  if(!DSK)return '';
+  dskLoad();
+  var u=ui.dskU,al=dskAllowed(),rows='',auto='0';
+  try{auto=localStorage.getItem('ca_studyos_dskauto')||'0';}catch(e){}
+  if(u&&u.apps){
+    var ks=Object.keys(u.apps).filter(function(k){return u.apps[k]>=60;}).sort(function(a,b){return u.apps[b]-u.apps[a];}).slice(0,12);
+    rows=ks.map(function(k){
+      var m=Math.round(u.apps[k]/60),me=(k==='studify ca'||k==='electron');
+      return '<label style="display:flex;gap:8px;align-items:center;color:var(--tx);padding:3px 0"><input type="checkbox" data-chg="dskallow" data-o="'+esc(k)+'"'+((me||al.indexOf(k)>=0)?' checked':'')+(me?' disabled':'')+'><span style="flex:1">'+esc(dskName(k))+'</span><span class="mut">'+dskMin(m)+'</span></label>';
+    }).join('');
+  }
+  return '<div class="card"><h3>Windows app: focus tracking</h3>'+
+    '<div class="mut">While your study timer runs, this app notices which Windows app is in front. Apps you tick below count as study apps (PDF reader, Word and so on). Studify CA itself is always allowed. If you are idle for 5 minutes it is not counted.</div>'+
+    '<div style="margin-top:8px"><b>Today on this laptop</b></div>'+
+    (rows||'<div class="mut">Your app usage appears here after a few minutes.</div>')+
+    '<div class="mut" style="margin-top:6px">Websites show only as the browser (for example Google Chrome). Tick your browser only if you study from websites. This list stays on this laptop and is never uploaded.</div>'+
+    '<label style="color:var(--tx);display:flex;gap:6px;align-items:center;margin-top:10px"><input type="checkbox" data-chg="dskauto"'+(auto==='1'?' checked':'')+'> Start Studify CA when Windows starts</label>'+
+    '<div class="mut" style="margin:4px 0 0 24px">Closing the window keeps it running in the tray so tracking continues. Right-click the tray icon to quit.</div></div>';
+}
 async function tmPull(){
   if(!cloud.client||!cloud.user)return;
   var r=null;try{r=await rpc('timer_get',{});}catch(e){return;}
@@ -1706,7 +1767,7 @@ function timerOptsCard(){
     '<div class="row" style="margin:6px 0 0 24px;align-items:center"><span class="mut">Remind me every</span><select data-chg="tmopt" data-o="every">'+ev+'</select><span class="mut">of study</span></div>'+
     '<div class="mut" style="margin:4px 0 8px 24px">Shows on screen, and as a notification if the app is closed (turn on Notifications above). You can tap Skip any time.</div>'+
     '<label style="color:var(--tx);display:flex;gap:6px;align-items:center"><input type="checkbox" data-chg="tmopt" data-o="strict"'+(o.strict?' checked':'')+'> Strict focus (pause the timer if I leave the app)</label>'+
-    '<div class="mut" style="margin:4px 0 0 24px">Off by default. The timer keeps running when the screen is off or you use another app. The app cannot see which other apps or sites you use.</div></div>';
+    '<div class="mut" style="margin:4px 0 0 24px">Off by default. '+(DSK?'In the Windows app this pauses the timer if you stay in an app that is not ticked as a study app for 10 seconds (see Windows app: focus tracking below).':'The timer keeps running when the screen is off or you use another app. The app cannot see which other apps or sites you use.')+'</div></div>';
 }
 function tmTick(){
   var t=tmGet();if(!t)return;
@@ -1720,7 +1781,7 @@ function tmTick(){
   var o=tmOpts();
   if(t.t0&&o.brk&&!t.prompt){
     var due=Math.floor(tmMs(t)/(o.every*60000));
-    if(due>=1&&due>(t.brk||0)){t.prompt=due;tmSet(t);try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}renderKeep();}
+    if(due>=1&&due>(t.brk||0)){t.prompt=due;tmSet(t);try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}try{if(DSK)DSK.notify('Time for a short break','Rest your eyes and drink some water. Open Studify CA to start the 2-minute break.');}catch(e){}renderKeep();}
   }
 }
 function timerCard(P,X){
@@ -1729,7 +1790,8 @@ function timerCard(P,X){
     var chn='';if(t.ch){var cc=getCh(P,t.k,t.ch);if(cc)chn=lblOf(cc);}
     var lk=(P.links||[]).filter(function(x){return x.k===t.k;}).slice(0,3).map(function(x){return '<a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.title)+'</a>';}).join(' \u2022 ');
     var fb=t.paused&&!t.manual?'<div class="warnbox" style="margin-bottom:8px"><b>Focus broken.</b> You left the app, so the timer is paused (Strict focus is on). Tap Resume when you are back to studying.</div>':(t.paused?'<div class="mut" style="margin-bottom:8px">'+(t.rest?'On a break. The timer continues by itself.':'Paused. Tap Resume when you are ready.')+'</div>':'');
-    return '<div class="card">'+fb+'<div class="row sp"><div><b>Studying: '+esc(pfull(t.k))+'</b><div class="mut">'+esc(chn)+'</div></div><div id="tm-el" style="font-size:26px;font-variant-numeric:tabular-nums">'+tmText(t)+'</div></div><div class="row" style="margin-top:8px">'+(t.paused?'<button class="btn" data-act="tmresume">Resume</button>':'<button class="btn sec" data-act="tmpause">Pause</button>')+'<button class="btn" data-act="tmstop">Stop and log</button><button class="btn sec sm" data-act="tmcancel">Discard</button></div>'+(lk?'<div class="mut" style="margin-top:8px">Your material: '+lk+'</div>':'')+(cloud.user?'<div class="mut" style="margin-top:6px">Synced: this timer also shows on your other devices.</div>':'')+'</div>';
+    var dn=(DSK&&dsk.sid===t.sid&&dsk.dis>=10)?'<div class="mut" style="margin-bottom:8px">Time in other apps while the timer ran: '+Math.floor(dsk.dis/60)+'m '+Math.round(dsk.dis%60)+'s</div>':'';
+    return '<div class="card">'+fb+dn+'<div class="row sp"><div><b>Studying: '+esc(pfull(t.k))+'</b><div class="mut">'+esc(chn)+'</div></div><div id="tm-el" style="font-size:26px;font-variant-numeric:tabular-nums">'+tmText(t)+'</div></div><div class="row" style="margin-top:8px">'+(t.paused?'<button class="btn" data-act="tmresume">Resume</button>':'<button class="btn sec" data-act="tmpause">Pause</button>')+'<button class="btn" data-act="tmstop">Stop and log</button><button class="btn sec sm" data-act="tmcancel">Discard</button></div>'+(lk?'<div class="mut" style="margin-top:8px">Your material: '+lk+'</div>':'')+(cloud.user?'<div class="mut" style="margin-top:6px">Synced: this timer also shows on your other devices.</div>':'')+'</div>';
   }
   if(!X.study.length)return '';
   ui.tm=ui.tm||{};var k=ui.tm.k&&X.study.indexOf(ui.tm.k)>=0?ui.tm.k:X.study[0];ui.tm.k=k;
@@ -2503,7 +2565,7 @@ function viewSettings(c){
   html+='<div class="card"><h3>Danger zone</h3><button class="btn danger" data-act="delprof">Delete this profile</button></div>';
   var secGen=html;html='';
   html+='<div class="card"><h3>Daily reminder</h3><div class="mut">Adds a repeating study reminder to your phone calendar. Open the downloaded file and choose your calendar app.</div><div class="row" style="margin-top:8px">'+timeSel('rm-time','06:30')+'<button class="btn sec" data-act="icsdl">Download reminder</button></div></div>';
-  html+=instCard()+pushCard()+timerOptsCard();
+  html+=(DSK?'':instCard()+pushCard())+timerOptsCard()+dskCard();
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
@@ -3179,6 +3241,8 @@ function chg(k,d,el){
   if(k==='prof'){S.active=el.value;ui.res=null;ui.modal=null;save();render();return;}
   if(k==='aimode'){var a9=ui.ai;a9.q=readv('ai-q');a9.mat=readv('ai-mat')||a9.mat;var cx9=document.getElementById('ai-ctx');if(cx9)a9.ctx=cx9.checked;a9.mode=el.value;render();return;}
   if(k==='tmopt'){var oo=tmOpts();if(d.o==='every')oo.every=parseInt(el.value,10)||60;else oo[d.o]=el.checked;tmOptSave(oo);if(tmGet())tmPush();render();return;}
+  if(k==='dskallow'){var al2=dskAllowed(),ix=al2.indexOf(d.o);if(el.checked&&ix<0)al2.push(d.o);if(!el.checked&&ix>=0)al2.splice(ix,1);dskSetAllowed(al2);return;}
+  if(k==='dskauto'){try{localStorage.setItem('ca_studyos_dskauto',el.checked?'1':'0');}catch(e){}try{if(DSK)DSK.setAutoStart(el.checked);}catch(e){}return;}
   if(k==='tmpaper'){ui.tm=ui.tm||{};ui.tm.k=el.value;render();return;}
   if(k==='onattempt'){if(ui.onb){ui.onb.idx=Number(el.value);onbDate(ui.onb);render();}return;}
   if(k==='residx'){if(ui.res){ui.res.idx=Number(el.value);render();}return;}
@@ -3244,7 +3308,7 @@ document.addEventListener('click',function(e){
 
 function tmCheck(){
   var t=tmGet();if(!t)return;
-  var strict=tmOpts().strict;
+  var strict=tmOpts().strict&&!DSK;
   if(document.hidden){if(strict&&t.t0&&!t.hid){t.hid=Date.now();tmSet(t);}return;}
   try{if(navigator.wakeLock&&t.t0)navigator.wakeLock.request('screen').catch(function(){});}catch(e){}
   if(t.hid){
@@ -3255,8 +3319,9 @@ function tmCheck(){
   tmTick();tmPull();
 }
 document.addEventListener('visibilitychange',tmCheck);
-window.addEventListener('pagehide',function(){var t=tmGet();if(tmOpts().strict&&t&&t.t0&&!t.hid){t.hid=Date.now();tmSet(t);}});
+window.addEventListener('pagehide',function(){var t=tmGet();if(tmOpts().strict&&!DSK&&t&&t.t0&&!t.hid){t.hid=Date.now();tmSet(t);}});
 tmCheck();
+if(DSK){try{DSK.onActive(dskOnActive);}catch(e){}try{var da=localStorage.getItem('ca_studyos_dskauto');if(da!==null)DSK.setAutoStart(da==='1');}catch(e){}}
 initCloud();
 setInterval(function(){try{var ae=document.activeElement,tg=ae&&ae.tagName;if(ui.tab==='partner'&&cloud.user&&!document.hidden&&!ui.modal&&!/INPUT|TEXTAREA|SELECT/.test(tg||''))refreshPartner();}catch(e){}},60000);
 setInterval(function(){var e=document.getElementById('tm-el'),t=tmGet();if(e&&t)e.textContent=tmText(t);try{tmTick();}catch(x){}},500);
@@ -3271,7 +3336,7 @@ window.addEventListener('online',function(){
 });
 window.addEventListener('error',function(e){logErr((e&&e.message)||'error');});
 window.addEventListener('unhandledrejection',function(e){logErr((e&&e.reason&&e.reason.message)||'promise');});
-window.__so={tm:{get:tmGet,tick:tmTick,pull:tmPull,opts:tmOpts,check:tmCheck,push:tmPush},refreshPartner:refreshPartner,applyRemote:applyRemote,act:act,starter:starter,newsFeed:newsFeed,feedOk:feedOk,newsList:newsList,newsCard:newsCard,newsOk:newsOk,pywParse:pywParse,pywFilesOk:pywFilesOk,regOk:regOk,regRegion:regRegion,pwAll:pwAll,bulkParse:bulkParse,bulkPrompt:bulkPrompt,bulkCard:bulkCard,fbAdminCard:fbAdminCard,privacyCard:privacyCard,libCard:libCard,libFilesOk:libFilesOk,loadPdfs:loadPdfs,idCard:idCard,adminHub:adminHub,viewAI:viewAI,focus3:focus3,focusCard:focusCard,weekFix:weekFix,weekPlus:weekPlus,wkBanner:wkBanner,hyIds:hyIds,pywCard:pywCard,simBudgets:simBudgets,simParse:simParse,simCard:simCard,simTick:simTick,chkCard:chkCard,bakBanner:bakBanner,kalBanner:kalBanner,kalRow:kalRow,kalGoals:kalGoals,helpCard:helpCard,offBanner:offBanner,mmss:mmss,fsGet:fsGet,pushPrefs:pushPrefs,pushCard:pushCard,groupCard:groupCard,nudgeBanner:nudgeBanner,boardToday:boardToday,b64u:b64u,buildSummary:buildSummary,badgeList:badgeList,checkBadges:checkBadges,burnoutInfo:burnoutInfo,cardsDue:cardsDue,tr:tr,getLang:getLang,attemptOptions:attemptOptions,canTick:canTick,tmCheck:tmCheck,misDue:misDue,tmMs:tmMs,priorScore:priorScore,weak:weak,canStart:canStart,directOK:directOK,histA:histA,CAL:function(){return CAL;},SYLV:function(){return SYLVER;},icaiStart:icaiStart,applyRemote:applyRemote,applySyl:applySyl,sylDiff:sylDiff,weakChapters:weakChapters,weekText:weekText,icsText:icsText,streakDays:streakDays,normP:normP,onbDate:onbDate,tmSet:tmSet,cloud:cloud,SYL:SYL,S:function(){return S;},analyse:analyse,activeInfo:activeInfo,planInfo:planInfo,newProfile:newProfile,todayPlan:todayPlan,roadmap:roadmap,makeRevs:makeRevs,render:render,ui:ui,aIdx:aIdx,aLabel:aLabel,cur:cur,save:save};
+window.__so={dsk:dsk,tm:{get:tmGet,tick:tmTick,pull:tmPull,opts:tmOpts,check:tmCheck,push:tmPush},refreshPartner:refreshPartner,applyRemote:applyRemote,act:act,starter:starter,newsFeed:newsFeed,feedOk:feedOk,newsList:newsList,newsCard:newsCard,newsOk:newsOk,pywParse:pywParse,pywFilesOk:pywFilesOk,regOk:regOk,regRegion:regRegion,pwAll:pwAll,bulkParse:bulkParse,bulkPrompt:bulkPrompt,bulkCard:bulkCard,fbAdminCard:fbAdminCard,privacyCard:privacyCard,libCard:libCard,libFilesOk:libFilesOk,loadPdfs:loadPdfs,idCard:idCard,adminHub:adminHub,viewAI:viewAI,focus3:focus3,focusCard:focusCard,weekFix:weekFix,weekPlus:weekPlus,wkBanner:wkBanner,hyIds:hyIds,pywCard:pywCard,simBudgets:simBudgets,simParse:simParse,simCard:simCard,simTick:simTick,chkCard:chkCard,bakBanner:bakBanner,kalBanner:kalBanner,kalRow:kalRow,kalGoals:kalGoals,helpCard:helpCard,offBanner:offBanner,mmss:mmss,fsGet:fsGet,pushPrefs:pushPrefs,pushCard:pushCard,groupCard:groupCard,nudgeBanner:nudgeBanner,boardToday:boardToday,b64u:b64u,buildSummary:buildSummary,badgeList:badgeList,checkBadges:checkBadges,burnoutInfo:burnoutInfo,cardsDue:cardsDue,tr:tr,getLang:getLang,attemptOptions:attemptOptions,canTick:canTick,tmCheck:tmCheck,misDue:misDue,tmMs:tmMs,priorScore:priorScore,weak:weak,canStart:canStart,directOK:directOK,histA:histA,CAL:function(){return CAL;},SYLV:function(){return SYLVER;},icaiStart:icaiStart,applyRemote:applyRemote,applySyl:applySyl,sylDiff:sylDiff,weakChapters:weakChapters,weekText:weekText,icsText:icsText,streakDays:streakDays,normP:normP,onbDate:onbDate,tmSet:tmSet,cloud:cloud,SYL:SYL,S:function(){return S;},analyse:analyse,activeInfo:activeInfo,planInfo:planInfo,newProfile:newProfile,todayPlan:todayPlan,roadmap:roadmap,makeRevs:makeRevs,render:render,ui:ui,aIdx:aIdx,aLabel:aLabel,cur:cur,save:save};
 render();
 })();
 
