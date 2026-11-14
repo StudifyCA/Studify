@@ -1,7 +1,14 @@
 {
+  "id": "./",
   "name": "Studify CA",
   "short_name": "Studify CA",
   "description": "Study planner for the whole CA journey. Your playlist got the vibe. Studify gets the grades.",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -9,8 +16,23 @@
   "background_color": "#03093a",
   "theme_color": "#6366f1",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
