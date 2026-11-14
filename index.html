@@ -312,6 +312,40 @@ function tmGet(){try{return JSON.parse(localStorage.getItem(TMK)||'null');}catch
 function tmSet(v){try{if(v)localStorage.setItem(TMK,JSON.stringify(v));else localStorage.removeItem(TMK);}catch(e){}}
 function p2(n){return (n<10?'0':'')+n;}
 function tmMs(t){return (t.acc||0)+(t.t0?Date.now()-t.t0:0);}
+var TOK='ca_studyos_tmopts',TRK='ca_studyos_trev';
+function tmOpts(){var o=null;try{o=JSON.parse(localStorage.getItem(TOK)||'null');}catch(e){}o=o||{};return {strict:o.strict===true,brk:o.brk!==false,every:[30,45,60,90].indexOf(Number(o.every))>=0?Number(o.every):60};}
+function tmOptSave(o){try{localStorage.setItem(TOK,JSON.stringify(o));}catch(e){}}
+function tmRev(){try{return Number(localStorage.getItem(TRK))||0;}catch(e){return 0;}}
+function tmSetRev(r){try{localStorage.setItem(TRK,String(r));}catch(e){}}
+var tmPushT=null;
+function tmPush(){
+  if(!cloud.client||!cloud.user)return;
+  var rev=Math.max(Date.now(),tmRev()+1);tmSetRev(rev);
+  var t=tmGet(),st=null;
+  if(t){st={sid:t.sid||'',pid:t.pid,k:t.k,ch:t.ch||'',t0:t.t0||0,acc:Math.round(t.acc||0),paused:!!t.paused,manual:!!t.manual,rest:t.rest||0,brk:t.brk||0,broke:t.broke||0};}
+  var o=tmOpts();
+  clearTimeout(tmPushT);
+  tmPushT=setTimeout(function(){rpc('timer_put',{p_state:st,p_rev:rev,p_every:o.brk?o.every:0}).catch(function(){});},150);
+}
+function tmSave(v){tmSet(v);tmPush();}
+async function tmPull(){
+  if(!cloud.client||!cloud.user)return;
+  var r=null;try{r=await rpc('timer_get',{});}catch(e){return;}
+  if(!r||typeof r.rev!=='number'||r.rev<=tmRev())return;
+  var cur0=tmGet(),before=JSON.stringify(cur0),nt=r.state&&typeof r.state==='object'?r.state:null;
+  if(nt){
+    var pr=null;S.profiles.forEach(function(p){if(p.id===nt.pid)pr=p;});
+    if(!pr){var cp=cur();if(cp)nt.pid=cp.id;}
+    if(!nt.sid)nt.sid='x'+r.rev;
+  }
+  tmSetRev(r.rev);
+  if(JSON.stringify(nt)===before)return;
+  tmSet(nt);
+  if(nt&&!cur0)toast('Your timer is running (started on another device)');
+  if(!nt&&cur0)toast('Timer was stopped on another device');
+  if(ui.modal&&ui.modal.type==='session'&&ui.modal.timer)return;
+  renderKeep();
+}
 function tmText(t){var s=Math.max(0,Math.floor(tmMs(t)/1000));return p2(Math.floor(s/3600))+':'+p2(Math.floor(s/60)%60)+':'+p2(s%60);}
 function streakDays(P){
   var t=today(),days={};P.sessions.forEach(function(s){days[s.date]=(days[s.date]||0)+s.min;});
@@ -1653,13 +1687,49 @@ function icaiCard(P,X){
   if(e.result)h+='<div class="mut" style="margin-top:4px">Result: '+esc(e.result)+'</div>';
   return h+'<div class="mut" style="margin-top:6px">Always confirm on icai.org before acting.</div></div>';
 }
+function tmBar(){
+  var t=tmGet();if(!t)return '';
+  if(t.rest){
+    var left=Math.max(0,Math.ceil((t.rest-Date.now())/1000));
+    return '<div class="card" style="border-color:var(--ac)"><h3>\ud83d\udc40 Eye rest and water \ud83d\udca7</h3><div>Close your eyes or look far away for 2 minutes, and drink some water. Your timer is paused and continues by itself.</div><div style="font-size:28px;margin:6px 0;font-variant-numeric:tabular-nums" id="tm-rest">'+p2(Math.floor(left/60))+':'+p2(left%60)+'</div><button class="btn" data-act="tmresume">Back to studying now</button></div>';
+  }
+  if(t.prompt){
+    return '<div class="card" style="border-color:var(--ac)"><h3>Time for a short break</h3><div>You have studied for '+Math.floor(tmMs(t)/60000)+' minutes. Take 2 minutes: rest your eyes \ud83d\udc40 and drink some water \ud83d\udca7.</div><div class="row" style="margin-top:8px"><button class="btn" data-act="brkstart">Start 2-minute break</button><button class="btn sec" data-act="brkskip">Skip</button></div></div>';
+  }
+  return '';
+}
+function timerOptsCard(){
+  var o=tmOpts();
+  var ev=[30,45,60,90].map(function(m){return '<option value="'+m+'"'+(m===o.every?' selected':'')+'>'+m+' min</option>';}).join('');
+  return '<div class="card"><h3>Study timer</h3>'+
+    '<label style="color:var(--tx);display:flex;gap:6px;align-items:center"><input type="checkbox" data-chg="tmopt" data-o="brk"'+(o.brk?' checked':'')+'> Break reminder (2 min eye rest and water)</label>'+
+    '<div class="row" style="margin:6px 0 0 24px;align-items:center"><span class="mut">Remind me every</span><select data-chg="tmopt" data-o="every">'+ev+'</select><span class="mut">of study</span></div>'+
+    '<div class="mut" style="margin:4px 0 8px 24px">Shows on screen, and as a notification if the app is closed (turn on Notifications above). You can tap Skip any time.</div>'+
+    '<label style="color:var(--tx);display:flex;gap:6px;align-items:center"><input type="checkbox" data-chg="tmopt" data-o="strict"'+(o.strict?' checked':'')+'> Strict focus (pause the timer if I leave the app)</label>'+
+    '<div class="mut" style="margin:4px 0 0 24px">Off by default. The timer keeps running when the screen is off or you use another app. The app cannot see which other apps or sites you use.</div></div>';
+}
+function tmTick(){
+  var t=tmGet();if(!t)return;
+  var now=Date.now();
+  if(t.rest){
+    var left=Math.ceil((t.rest-now)/1000);
+    if(left<=0){t.t0=now;t.paused=false;delete t.manual;delete t.rest;tmSave(t);try{if(navigator.vibrate)navigator.vibrate([300,150,300]);}catch(e){}toast('Break over. Timer is running again.');renderKeep();return;}
+    var el=document.getElementById('tm-rest');if(el)el.textContent=p2(Math.floor(left/60))+':'+p2(left%60);
+    return;
+  }
+  var o=tmOpts();
+  if(t.t0&&o.brk&&!t.prompt){
+    var due=Math.floor(tmMs(t)/(o.every*60000));
+    if(due>=1&&due>(t.brk||0)){t.prompt=due;tmSet(t);try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}renderKeep();}
+  }
+}
 function timerCard(P,X){
   var t=tmGet();
   if(t&&t.pid===P.id){
     var chn='';if(t.ch){var cc=getCh(P,t.k,t.ch);if(cc)chn=lblOf(cc);}
     var lk=(P.links||[]).filter(function(x){return x.k===t.k;}).slice(0,3).map(function(x){return '<a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.title)+'</a>';}).join(' \u2022 ');
-    var fb=t.paused?'<div class="warnbox" style="margin-bottom:8px"><b>Focus broken.</b> You left the app, so the timer is paused. Tap Resume when you are back to studying.</div>':'';
-    return '<div class="card">'+fb+'<div class="row sp"><div><b>Studying: '+esc(pfull(t.k))+'</b><div class="mut">'+esc(chn)+'</div></div><div id="tm-el" style="font-size:26px;font-variant-numeric:tabular-nums">'+tmText(t)+'</div></div><div class="row" style="margin-top:8px">'+(t.paused?'<button class="btn" data-act="tmresume">Resume</button>':'')+'<button class="btn" data-act="tmstop">Stop and log</button><button class="btn sec sm" data-act="tmcancel">Discard</button></div>'+(lk?'<div class="mut" style="margin-top:8px">Your material: '+lk+'</div>':'')+'</div>';
+    var fb=t.paused&&!t.manual?'<div class="warnbox" style="margin-bottom:8px"><b>Focus broken.</b> You left the app, so the timer is paused (Strict focus is on). Tap Resume when you are back to studying.</div>':(t.paused?'<div class="mut" style="margin-bottom:8px">'+(t.rest?'On a break. The timer continues by itself.':'Paused. Tap Resume when you are ready.')+'</div>':'');
+    return '<div class="card">'+fb+'<div class="row sp"><div><b>Studying: '+esc(pfull(t.k))+'</b><div class="mut">'+esc(chn)+'</div></div><div id="tm-el" style="font-size:26px;font-variant-numeric:tabular-nums">'+tmText(t)+'</div></div><div class="row" style="margin-top:8px">'+(t.paused?'<button class="btn" data-act="tmresume">Resume</button>':'<button class="btn sec" data-act="tmpause">Pause</button>')+'<button class="btn" data-act="tmstop">Stop and log</button><button class="btn sec sm" data-act="tmcancel">Discard</button></div>'+(lk?'<div class="mut" style="margin-top:8px">Your material: '+lk+'</div>':'')+(cloud.user?'<div class="mut" style="margin-top:6px">Synced: this timer also shows on your other devices.</div>':'')+'</div>';
   }
   if(!X.study.length)return '';
   ui.tm=ui.tm||{};var k=ui.tm.k&&X.study.indexOf(ui.tm.k)>=0?ui.tm.k:X.study[0];ui.tm.k=k;
@@ -2433,7 +2503,7 @@ function viewSettings(c){
   html+='<div class="card"><h3>Danger zone</h3><button class="btn danger" data-act="delprof">Delete this profile</button></div>';
   var secGen=html;html='';
   html+='<div class="card"><h3>Daily reminder</h3><div class="mut">Adds a repeating study reminder to your phone calendar. Open the downloaded file and choose your calendar app.</div><div class="row" style="margin-top:8px">'+timeSel('rm-time','06:30')+'<button class="btn sec" data-act="icsdl">Download reminder</button></div></div>';
-  html+=instCard()+pushCard();
+  html+=instCard()+pushCard()+timerOptsCard();
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
@@ -2486,7 +2556,7 @@ function render(){
   else if(ui.tab==='ai')body=viewAI(c);
   else body=viewSettings(c);
   var y=window.scrollY;
-  app.innerHTML=head(P)+body+nav()+modalHtml(c);
+  app.innerHTML=head(P)+tmBar()+body+nav()+modalHtml(c);
   applyLang(app);
   try{window.scrollTo(0,y);}catch(e){}
 }
@@ -2530,10 +2600,13 @@ function act(a,d){
   if(a==='skipsyl'){P.sylVer=SYLVER;commit();return;}
   if(a==='useicai'){var ic=icaiStart(P.level,P.groups,aLabel(aIdx(parse(P.examDate))));if(ic){P.examDate=ic;P.dateAuto=true;commit();toast('ICAI date set');}return;}
   if(a==='tipsoff'){S.tipsOff=true;save();render();return;}
-  if(a==='tmstart'){var tk=readv('tm-k'),tc=readv('tm-ch');if(!tk)return;tmSet({pid:P.id,k:tk,ch:tc,t0:Date.now(),acc:0,broke:0});try{if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(function(){});}catch(e){}render();return;}
-  if(a==='tmresume'){var t9=tmGet();if(t9){t9.t0=Date.now();t9.paused=false;tmSet(t9);render();}return;}
-  if(a==='tmcancel'){if(confirm('Discard this timer?')){tmSet(null);render();}return;}
-  if(a==='tmstop'){var tt=tmGet();if(!tt)return;var mins=Math.max(5,Math.round(tmMs(tt)/60000));tmSet(null);ui.modal={type:'session',k:tt.k,min:mins,ch:tt.ch||'',timer:true,broke:tt.broke||0};render();return;}
+  if(a==='tmstart'){var tk=readv('tm-k'),tc=readv('tm-ch');if(!tk)return;tmSave({sid:String(Date.now())+Math.random().toString(36).slice(2,6),pid:P.id,k:tk,ch:tc,t0:Date.now(),acc:0,broke:0,brk:0});try{if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(function(){});}catch(e){}render();return;}
+  if(a==='tmresume'){var t9=tmGet();if(t9){t9.t0=Date.now();t9.paused=false;delete t9.manual;delete t9.rest;tmSave(t9);render();}return;}
+  if(a==='tmpause'){var tp=tmGet();if(tp&&tp.t0){tp.acc=(tp.acc||0)+Math.max(0,Date.now()-tp.t0);tp.t0=0;tp.paused=true;tp.manual=true;tmSave(tp);render();}return;}
+  if(a==='brkstart'){var tb=tmGet();if(tb){tb.brk=Math.max(tb.brk||0,tb.prompt||1);delete tb.prompt;if(tb.t0){tb.acc=(tb.acc||0)+Math.max(0,Date.now()-tb.t0);tb.t0=0;}tb.paused=true;tb.manual=true;tb.rest=Date.now()+120000;tmSave(tb);render();}return;}
+  if(a==='brkskip'){var ts=tmGet();if(ts){ts.brk=Math.max(ts.brk||0,ts.prompt||1);delete ts.prompt;tmSave(ts);render();}return;}
+  if(a==='tmcancel'){if(confirm('Discard this timer?')){tmSave(null);render();}return;}
+  if(a==='tmstop'){var tt=tmGet();if(!tt)return;var mins=Math.max(5,Math.round(tmMs(tt)/60000));tmSave(null);ui.modal={type:'session',k:tt.k,min:mins,ch:tt.ch||'',timer:true,broke:tt.broke||0};render();return;}
   if(a==='icsdl'){
     var txt=icsText(timeVal('rm-time')||'06:30',location.href.split('#')[0]);
     try{var bl=new Blob([txt],{type:'text/calendar'}),u=URL.createObjectURL(bl),lk=document.createElement('a');lk.href=u;lk.download='studyos-reminder.ics';document.body.appendChild(lk);lk.click();lk.remove();setTimeout(function(){URL.revokeObjectURL(u);},2000);toast('Reminder file downloaded. Open it to add to your calendar.');}catch(e){toast('Could not create the file');}
@@ -2549,7 +2622,7 @@ function act(a,d){
   if(a==='compact'){S.compact=!S.compact;save();render();window.scrollTo(0,0);return;}
   if(a==='focusstart'){
     if(tmGet()){toast('A timer is already running');return;}
-    tmSet({pid:P.id,k:d.k,ch:d.c||'',t0:Date.now(),acc:0,broke:0});try{if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(function(){});}catch(e){}
+    tmSave({sid:String(Date.now())+Math.random().toString(36).slice(2,6),pid:P.id,k:d.k,ch:d.c||'',t0:Date.now(),acc:0,broke:0,brk:0});try{if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(function(){});}catch(e){}
     render();window.scrollTo(0,0);return;
   }
   if(a==='wkopen'){P.wkSeen=iso(weekStart(today()));ui.tab='log';commit();window.scrollTo(0,0);return;}
@@ -3105,6 +3178,7 @@ function chg(k,d,el){
   var P=cur();
   if(k==='prof'){S.active=el.value;ui.res=null;ui.modal=null;save();render();return;}
   if(k==='aimode'){var a9=ui.ai;a9.q=readv('ai-q');a9.mat=readv('ai-mat')||a9.mat;var cx9=document.getElementById('ai-ctx');if(cx9)a9.ctx=cx9.checked;a9.mode=el.value;render();return;}
+  if(k==='tmopt'){var oo=tmOpts();if(d.o==='every')oo.every=parseInt(el.value,10)||60;else oo[d.o]=el.checked;tmOptSave(oo);if(tmGet())tmPush();render();return;}
   if(k==='tmpaper'){ui.tm=ui.tm||{};ui.tm.k=el.value;render();return;}
   if(k==='onattempt'){if(ui.onb){ui.onb.idx=Number(el.value);onbDate(ui.onb);render();}return;}
   if(k==='residx'){if(ui.res){ui.res.idx=Number(el.value);render();}return;}
@@ -3170,19 +3244,23 @@ document.addEventListener('click',function(e){
 
 function tmCheck(){
   var t=tmGet();if(!t)return;
-  if(document.hidden){if(t.t0&&!t.hid){t.hid=Date.now();tmSet(t);}return;}
+  var strict=tmOpts().strict;
+  if(document.hidden){if(strict&&t.t0&&!t.hid){t.hid=Date.now();tmSet(t);}return;}
+  try{if(navigator.wakeLock&&t.t0)navigator.wakeLock.request('screen').catch(function(){});}catch(e){}
   if(t.hid){
     var away=Date.now()-t.hid;
-    if(away<10000){delete t.hid;tmSet(t);}
-    else{t.acc=(t.acc||0)+Math.max(0,t.hid-t.t0);t.t0=0;t.paused=true;t.broke=(t.broke||0)+1;delete t.hid;tmSet(t);render();}
+    if(!strict||away<10000){delete t.hid;tmSet(t);}
+    else{t.acc=(t.acc||0)+Math.max(0,t.hid-t.t0);t.t0=0;t.paused=true;delete t.manual;t.broke=(t.broke||0)+1;delete t.hid;tmSave(t);render();}
   }
+  tmTick();tmPull();
 }
 document.addEventListener('visibilitychange',tmCheck);
-window.addEventListener('pagehide',function(){var t=tmGet();if(t&&t.t0&&!t.hid){t.hid=Date.now();tmSet(t);}});
+window.addEventListener('pagehide',function(){var t=tmGet();if(tmOpts().strict&&t&&t.t0&&!t.hid){t.hid=Date.now();tmSet(t);}});
 tmCheck();
 initCloud();
 setInterval(function(){try{var ae=document.activeElement,tg=ae&&ae.tagName;if(ui.tab==='partner'&&cloud.user&&!document.hidden&&!ui.modal&&!/INPUT|TEXTAREA|SELECT/.test(tg||''))refreshPartner();}catch(e){}},60000);
-setInterval(function(){var e=document.getElementById('tm-el'),t=tmGet();if(e&&t)e.textContent=tmText(t);},500);
+setInterval(function(){var e=document.getElementById('tm-el'),t=tmGet();if(e&&t)e.textContent=tmText(t);try{tmTick();}catch(x){}},500);
+setInterval(function(){try{if(!document.hidden)tmPull();}catch(x){}},8000);
 setInterval(simTick,1000);
 window.addEventListener('beforeinstallprompt',function(e){try{e.preventDefault();}catch(x){}ui.inst=e;renderKeep();});
 window.addEventListener('appinstalled',function(){ui.inst=null;});
@@ -3193,7 +3271,7 @@ window.addEventListener('online',function(){
 });
 window.addEventListener('error',function(e){logErr((e&&e.message)||'error');});
 window.addEventListener('unhandledrejection',function(e){logErr((e&&e.reason&&e.reason.message)||'promise');});
-window.__so={refreshPartner:refreshPartner,applyRemote:applyRemote,act:act,starter:starter,newsFeed:newsFeed,feedOk:feedOk,newsList:newsList,newsCard:newsCard,newsOk:newsOk,pywParse:pywParse,pywFilesOk:pywFilesOk,regOk:regOk,regRegion:regRegion,pwAll:pwAll,bulkParse:bulkParse,bulkPrompt:bulkPrompt,bulkCard:bulkCard,fbAdminCard:fbAdminCard,privacyCard:privacyCard,libCard:libCard,libFilesOk:libFilesOk,loadPdfs:loadPdfs,idCard:idCard,adminHub:adminHub,viewAI:viewAI,focus3:focus3,focusCard:focusCard,weekFix:weekFix,weekPlus:weekPlus,wkBanner:wkBanner,hyIds:hyIds,pywCard:pywCard,simBudgets:simBudgets,simParse:simParse,simCard:simCard,simTick:simTick,chkCard:chkCard,bakBanner:bakBanner,kalBanner:kalBanner,kalRow:kalRow,kalGoals:kalGoals,helpCard:helpCard,offBanner:offBanner,mmss:mmss,fsGet:fsGet,pushPrefs:pushPrefs,pushCard:pushCard,groupCard:groupCard,nudgeBanner:nudgeBanner,boardToday:boardToday,b64u:b64u,buildSummary:buildSummary,badgeList:badgeList,checkBadges:checkBadges,burnoutInfo:burnoutInfo,cardsDue:cardsDue,tr:tr,getLang:getLang,attemptOptions:attemptOptions,canTick:canTick,tmCheck:tmCheck,misDue:misDue,tmMs:tmMs,priorScore:priorScore,weak:weak,canStart:canStart,directOK:directOK,histA:histA,CAL:function(){return CAL;},SYLV:function(){return SYLVER;},icaiStart:icaiStart,applyRemote:applyRemote,applySyl:applySyl,sylDiff:sylDiff,weakChapters:weakChapters,weekText:weekText,icsText:icsText,streakDays:streakDays,normP:normP,onbDate:onbDate,tmSet:tmSet,cloud:cloud,SYL:SYL,S:function(){return S;},analyse:analyse,activeInfo:activeInfo,planInfo:planInfo,newProfile:newProfile,todayPlan:todayPlan,roadmap:roadmap,makeRevs:makeRevs,render:render,ui:ui,aIdx:aIdx,aLabel:aLabel,cur:cur,save:save};
+window.__so={tm:{get:tmGet,tick:tmTick,pull:tmPull,opts:tmOpts,check:tmCheck,push:tmPush},refreshPartner:refreshPartner,applyRemote:applyRemote,act:act,starter:starter,newsFeed:newsFeed,feedOk:feedOk,newsList:newsList,newsCard:newsCard,newsOk:newsOk,pywParse:pywParse,pywFilesOk:pywFilesOk,regOk:regOk,regRegion:regRegion,pwAll:pwAll,bulkParse:bulkParse,bulkPrompt:bulkPrompt,bulkCard:bulkCard,fbAdminCard:fbAdminCard,privacyCard:privacyCard,libCard:libCard,libFilesOk:libFilesOk,loadPdfs:loadPdfs,idCard:idCard,adminHub:adminHub,viewAI:viewAI,focus3:focus3,focusCard:focusCard,weekFix:weekFix,weekPlus:weekPlus,wkBanner:wkBanner,hyIds:hyIds,pywCard:pywCard,simBudgets:simBudgets,simParse:simParse,simCard:simCard,simTick:simTick,chkCard:chkCard,bakBanner:bakBanner,kalBanner:kalBanner,kalRow:kalRow,kalGoals:kalGoals,helpCard:helpCard,offBanner:offBanner,mmss:mmss,fsGet:fsGet,pushPrefs:pushPrefs,pushCard:pushCard,groupCard:groupCard,nudgeBanner:nudgeBanner,boardToday:boardToday,b64u:b64u,buildSummary:buildSummary,badgeList:badgeList,checkBadges:checkBadges,burnoutInfo:burnoutInfo,cardsDue:cardsDue,tr:tr,getLang:getLang,attemptOptions:attemptOptions,canTick:canTick,tmCheck:tmCheck,misDue:misDue,tmMs:tmMs,priorScore:priorScore,weak:weak,canStart:canStart,directOK:directOK,histA:histA,CAL:function(){return CAL;},SYLV:function(){return SYLVER;},icaiStart:icaiStart,applyRemote:applyRemote,applySyl:applySyl,sylDiff:sylDiff,weakChapters:weakChapters,weekText:weekText,icsText:icsText,streakDays:streakDays,normP:normP,onbDate:onbDate,tmSet:tmSet,cloud:cloud,SYL:SYL,S:function(){return S;},analyse:analyse,activeInfo:activeInfo,planInfo:planInfo,newProfile:newProfile,todayPlan:todayPlan,roadmap:roadmap,makeRevs:makeRevs,render:render,ui:ui,aIdx:aIdx,aLabel:aLabel,cur:cur,save:save};
 render();
 })();
 
