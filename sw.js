@@ -1,6 +1,6 @@
 // Minimal service worker: makes the app installable and lets it open offline.
 // Network first (you always get the newest app when online), cache as backup.
-var CACHE='studyos-v5';
+var CACHE='studyos-v6';
 self.addEventListener('install',function(e){self.skipWaiting();});
 self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==CACHE;}).map(function(k){return caches.delete(k);}));}).then(function(){return self.clients.claim();}));});
 self.addEventListener('fetch',function(e){
@@ -12,10 +12,11 @@ self.addEventListener('fetch',function(e){
   }).catch(function(){return caches.match(r).then(function(m){return m||caches.match('./');});}));
 });
 
-// Push notifications (daily reminder, partner nudges)
+// Push notifications (daily reminder, partner nudges, break reminders)
 self.addEventListener('push',function(e){
   var d={};try{d=e.data?e.data.json():{};}catch(x){}
-  e.waitUntil(self.registration.showNotification(d.title||'CA StudyOS',{body:d.body||'',icon:'icon-192.png',badge:'icon-192.png',data:{url:d.url||'./'},tag:'studyos'}));
+  var tag=d.tag||'studyos';
+  e.waitUntil(self.registration.showNotification(d.title||'Studify CA',{body:d.body||'',icon:'icon-192.png',badge:'badge-96.png',data:{url:d.url||'./'},tag:tag,renotify:true,vibrate:[200,100,200],requireInteraction:tag==='break'}));
 });
 self.addEventListener('notificationclick',function(e){
   e.notification.close();
