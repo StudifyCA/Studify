@@ -67,6 +67,45 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--bd);vertical
 .ch{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0;border-top:1px solid var(--bd)}
 .ch .nm{flex:1;min-width:120px}
 .warnbox{background:#d9770618;border:1px solid var(--warn);border-radius:10px;padding:10px;font-size:13px;margin-bottom:12px}
+
+body.gc-open{overflow:hidden}
+.gchat{position:fixed;left:0;right:0;top:0;height:100%;z-index:20;display:flex;flex-direction:column;background:var(--bg)}
+.gch{display:flex;align-items:center;gap:8px;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top,0px));background:#4f46e5;color:#fff;flex:0 0 auto}
+.gcb{background:none;border:0;color:#fff;font-size:22px;padding:6px 10px;cursor:pointer;line-height:1}
+.gcht{display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer}
+.gchn{min-width:0}.gchn b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gchn .mut{color:rgba(255,255,255,.82);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gav{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-weight:700;flex:0 0 auto}
+.gcm{flex:1 1 auto;min-height:0;overflow-y:auto;padding:10px 10px 6px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:var(--bg)}
+.gcw{display:flex;margin-top:2px}.gcw.f{margin-top:8px}.gcw.me{justify-content:flex-end}
+.gcbub{max-width:82%;padding:6px 9px 4px;border-radius:12px;background:var(--card);border:1px solid var(--bd);word-break:break-word;overflow-wrap:anywhere}
+.gcw.me .gcbub{background:#4f46e5;color:#fff;border-color:#4f46e5;border-bottom-right-radius:4px}
+.gcw:not(.me).f .gcbub{border-top-left-radius:4px}
+.gct{white-space:pre-wrap}.gcts{font-size:10px;opacity:.65;text-align:right;margin-top:1px}
+.gcw.me a{color:#fff;text-decoration:underline}
+.gcn{font-size:12px;font-weight:700;margin-bottom:1px}
+.gcr{display:inline-block;font-size:10px;font-weight:700;padding:0 6px;border-radius:99px;vertical-align:middle;margin-left:3px;line-height:16px}
+.gcr.o{background:#fef3c7;color:#92400e}.gcr.a{background:var(--ac2);color:var(--ac)}.gcr.c{background:var(--bd);color:var(--mut)}
+.gcd{text-align:center;margin:12px 0 4px}.gcd span{background:var(--card);border:1px solid var(--bd);color:var(--mut);font-size:12px;padding:2px 10px;border-radius:99px}
+.gce{text-align:center;color:var(--mut);margin:40px 10px}
+.gci{flex:0 0 auto;display:flex;gap:8px;align-items:flex-end;padding:8px 10px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--bd)}
+.gci textarea{flex:1;resize:none;border-radius:20px;padding:9px 14px;max-height:120px;line-height:1.3;min-height:40px;box-sizing:border-box}
+.gcs{width:42px;height:42px;border-radius:50%;border:0;background:#4f46e5;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
+.gcro{width:100%;text-align:center;color:var(--mut);padding:8px;font-size:14px}
+.gcdel{display:block;margin-top:4px;border:0;background:var(--bad);color:#fff;border-radius:8px;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer}
+.gcinfo{position:absolute;left:0;right:0;top:0;bottom:0;background:var(--bg);z-index:3;overflow-y:auto}
+.gcinfo[hidden]{display:none}
+.gcin{padding:12px;max-width:640px;margin:0 auto;box-sizing:border-box}
+.gsec{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;margin-bottom:12px}
+.gci0{text-align:center}.gci0 .gav{margin:0 auto}.gcin-n{font-size:20px;font-weight:700;margin-top:8px}
+.gmr{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--bd);flex-wrap:wrap}
+.gmn{flex:1;min-width:120px}.gma{display:flex;gap:6px;flex-wrap:wrap}
+.gl{display:flex;gap:12px;align-items:center;padding:10px 2px;border-top:1px solid var(--bd);cursor:pointer}
+.glm{flex:1;min-width:0}.glt,.glb{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.gpv{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.gub{background:#4f46e5;color:#fff;border-radius:99px;font-size:12px;font-weight:700;min-width:20px;height:20px;line-height:20px;text-align:center;padding:0 6px;flex:0 0 auto}
+nav button{position:relative}.ndot{position:absolute;top:6px;left:calc(50% + 10px);width:10px;height:10px;border-radius:50%;background:#ef4444;border:2px solid var(--card)}
+body.gc-open .toast{bottom:auto;top:70px}
 </style>
 </head>
 <body>
@@ -919,7 +958,7 @@ var navHid=false,navY=0;
   else if(d>12){if(!navHid){navHid=true;if(n)n.classList.add('nvh');}navY=y;}
 });},{passive:true});})();
 function nav(){
-  return '<nav'+(navHid?' class="nvh"':'')+'>'+tabs.map(function(t){return '<button class="'+(ui.tab===t[0]?'on':'')+'" data-act="tab" data-t="'+t[0]+'"><b>'+t[1]+'</b>'+t[2]+'</button>';}).join('')+'</nav>';
+  return '<nav'+(navHid?' class="nvh"':'')+'>'+tabs.map(function(t){return '<button class="'+(ui.tab===t[0]?'on':'')+'" data-act="tab" data-t="'+t[0]+'"><b>'+t[1]+'</b>'+t[2]+(t[0]==='partner'&&gcUnread()>0?'<i class="ndot"></i>':'')+'</button>';}).join('')+'</nav>';
 }
 function nextAttemptOptions(sel){
   var base=aIdx(today()),o='';
@@ -1321,37 +1360,209 @@ function boardToday(r){
   if(!r||r.today==null||!r.updated)return false;
   var u=new Date(r.updated);return iso(new Date(u.getFullYear(),u.getMonth(),u.getDate(),12))===iso(today())&&Number(r.today)>=30;
 }
+/* ---------- WhatsApp-style group chat ---------- */
+var GC={id:null,msgs:[],sel:'',info:false,busy:false,t:null,draft:{},members:null,board:null,sig:'',err:'',barSig:''};
+var MON3=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function gcColor(s){var h=0;s=String(s||'');for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;var c=['#e11d48','#d97706','#16a34a','#0891b2','#7c3aed','#db2777','#2563eb','#ea580c'];return c[Math.abs(h)%c.length];}
+function gcAv(name,sz){var ch=Array.from(String(name||'?').trim())[0]||'?';return '<span class="gav" style="width:'+sz+'px;height:'+sz+'px;font-size:'+Math.round(sz*0.44)+'px;background:'+gcColor(name)+'">'+esc(ch.toUpperCase())+'</span>';}
+function gcGroup(id){var r=null;(cloud.groups||[]).forEach(function(g){if(g.id===id)r=g;});return r;}
+function gcUnread(){var n=0;(cloud.groups||[]).forEach(function(g){n+=Number(g.unread)||0;});return n;}
+function gcClock(t){var d=new Date(t);if(isNaN(d))return '';var h=d.getHours(),m=d.getMinutes();return (h%12||12)+':'+(m<10?'0':'')+m+' '+(h>=12?'pm':'am');}
+function gcDay(t){var d=new Date(t);if(isNaN(d))return '';var n=new Date(),a=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime(),b=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime(),df=Math.round((b-a)/86400000);if(df===0)return 'Today';if(df===1)return 'Yesterday';return d.getDate()+' '+MON3[d.getMonth()]+' '+d.getFullYear();}
+function gcListTime(t){var d=new Date(t);if(isNaN(d))return '';var l=gcDay(t);return l==='Today'?gcClock(t):(l==='Yesterday'?'Yesterday':d.getDate()+'/'+(d.getMonth()+1)+'/'+String(d.getFullYear()).slice(2));}
+function gcText(s){return esc(s).replace(/https:\/\/[^\s<]+/g,function(u){return '<a href="'+u+'" target="_blank" rel="noopener noreferrer" data-act="gcnoop">'+u+'</a>';});}
+function gcRole(r){return r==='owner'?'<span class="gcr o">Owner</span>':(r==='admin'?'<span class="gcr a">Admin</span>':'');}
+function gcSub(g){return g.members+' member'+(g.members===1?'':'s')+(g.admins_only?' • only admins can send':'');}
 function groupCard(){
   if(!cloud.user)return '';
-  var h='<div class="card"><h3>Study groups</h3><div class="mut">Members of a group see only your name, last-7-day hours, streak and whether you studied today. Nothing else. No member limit. You can be in 3 groups.</div>';
-  (cloud.ginv||[]).forEach(function(v){h+='<div class="blk" style="margin-top:8px"><div><b>'+esc(v.by)+'</b> invited you to <b>'+esc(v.group)+'</b></div><div class="row" style="margin-top:6px"><button class="btn sm" data-act="ginvok" data-id="'+esc(v.id)+'">Join</button><button class="btn sec sm" data-act="ginvno" data-id="'+esc(v.id)+'">No thanks</button></div></div>';});
-  h+='<div class="row" style="margin-top:8px"><input type="text" id="gp-name" maxlength="40" placeholder="New group name" style="flex:1;min-width:160px"><button class="btn" data-act="gpcreate">Create group</button></div>';
-  h+='<div class="row" style="margin-top:6px"><input type="text" id="gp-code" maxlength="6" placeholder="Group code" style="flex:1;min-width:160px;text-transform:uppercase"><button class="btn sec" data-act="gpjoin">Join group</button></div>';
-  (cloud.groups||[]).forEach(function(g){
-    h+='<div style="border-top:1px solid var(--bd);margin-top:12px;padding-top:8px"><div class="row sp"><div><b>'+esc(g.name)+'</b><div class="mut">Code '+esc(g.code)+' • '+esc(g.members)+' members</div></div><span><button class="btn sec sm" data-act="gpcopy" data-code="'+esc(g.code)+'">Copy code</button> <button class="btn danger sm" data-act="gpleave" data-id="'+esc(g.id)+'">Leave</button></span></div>';
-    var b=(cloud.gboards||{})[g.id];
-    if(!b)h+='<div class="mut">Loading…</div>';
-    else{h+='<div class="scroll"><table><tr><th>Name</th><th>7 days</th><th>Streak</th><th>Today</th></tr>';
-      b.forEach(function(r){h+='<tr><td>'+esc(r.name)+(r.me?' (you)':'')+'</td><td>'+(r.last7==null?'-':esc(r.last7)+' h')+'</td><td>'+(r.streak==null?'-':esc(r.streak))+'</td><td>'+(boardToday(r)?'✓':'-')+'</td></tr>';});
-      h+='</table></div>';}
-    if(g.members>100)h+='<div class="mut">Showing the top 100 of '+esc(g.members)+' members.</div>';
-    h+='<div class="row" style="margin-top:8px"><input type="text" id="gi-'+esc(g.id)+'" maxlength="200" placeholder="Invite by email or ICAI number" style="flex:1;min-width:170px"><button class="btn sec sm" data-act="ginvite" data-id="'+esc(g.id)+'">Invite</button></div>';
-    h+=groupExtraHtml(g);
-    h+='</div>';
+  var h='';
+  (cloud.ginv||[]).forEach(function(v){h+='<div class="card" style="border-color:var(--ac)"><div><b>'+esc(v.by)+'</b> invited you to <b>'+esc(v.group)+'</b></div><div class="row" style="margin-top:6px"><button class="btn sm" data-act="ginvok" data-id="'+esc(v.id)+'">Join</button><button class="btn sec sm" data-act="ginvno" data-id="'+esc(v.id)+'">No thanks</button></div></div>';});
+  h+='<div class="card"><div class="row sp" style="margin-bottom:4px"><b style="font-size:17px">Group chats</b><span class="row" style="gap:6px"><button class="btn sm" data-act="gformtog" data-f="new">+ New group</button><button class="btn sec sm" data-act="gformtog" data-f="join">Join</button></span></div>';
+  if(ui.gform==='new')h+='<div class="row" style="margin:8px 0"><input type="text" id="gp-name" maxlength="40" placeholder="Group name" style="flex:1;min-width:150px"><button class="btn" data-act="gpcreate">Create</button></div><div class="mut">You become the admin of this group. You can make other admins later.</div>';
+  if(ui.gform==='join')h+='<div class="row" style="margin:8px 0"><input type="text" id="gp-code" maxlength="6" placeholder="Group code" style="flex:1;min-width:150px;text-transform:uppercase"><button class="btn" data-act="gpjoin">Join</button></div>';
+  var gs=cloud.groups||[];
+  if(!gs.length)h+='<div class="mut" style="padding:18px 0;text-align:center">No groups yet.<br>Tap <b>+ New group</b> to start one, or <b>Join</b> with a code.</div>';
+  gs.forEach(function(g){
+    var l=g.last,pv=l?(l.mine?'You: ':esc(l.by)+': ')+esc(l.text):'No messages yet';
+    h+='<div class="gl" data-act="gopen" data-id="'+esc(g.id)+'">'+gcAv(g.name,48)+'<div class="glm"><div class="glt"><b class="gpv">'+esc(g.name)+'</b><span class="mut" style="flex:0 0 auto">'+(l?esc(gcListTime(l.at)):'')+'</span></div><div class="glb"><span class="mut gpv">'+pv+'</span>'+(g.unread>0?'<span class="gub">'+(g.unread>=99?'99+':esc(g.unread))+'</span>':'')+'</div></div></div>';
   });
-  return h+'</div>';
+  h+='<div class="mut" style="margin-top:10px">Members see only your name, last-7-day hours, streak and whether you studied today. No member limit. You can be in 3 groups. The Studify CA owner is in every group.</div></div>';
+  return h;
 }
+function gcEl(){return document.getElementById('gchat');}
+function gcOpen(id){
+  var g=gcGroup(id);if(!g)return;
+  var old=gcEl();if(old)old.remove();
+  GC.id=id;GC.msgs=[];GC.sel='';GC.info=false;GC.members=null;GC.board=null;GC.sig='';GC.err='';GC.busy=false;
+  var el=document.createElement('div');el.id='gchat';el.className='gchat';document.body.appendChild(el);
+  document.body.classList.add('gc-open');
+  gcShell();gcFit();gcRender(true);gcFetch(true);
+  clearInterval(GC.t);GC.t=setInterval(function(){if(!document.hidden&&GC.id&&!GC.info)gcFetch(false);},4000);
+  try{history.pushState({gc:1},'');}catch(e){}
+}
+function gcShell(){
+  var el=gcEl(),g=gcGroup(GC.id);if(!el)return;if(!g){gcClose();return;}
+  el.innerHTML='<div class="gch"><button class="gcb" data-act="gcclose" aria-label="Back">←</button><div class="gcht" data-act="gcinfo">'+gcAv(g.name,38)+'<div class="gchn"><b id="gc-title">'+esc(g.name)+'</b><div class="mut" id="gc-sub">'+esc(gcSub(g))+'</div></div></div><button class="gcb" data-act="gcinfo" aria-label="Group info">⋮</button></div><div class="gcm" id="gc-msgs"></div><div class="gci" id="gc-bar"></div><div class="gcinfo" id="gc-info" hidden></div>';
+  GC.barSig='';gcBar();
+}
+function gcBar(){
+  var b=document.getElementById('gc-bar'),g=gcGroup(GC.id);if(!b||!g)return;
+  var can=!(g.admins_only&&g.role==='member');GC.barSig=(can?'1':'0');
+  if(!can){b.innerHTML='<div class="gcro">Only admins can send messages in this group</div>';return;}
+  b.innerHTML='<textarea id="gc-in" rows="1" maxlength="500" placeholder="Message" aria-label="Message"></textarea><button class="gcs" data-act="gcsend" aria-label="Send"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>';
+  var ta=document.getElementById('gc-in');ta.value=GC.draft[GC.id]||'';gcGrow(ta);
+}
+function gcGrow(ta){ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,120)+'px';}
+function gcFit(){
+  var el=gcEl();if(!el)return;var v=window.visualViewport,box=document.getElementById('gc-msgs');
+  var near=box?(box.scrollHeight-box.scrollTop-box.clientHeight<90):false;
+  if(v){el.style.height=v.height+'px';el.style.top=v.offsetTop+'px';}
+  if(box&&near)box.scrollTop=box.scrollHeight;
+}
+function gcRender(bottom){
+  var box=document.getElementById('gc-msgs');if(!box)return;
+  var near=box.scrollHeight-box.scrollTop-box.clientHeight<90,h='',pd='',pu='';
+  if(GC.err)h='<div class="gce">'+esc(GC.err)+'</div>';
+  else if(!GC.msgs.length)h='<div class="gce">No messages yet.<br>Say hi 👋</div>';
+  GC.msgs.forEach(function(m){
+    var dy=gcDay(m.at);
+    if(dy!==pd){h+='<div class="gcd"><span>'+esc(dy)+'</span></div>';pd=dy;pu='';}
+    var first=pu!==m.uid;pu=m.uid;
+    h+='<div class="gcw'+(m.mine?' me':'')+(first?' f':'')+'"><div class="gcbub" data-act="gcsel" data-id="'+esc(m.id)+'">'+
+      (!m.mine&&first?'<div class="gcn" style="color:'+gcColor(m.by)+'">'+esc(m.by)+' '+gcRole(m.role)+'</div>':'')+
+      '<div class="gct">'+gcText(m.text)+'</div><div class="gcts">'+(m.pending?'sending…':esc(gcClock(m.at)))+'</div>'+
+      (GC.sel===m.id&&m.can_delete&&!m.pending?'<button class="gcdel" data-act="pmdel" data-id="'+esc(m.id)+'">Delete message</button>':'')+'</div></div>';
+  });
+  box.innerHTML=h;
+  if(bottom||near)box.scrollTop=box.scrollHeight;
+}
+async function gcFetch(first){
+  var id=GC.id;if(!id||!cloud.client||GC.busy)return;
+  var m;
+  try{m=await rpc('group_chat',{p_group:id,p_limit:80});}
+  catch(e){if(GC.id===id&&first){GC.err=(e&&e.message)||'Could not load messages';GC.msgs=[];gcRender(true);}return;}
+  if(GC.id!==id||GC.busy)return;
+  GC.err='';m=Array.isArray(m)?m:[];
+  var sig=m.map(function(x){return x.id;}).join(',');
+  if(!first&&sig===GC.sig)return;
+  var fromOthers=!!(m.length&&sig!==GC.sig&&!m[m.length-1].mine);
+  GC.sig=sig;GC.msgs=m;gcRender(first);
+  var g=gcGroup(id);
+  if(g){g.unread=0;if(m.length){var z=m[m.length-1];g.last={text:z.text.slice(0,100),at:z.at,mine:z.mine,by:z.by};}}
+  if(first||fromOthers){try{rpc('mark_group_read',{p_group:id}).catch(function(){});}catch(e){}}
+}
+async function gcSend(){
+  var ta=document.getElementById('gc-in');if(!ta||GC.busy||!GC.id)return;
+  var b=ta.value.trim();if(!b)return;
+  var id=GC.id,tmp={id:'tmp'+Date.now(),uid:'me',by:'You',mine:true,text:b,at:new Date().toISOString(),pending:true,can_delete:false};
+  GC.busy=true;GC.msgs.push(tmp);ta.value='';GC.draft[id]='';gcGrow(ta);gcRender(true);
+  try{await rpc('post_message',{p_group:id,p_body:b});}
+  catch(e){GC.msgs=GC.msgs.filter(function(x){return x!==tmp;});gcRender(false);var t2=document.getElementById('gc-in');if(t2){t2.value=b;GC.draft[id]=b;gcGrow(t2);}toast((e&&e.message)?e.message:'Could not send');GC.busy=false;return;}
+  GC.busy=false;GC.sig='';await gcFetch(true);
+  var t3=document.getElementById('gc-in');if(t3&&GC.id===id)t3.focus();
+}
+function gcClose(){
+  clearInterval(GC.t);GC.t=null;
+  var ta=document.getElementById('gc-in');if(ta&&GC.id)GC.draft[GC.id]=ta.value;
+  var el=gcEl();if(el)el.remove();
+  document.body.classList.remove('gc-open');
+  GC.id=null;GC.info=false;GC.msgs=[];GC.sig='';GC.sel='';GC.busy=false;
+  try{renderKeep();}catch(e){}
+}
+function gcToggleInfo(){
+  var p=document.getElementById('gc-info');if(!p)return;
+  GC.info=!GC.info;p.hidden=!GC.info;
+  if(GC.info){p.scrollTop=0;gcInfoLoad();}else{GC.sel='';}
+}
+async function gcInfoLoad(){
+  var id=GC.id;if(!id)return;
+  gcInfoRender();
+  try{
+    var r=await Promise.all([rpc('group_members_list',{p_group:id}),rpc('group_board',{p_group:id}),rpc('group_extra',{p_group:id})]);
+    if(GC.id!==id)return;
+    GC.members=Array.isArray(r[0])?r[0]:[];GC.board=Array.isArray(r[1])?r[1]:null;cloud.gextra=cloud.gextra||{};cloud.gextra[id]=r[2];
+  }catch(e){toast((e&&e.message)?e.message:'Could not load group info');}
+  gcInfoRender();
+}
+function gcMemberRow(m,g){
+  var admin=g.role==='owner'||g.role==='admin',cre=g.role==='owner'||g.owner===true,act='';
+  if(!m.me&&m.role!=='owner'){
+    if(cre&&m.role==='admin'&&!m.creator)act+='<button class="btn sec sm" data-act="gmadm" data-u="'+esc(m.uid)+'" data-v="0">Remove admin</button> ';
+    if(cre&&m.role==='member')act+='<button class="btn sec sm" data-act="gmadm" data-u="'+esc(m.uid)+'" data-v="1">Make admin</button> ';
+    var canRm=admin&&(m.creator?g.role==='owner':(m.role==='admin'?cre:true));
+    if(canRm)act+='<button class="btn danger sm" data-act="gmrm" data-u="'+esc(m.uid)+'" data-n="'+esc(m.name)+'">Remove</button>';
+  }
+  return '<div class="gmr">'+gcAv(m.name,38)+'<div class="gmn"><b>'+esc(m.name)+'</b>'+(m.me?' <span class="mut">(you)</span>':'')+' '+gcRole(m.role)+(m.creator&&m.role!=='owner'?' <span class="gcr c">Creator</span>':'')+'</div>'+(act?'<div class="gma">'+act+'</div>':'')+'</div>';
+}
+function gcInfoRender(){
+  var p=document.getElementById('gc-info');if(!p||!GC.info)return;
+  var g=gcGroup(GC.id);if(!g)return;
+  var admin=g.role==='owner'||g.role==='admin',cre=g.role==='owner'||g.owner===true,id=esc(g.id);
+  var h='<div class="gch"><button class="gcb" data-act="gcinfo" aria-label="Back">←</button><b style="flex:1">Group info</b></div><div class="gcin">';
+  h+='<div class="gsec gci0">'+gcAv(g.name,84)+'<div class="gcin-n">'+esc(g.name)+'</div><div class="mut">Group • '+esc(gcSub(g))+'</div><div style="margin-top:8px">Code <b style="letter-spacing:2px">'+esc(g.code)+'</b> <button class="btn sec sm" data-act="gpcopy" data-code="'+esc(g.code)+'">Copy</button></div></div>';
+  if(admin){
+    h+='<div class="gsec"><b>Admin tools</b>';
+    h+='<div class="row" style="margin-top:8px"><input type="text" id="gc-rn" maxlength="40" value="'+esc(g.name)+'" style="flex:1;min-width:140px"><button class="btn sec sm" data-act="grename">Rename</button></div>';
+    h+='<label style="color:var(--tx);display:flex;gap:6px;align-items:center;margin-top:10px"><input type="checkbox" data-chg="gcmode"'+(g.admins_only?' checked':'')+'> Only admins can send messages</label><div class="mut" style="margin-left:24px">Good for announcements and updates.</div></div>';
+  }
+  h+='<div class="gsec"><b>Invite</b><div class="row" style="margin-top:8px"><input type="text" id="gi-'+id+'" maxlength="200" placeholder="Email or ICAI number" style="flex:1;min-width:150px"><button class="btn sm" data-act="ginvite" data-id="'+id+'">Invite</button></div></div>';
+  h+='<div class="gsec"><b>'+esc(g.members)+' member'+(g.members===1?'':'s')+'</b>';
+  if(!GC.members)h+='<div class="mut" style="margin-top:6px">Loading…</div>';
+  else GC.members.forEach(function(m){h+=gcMemberRow(m,g);});
+  h+='</div>';
+  var b=GC.board;
+  if(b){h+='<div class="gsec"><b>This week</b><div class="scroll"><table><tr><th>Name</th><th>7 days</th><th>Streak</th><th>Today</th></tr>';
+    b.forEach(function(r){h+='<tr><td>'+esc(r.name)+(r.me?' (you)':'')+'</td><td>'+(r.last7==null?'-':esc(r.last7)+' h')+'</td><td>'+(r.streak==null?'-':esc(r.streak))+'</td><td>'+(boardToday(r)?'✓':'-')+'</td></tr>';});
+    h+='</table></div>'+(g.members>100?'<div class="mut">Showing the top 100 of '+esc(g.members)+' members.</div>':'')+'</div>';}
+  h+='<div class="gsec">'+groupExtraHtml(g)+'</div>';
+  h+='<div class="gsec">';
+  if(g.role!=='owner')h+='<button class="btn danger" data-act="gpleave" data-id="'+id+'">Leave group</button> ';
+  if(cre)h+='<button class="btn danger" data-act="gdelgrp">Delete group</button>';
+  if(g.role==='owner')h+='<div class="mut" style="margin-top:6px">You are the Studify CA owner. You stay in every group and are admin everywhere.</div>';
+  h+='</div></div>';
+  var top=p.scrollTop;p.innerHTML=h;p.scrollTop=top;
+}
+function gcAfterLoad(){
+  if(!GC.id)return;
+  var g=gcGroup(GC.id);
+  if(!g){toast('You are no longer in this group');gcClose();return;}
+  g.unread=0;
+  var s=document.getElementById('gc-sub'),t=document.getElementById('gc-title');
+  if(s)s.textContent=gcSub(g);if(t)t.textContent=g.name;
+  var can=!(g.admins_only&&g.role==='member')?'1':'0';
+  if(can!==GC.barSig)gcBar();
+  if(GC.info)gcInfoLoad();
+}
+function gcDot(){
+  var b=document.querySelector('nav button[data-t="partner"]');if(!b)return;
+  var d=b.querySelector('.ndot');
+  if(gcUnread()>0){if(!d){d=document.createElement('i');d.className='ndot';b.appendChild(d);}}else if(d)d.remove();
+}
+async function gcPoll(){
+  if(!cloud.client||!cloud.user||document.hidden||GC.id)return;
+  try{
+    var c=await rpc('my_chats',{});if(!Array.isArray(c))return;
+    var before=gcUnread();
+    (cloud.groups||[]).forEach(function(g){c.forEach(function(x){if(x.id===g.id){g.unread=x.unread;g.last=x.last;g.members=x.members;}});});
+    gcDot();
+    if(ui.tab==='partner'&&(ui.ptab||'ptn')==='grp'&&gcUnread()!==before){var ae=document.activeElement,tg=ae&&ae.tagName;if(!/INPUT|TEXTAREA|SELECT/.test(tg||''))renderKeep();}
+  }catch(e){}
+}
+document.addEventListener('input',function(e){var t=e.target;if(t&&t.id==='gc-in'){GC.draft[GC.id]=t.value;gcGrow(t);}});
+document.addEventListener('keydown',function(e){
+  var t=e.target;
+  if(e.key==='Escape'&&GC.id){if(GC.info)gcToggleInfo();else if(history.state&&history.state.gc)history.back();else gcClose();return;}
+  if(t&&t.id==='gc-in'&&e.key==='Enter'&&!e.shiftKey&&window.matchMedia&&window.matchMedia('(pointer:fine)').matches){e.preventDefault();gcSend();}
+});
+window.addEventListener('popstate',function(){if(GC.id)gcClose();});
+if(window.visualViewport){window.visualViewport.addEventListener('resize',gcFit);window.visualViewport.addEventListener('scroll',gcFit);}
+
 function hhmm(t){var d=new Date(t);if(isNaN(d))return '';var m=d.getMinutes();return d.getHours()+':'+(m<10?'0':'')+m;}
 function safeUrl(u){u=String(u||'');return /^https:\/\/[^\s"'<>]+$/.test(u)?u:'';}
 function groupExtraHtml(g){
   var x=(cloud.gextra||{})[g.id],id=esc(g.id),h='';
   var sub='border-top:1px dashed var(--bd);margin-top:10px;padding-top:8px';
   if(!x)return '<div class="mut" style="margin-top:8px">Loading group extras\u2026</div>';
-  // group chat
-  h+='<div style="'+sub+'"><b>Group chat</b> <span class="mut">updates, doubts and suggestions</span>';
-  (x.posts||[]).slice(0,15).forEach(function(q){h+='<div style="margin-top:6px"><b>'+esc(q.mine?'You':q.by)+'</b>'+(q.is_owner?' <span class="chip ok">Owner</span>':'')+' <span class="mut">'+esc(hhmm(q.at))+'</span>'+(q.can_delete?' <button class="btn danger sm" data-act="pmdel" data-id="'+esc(q.id)+'">Remove</button>':'')+'<div style="white-space:pre-wrap">'+esc(q.text)+'</div></div>';});
-  if(!(x.posts||[]).length)h+='<div class="mut">No messages yet. Say hi!</div>';
-  h+='<div class="row" style="margin-top:8px"><input type="text" id="pm-'+id+'" maxlength="500" placeholder="Write a message" style="flex:1;min-width:160px"><button class="btn sm" data-act="pmsend" data-id="'+id+'">Send</button></div></div>';
   // studying now
   h+='<div style="'+sub+'"><b>Studying now</b> <button class="btn sec sm" data-act="gprefresh">Refresh</button>';
   var mine=null;(x.sessions||[]).forEach(function(q){if(q.me)mine=q;});
@@ -1397,12 +1608,13 @@ async function reportChallenge(c){
 async function loadGroups(){
   if(!cloud.client||!cloud.user)return;
   try{
-    cloud.groups=await rpc('my_groups',{})||[];cloud.gboards=cloud.gboards||{};
+    try{var cg=await rpc('my_chats',{});if(!Array.isArray(cg))throw new Error('x');cloud.groups=cg;}catch(e0){var cg2=await rpc('my_groups',{});cloud.groups=Array.isArray(cg2)?cg2:[];}cloud.gboards=cloud.gboards||{};
     try{var gi=await rpc('my_group_invites',{});cloud.ginv=Array.isArray(gi)?gi:[];}catch(e){cloud.ginv=[];}
     var live={};
     for(var i=0;i<cloud.groups.length;i++){var g=cloud.groups[i];live[g.id]=1;try{cloud.gboards[g.id]=await rpc('group_board',{p_group:g.id});}catch(e){}
       try{cloud.gextra=cloud.gextra||{};var ex=await rpc('group_extra',{p_group:g.id});cloud.gextra[g.id]=ex;await reportChallenge(ex&&ex.challenge);if(ex&&ex.challenge&&ex.challenge.running){try{cloud.gextra[g.id]=await rpc('group_extra',{p_group:g.id});}catch(e2){}}}catch(e){}}
     Object.keys(cloud.gboards).forEach(function(id){if(!live[id]){delete cloud.gboards[id];if(cloud.gextra)delete cloud.gextra[id];}});
+    try{gcAfterLoad();gcDot();}catch(e1){}
   }catch(e){cloud.groups=cloud.groups||[];}
 }
 async function loadNudges(){
@@ -2260,7 +2472,7 @@ function viewPartner(c){
       '<div style="margin-top:8px"><button class="btn sec sm" data-act="addgoal" data-l="'+esc(l.id)+'">Create goal</button></div></div>';
     h+='</div>';
   });
-  secGrp+='<div class="mut">Study sessions, challenges and shared links work inside each study group.</div>';
+  secGrp+='<div class="mut">Open a group to chat. Tap its name at the top for members, study sessions, challenges and shared links.</div>';
   var pt=ui.ptab||'ptn',pT=[['ptn','Partners'],['grp','Groups'],['lb','Leaderboard']];
   var pbar='<div class="stabs" role="tablist">'+pT.map(function(t){return '<button class="chip stab'+(pt===t[0]?' on':'')+'" data-act="pstab" data-s="'+t[0]+'">'+t[1]+'</button>';}).join('')+'</div>';
   if(ui.allSec)return h+secGrp+secLb;
@@ -2945,16 +3157,27 @@ function act(a,d){
   }
   if(a==='nudgesend'){var msg9=readv('nd-'+d.l);guard(rpc('send_nudge',{p_link:d.l,p_msg:msg9}).then(function(m){toast(m);}));return;}
   if(a==='nudgeseen'){guard(rpc('mark_nudges_seen',{}).then(function(){cloud.nudges=[];render();}));return;}
-  if(a==='gpcreate'){var gn=readv('gp-name').trim();if(!gn){toast('Type a group name');return;}guard(rpc('create_group',{p_name:gn}).then(function(r){toast('Group created. Code: '+r.code);return refreshPartner();}));return;}
-  if(a==='gpjoin'){var gc=readv('gp-code').trim();if(!gc){toast('Type the group code');return;}guard(rpc('join_group',{p_code:gc}).then(function(m){toast(m);return refreshPartner();}));return;}
-  if(a==='gpleave'){if(confirm('Leave this group?'))guard(rpc('leave_group',{p_group:d.id}).then(function(m){toast(m);return refreshPartner();}));return;}
+  if(a==='gpcreate'){var gn=readv('gp-name').trim();if(!gn){toast('Type a group name');return;}guard(rpc('create_group',{p_name:gn}).then(function(r){toast('Group created. Code: '+r.code);ui.gform='';return refreshPartner().then(function(){gcOpen(r.id);});}));return;}
+  if(a==='gpjoin'){var gc=readv('gp-code').trim();if(!gc){toast('Type the group code');return;}guard(rpc('join_group',{p_code:gc}).then(function(m){toast(m);ui.gform='';return refreshPartner();}));return;}
+  if(a==='gpleave'){if(confirm('Leave this group?'))guard(rpc('leave_group',{p_group:d.id}).then(function(m){toast(m);gcClose();return refreshPartner();}));return;}
+  if(a==='gformtog'){ui.gform=ui.gform===d.f?'':d.f;render();return;}
+  if(a==='gopen'){gcOpen(d.id);return;}
+  if(a==='gcclose'){if(history.state&&history.state.gc)history.back();else gcClose();return;}
+  if(a==='gcinfo'){gcToggleInfo();return;}
+  if(a==='gcsel'){GC.sel=GC.sel===d.id?'':d.id;gcRender(false);return;}
+  if(a==='gcsend'){gcSend();return;}
+  if(a==='gcnoop')return;
+  if(a==='gmadm'){guard(rpc('set_group_admin',{p_group:GC.id,p_user:d.u,p_admin:d.v==='1'}).then(function(m){toast(m);return gcInfoLoad();}));return;}
+  if(a==='gmrm'){if(confirm('Remove '+(d.n||'this person')+' from the group?'))guard(rpc('remove_member',{p_group:GC.id,p_user:d.u}).then(function(m){toast(m);return Promise.all([gcInfoLoad(),refreshPartner()]);}));return;}
+  if(a==='gdelgrp'){if(confirm('Delete this group for everyone? This cannot be undone.'))guard(rpc('delete_group',{p_group:GC.id}).then(function(m){toast(m);gcClose();return refreshPartner();}));return;}
+  if(a==='grename'){var rn=readv('gc-rn').trim();if(!rn){toast('Type a group name');return;}guard(rpc('rename_group',{p_group:GC.id,p_name:rn}).then(function(m){toast(m);return refreshPartner();}));return;}
   if(a==='anncok'){try{localStorage.setItem('ca_studyos_annc',ANNC?ANNC.id:'');}catch(e){}render();return;}
   if(a==='annset'){guard(rpc('admin_set_announce',{p_text:readv('an-text')}).then(function(m){toast(m);return fetchRemote();}));return;}
   if(a==='ginvite'){var gw=readv('gi-'+d.id).trim();if(!gw){toast('Type an email or an ICAI registration number');return;}guard(rpc('invite_to_group',{p_group:d.id,p_who:gw}).then(function(m){toast(m);return refreshPartner();}));return;}
   if(a==='ginvok'){guard(rpc('accept_group_invite',{p_id:d.id}).then(function(m){toast(m);return refreshPartner();}));return;}
   if(a==='ginvno'){guard(rpc('decline_group_invite',{p_id:d.id}).then(function(m){toast(m);return refreshPartner();}));return;}
   if(a==='pmsend'){var pb=readv('pm-'+d.id).trim();if(!pb){toast('Write a message first');return;}guard(rpc('post_message',{p_group:d.id,p_body:pb}).then(function(){return refreshPartner();}));return;}
-  if(a==='pmdel'){if(confirm('Remove this message?'))guard(rpc('delete_post',{p_id:d.id}).then(function(){return refreshPartner();}));return;}
+  if(a==='pmdel'){if(confirm('Remove this message?'))guard(rpc('delete_post',{p_id:d.id}).then(function(){GC.sel='';GC.sig='';if(GC.id)return gcFetch(true);return refreshPartner();}));return;}
   if(a==='gprefresh'){guard(refreshPartner().then(function(){toast('Updated');}));return;}
   if(a==='ssstart'){var st=readv('ss-t-'+d.id).trim();if(!st){toast('Type what you are studying');return;}guard(rpc('start_session',{p_group:d.id,p_topic:st,p_minutes:parseInt(readv('ss-m-'+d.id),10)||60}).then(function(m){toast(m);return refreshPartner();}));return;}
   if(a==='ssend'){guard(rpc('end_session',{p_group:d.id}).then(function(m){toast(m);return refreshPartner();}));return;}
@@ -3241,6 +3464,7 @@ function chg(k,d,el){
   if(k==='prof'){S.active=el.value;ui.res=null;ui.modal=null;save();render();return;}
   if(k==='aimode'){var a9=ui.ai;a9.q=readv('ai-q');a9.mat=readv('ai-mat')||a9.mat;var cx9=document.getElementById('ai-ctx');if(cx9)a9.ctx=cx9.checked;a9.mode=el.value;render();return;}
   if(k==='tmopt'){var oo=tmOpts();if(d.o==='every')oo.every=parseInt(el.value,10)||60;else oo[d.o]=el.checked;tmOptSave(oo);if(tmGet())tmPush();render();return;}
+  if(k==='gcmode'){guard(rpc('set_group_mode',{p_group:GC.id,p_admins_only:el.checked}).then(function(m){toast(m);return refreshPartner();}));return;}
   if(k==='dskallow'){var al2=dskAllowed(),ix=al2.indexOf(d.o);if(el.checked&&ix<0)al2.push(d.o);if(!el.checked&&ix>=0)al2.splice(ix,1);dskSetAllowed(al2);return;}
   if(k==='dskauto'){try{localStorage.setItem('ca_studyos_dskauto',el.checked?'1':'0');}catch(e){}try{if(DSK)DSK.setAutoStart(el.checked);}catch(e){}return;}
   if(k==='tmpaper'){ui.tm=ui.tm||{};ui.tm.k=el.value;render();return;}
@@ -3327,6 +3551,7 @@ setInterval(function(){try{var ae=document.activeElement,tg=ae&&ae.tagName;if(ui
 setInterval(function(){var e=document.getElementById('tm-el'),t=tmGet();if(e&&t)e.textContent=tmText(t);try{tmTick();}catch(x){}},500);
 setInterval(function(){try{if(!document.hidden)tmPull();}catch(x){}},8000);
 setInterval(simTick,1000);
+setInterval(function(){try{gcPoll();}catch(e){}},45000);
 window.addEventListener('beforeinstallprompt',function(e){try{e.preventDefault();}catch(x){}ui.inst=e;renderKeep();});
 window.addEventListener('appinstalled',function(){ui.inst=null;});
 window.addEventListener('offline',function(){renderKeep();});
@@ -3336,7 +3561,7 @@ window.addEventListener('online',function(){
 });
 window.addEventListener('error',function(e){logErr((e&&e.message)||'error');});
 window.addEventListener('unhandledrejection',function(e){logErr((e&&e.reason&&e.reason.message)||'promise');});
-window.__so={dsk:dsk,tm:{get:tmGet,tick:tmTick,pull:tmPull,opts:tmOpts,check:tmCheck,push:tmPush},refreshPartner:refreshPartner,applyRemote:applyRemote,act:act,starter:starter,newsFeed:newsFeed,feedOk:feedOk,newsList:newsList,newsCard:newsCard,newsOk:newsOk,pywParse:pywParse,pywFilesOk:pywFilesOk,regOk:regOk,regRegion:regRegion,pwAll:pwAll,bulkParse:bulkParse,bulkPrompt:bulkPrompt,bulkCard:bulkCard,fbAdminCard:fbAdminCard,privacyCard:privacyCard,libCard:libCard,libFilesOk:libFilesOk,loadPdfs:loadPdfs,idCard:idCard,adminHub:adminHub,viewAI:viewAI,focus3:focus3,focusCard:focusCard,weekFix:weekFix,weekPlus:weekPlus,wkBanner:wkBanner,hyIds:hyIds,pywCard:pywCard,simBudgets:simBudgets,simParse:simParse,simCard:simCard,simTick:simTick,chkCard:chkCard,bakBanner:bakBanner,kalBanner:kalBanner,kalRow:kalRow,kalGoals:kalGoals,helpCard:helpCard,offBanner:offBanner,mmss:mmss,fsGet:fsGet,pushPrefs:pushPrefs,pushCard:pushCard,groupCard:groupCard,nudgeBanner:nudgeBanner,boardToday:boardToday,b64u:b64u,buildSummary:buildSummary,badgeList:badgeList,checkBadges:checkBadges,burnoutInfo:burnoutInfo,cardsDue:cardsDue,tr:tr,getLang:getLang,attemptOptions:attemptOptions,canTick:canTick,tmCheck:tmCheck,misDue:misDue,tmMs:tmMs,priorScore:priorScore,weak:weak,canStart:canStart,directOK:directOK,histA:histA,CAL:function(){return CAL;},SYLV:function(){return SYLVER;},icaiStart:icaiStart,applyRemote:applyRemote,applySyl:applySyl,sylDiff:sylDiff,weakChapters:weakChapters,weekText:weekText,icsText:icsText,streakDays:streakDays,normP:normP,onbDate:onbDate,tmSet:tmSet,cloud:cloud,SYL:SYL,S:function(){return S;},analyse:analyse,activeInfo:activeInfo,planInfo:planInfo,newProfile:newProfile,todayPlan:todayPlan,roadmap:roadmap,makeRevs:makeRevs,render:render,ui:ui,aIdx:aIdx,aLabel:aLabel,cur:cur,save:save};
+window.__so={dsk:dsk,GC:GC,gcOpen:gcOpen,gcClose:gcClose,gcSend:gcSend,gcFetch:gcFetch,gcText:gcText,tm:{get:tmGet,tick:tmTick,pull:tmPull,opts:tmOpts,check:tmCheck,push:tmPush},refreshPartner:refreshPartner,applyRemote:applyRemote,act:act,starter:starter,newsFeed:newsFeed,feedOk:feedOk,newsList:newsList,newsCard:newsCard,newsOk:newsOk,pywParse:pywParse,pywFilesOk:pywFilesOk,regOk:regOk,regRegion:regRegion,pwAll:pwAll,bulkParse:bulkParse,bulkPrompt:bulkPrompt,bulkCard:bulkCard,fbAdminCard:fbAdminCard,privacyCard:privacyCard,libCard:libCard,libFilesOk:libFilesOk,loadPdfs:loadPdfs,idCard:idCard,adminHub:adminHub,viewAI:viewAI,focus3:focus3,focusCard:focusCard,weekFix:weekFix,weekPlus:weekPlus,wkBanner:wkBanner,hyIds:hyIds,pywCard:pywCard,simBudgets:simBudgets,simParse:simParse,simCard:simCard,simTick:simTick,chkCard:chkCard,bakBanner:bakBanner,kalBanner:kalBanner,kalRow:kalRow,kalGoals:kalGoals,helpCard:helpCard,offBanner:offBanner,mmss:mmss,fsGet:fsGet,pushPrefs:pushPrefs,pushCard:pushCard,groupCard:groupCard,nudgeBanner:nudgeBanner,boardToday:boardToday,b64u:b64u,buildSummary:buildSummary,badgeList:badgeList,checkBadges:checkBadges,burnoutInfo:burnoutInfo,cardsDue:cardsDue,tr:tr,getLang:getLang,attemptOptions:attemptOptions,canTick:canTick,tmCheck:tmCheck,misDue:misDue,tmMs:tmMs,priorScore:priorScore,weak:weak,canStart:canStart,directOK:directOK,histA:histA,CAL:function(){return CAL;},SYLV:function(){return SYLVER;},icaiStart:icaiStart,applyRemote:applyRemote,applySyl:applySyl,sylDiff:sylDiff,weakChapters:weakChapters,weekText:weekText,icsText:icsText,streakDays:streakDays,normP:normP,onbDate:onbDate,tmSet:tmSet,cloud:cloud,SYL:SYL,S:function(){return S;},analyse:analyse,activeInfo:activeInfo,planInfo:planInfo,newProfile:newProfile,todayPlan:todayPlan,roadmap:roadmap,makeRevs:makeRevs,render:render,ui:ui,aIdx:aIdx,aLabel:aLabel,cur:cur,save:save};
 render();
 })();
 
