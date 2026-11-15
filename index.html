@@ -1853,7 +1853,7 @@ function instCard(){
 }
 var DL_PAGE='https://studifyca.github.io/Studify/download.html';
 var DL_EXE='https://github.com/StudifyCA/studify-desktop/releases/latest/download/Studify-CA-Setup.exe';
-var DL_APK='https://github.com/StudifyCA/studify-desktop/releases/tag/android-v1';
+var DL_APK='https://github.com/StudifyCA/studify-desktop/releases/download/android-v1/Studify.CA.apk';
 function isInApp(){try{return !!DSK||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true||(document.referrer||'').indexOf('android-app://')===0;}catch(e){return false;}}
 function dlPlat(){var u=navigator.userAgent||'';return /Android/i.test(u)?'android':(/Windows/i.test(u)?'windows':'');}
 function dlHidden(){try{return localStorage.getItem('ca_studyos_dlhide')==='1';}catch(e){return false;}}
