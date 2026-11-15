@@ -68,6 +68,7 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--bd);vertical
 .ch .nm{flex:1;min-width:120px}
 .warnbox{background:#d9770618;border:1px solid var(--warn);border-radius:10px;padding:10px;font-size:13px;margin-bottom:12px}
 
+a.btn{display:inline-block;text-decoration:none;text-align:center}
 body.gc-open{overflow:hidden}
 .gchat{position:fixed;left:0;right:0;top:0;height:100%;z-index:20;display:flex;flex-direction:column;background:var(--bg)}
 .gch{display:flex;align-items:center;gap:8px;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top,0px));background:#4f46e5;color:#fff;flex:0 0 auto}
@@ -1850,6 +1851,24 @@ function feedbackCard(){
 function instCard(){
   return ui.inst?'<div class="card"><h3>Install the app</h3><div class="mut">Opens like a normal app, works offline and can send reminders.</div><div style="margin-top:8px"><button class="btn" data-act="installapp">Install</button></div></div>':'';
 }
+var DL_PAGE='https://studifyca.github.io/Studify/download.html';
+var DL_EXE='https://github.com/StudifyCA/studify-desktop/releases/latest/download/Studify-CA-Setup.exe';
+var DL_APK='https://github.com/StudifyCA/studify-desktop/releases/tag/android-v1';
+function isInApp(){try{return !!DSK||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true||(document.referrer||'').indexOf('android-app://')===0;}catch(e){return false;}}
+function dlPlat(){var u=navigator.userAgent||'';return /Android/i.test(u)?'android':(/Windows/i.test(u)?'windows':'');}
+function dlHidden(){try{return localStorage.getItem('ca_studyos_dlhide')==='1';}catch(e){return false;}}
+function dlCard(full){
+  var pl=dlPlat();
+  if(isInApp())return '';
+  if(!full&&(!pl||dlHidden()))return '';
+  var h='<div class="card" style="border-color:var(--ac)"><h3>Get the app</h3><div class="mut">'+(full?'Download Studify CA for your phone or laptop. It opens like a normal app.':'Use Studify CA as a real app on your '+(pl==='android'?'phone':'laptop')+', without the browser.')+'</div><div class="row" style="margin-top:8px;gap:8px">';
+  if(full||pl==='android')h+='<a class="btn" href="'+DL_APK+'" target="_blank" rel="noopener">Android app (APK)</a>';
+  if(full||pl==='windows')h+='<a class="btn" href="'+DL_EXE+'" target="_blank" rel="noopener">Windows app (.exe)</a>';
+  h+='</div>';
+  if(full)h+='<div class="mut" style="margin-top:8px">iPhone or Mac: open in Safari or Chrome, then Share and Add to Home Screen. <a href="'+DL_PAGE+'" target="_blank" rel="noopener" style="color:var(--ac)">All download options and install help</a></div>';
+  else h+='<div class="row sp" style="margin-top:8px"><a href="'+DL_PAGE+'" target="_blank" rel="noopener" style="color:var(--ac)">Install help</a><button class="btn sec sm" data-act="dlhide">Not now</button></div>';
+  return h+'</div>';
+}
 function fsCard(){
   var f=fsGet();
   return '<div class="card"><h3>Text size</h3><select data-chg="fs"><option value="N"'+(f==='N'?' selected':'')+'>Normal</option><option value="L"'+(f==='L'?' selected':'')+'>Large</option></select></div>';
@@ -2045,8 +2064,8 @@ function viewToday(c){
   }
   html+='</div>';
   html+=simBanner(P)+focusCard(c,T);
-  if(S.compact&&I.phase!=='over'){html+=announceBanner()+nudgeBanner()+kalBanner(P)+idBanner()+bakBanner()+wkBanner(P)+newsCard(P)+instCard()+cardReview(P)+examCard(P,X,I)+timerCard(P,X)+'<div style="margin:10px 0"><button class="btn sec" data-act="compact">Show the full day</button></div>';return html;}
-  html+=announceBanner()+nudgeBanner()+kalBanner(P)+idBanner()+bakBanner()+wkBanner(P)+newsCard(P)+instCard()+ringCard(P,I)+burnoutCard(P)+cardReview(P)+levelUpCard(P,c.A)+examCard(P,X,I)+replanCard(P,X,I)+retestCard(P)+attemptCard(P,c.A,X,true)+tipsCard()+sylBanner(P)+partnerGlance()+icaiCard(P,X)+timerCard(P,X);
+  if(S.compact&&I.phase!=='over'){html+=announceBanner()+nudgeBanner()+kalBanner(P)+idBanner()+bakBanner()+wkBanner(P)+newsCard(P)+instCard()+dlCard()+cardReview(P)+examCard(P,X,I)+timerCard(P,X)+'<div style="margin:10px 0"><button class="btn sec" data-act="compact">Show the full day</button></div>';return html;}
+  html+=announceBanner()+nudgeBanner()+kalBanner(P)+idBanner()+bakBanner()+wkBanner(P)+newsCard(P)+instCard()+dlCard()+ringCard(P,I)+burnoutCard(P)+cardReview(P)+levelUpCard(P,c.A)+examCard(P,X,I)+replanCard(P,X,I)+retestCard(P)+attemptCard(P,c.A,X,true)+tipsCard()+sylBanner(P)+partnerGlance()+icaiCard(P,X)+timerCard(P,X);
   if(I.phase!=='over'){
     html+='<h2>Today\u2019s plan</h2><div class="card">';
     if(T.rest)html+='<div>Today is your rest day. Optional: 20 minutes of light revision.</div>';
@@ -2777,7 +2796,7 @@ function viewSettings(c){
   html+='<div class="card"><h3>Danger zone</h3><button class="btn danger" data-act="delprof">Delete this profile</button></div>';
   var secGen=html;html='';
   html+='<div class="card"><h3>Daily reminder</h3><div class="mut">Adds a repeating study reminder to your phone calendar. Open the downloaded file and choose your calendar app.</div><div class="row" style="margin-top:8px">'+timeSel('rm-time','06:30')+'<button class="btn sec" data-act="icsdl">Download reminder</button></div></div>';
-  html+=(DSK?'':instCard()+pushCard())+timerOptsCard()+dskCard();
+  html+=(DSK?'':instCard()+dlCard(true)+pushCard())+timerOptsCard()+dskCard();
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
@@ -3160,6 +3179,7 @@ function act(a,d){
   if(a==='gpcreate'){var gn=readv('gp-name').trim();if(!gn){toast('Type a group name');return;}guard(rpc('create_group',{p_name:gn}).then(function(r){toast('Group created. Code: '+r.code);ui.gform='';return refreshPartner().then(function(){gcOpen(r.id);});}));return;}
   if(a==='gpjoin'){var gc=readv('gp-code').trim();if(!gc){toast('Type the group code');return;}guard(rpc('join_group',{p_code:gc}).then(function(m){toast(m);ui.gform='';return refreshPartner();}));return;}
   if(a==='gpleave'){if(confirm('Leave this group?'))guard(rpc('leave_group',{p_group:d.id}).then(function(m){toast(m);gcClose();return refreshPartner();}));return;}
+  if(a==='dlhide'){try{localStorage.setItem('ca_studyos_dlhide','1');}catch(e){}render();return;}
   if(a==='gformtog'){ui.gform=ui.gform===d.f?'':d.f;render();return;}
   if(a==='gopen'){gcOpen(d.id);return;}
   if(a==='gcclose'){if(history.state&&history.state.gc)history.back();else gcClose();return;}
