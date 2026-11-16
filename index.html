@@ -2358,21 +2358,55 @@ function viewAIOpen(c){
   if(!cloud.cfg||cloud.state==='off'||cloud.state==='nolib'||!cloud.user)return '<div class="card"><h3>AI tutor</h3><p>Sign in to your cloud account first (Settings → Cloud account). The AI runs on your own Supabase project, so no key is ever kept in this page.</p><button class="btn" data-act="tab" data-t="settings" data-s="acct">Go to Settings</button></div>';
   var a=ui.ai;
   var h='<div class="card"><h3>AI tutor</h3>'+(AIOPEN?'':'<div class="mut" style="color:var(--ac)">Admin preview: locked for other users until we cross '+UC_GOAL+'.</div>')+'<div class="mut">Ask a doubt, get a topic explained, or get 5 practice questions. Up to 30 a day. Answers can be wrong: check important points in ICAI material.</div>'+
-   '<label>What do you want?</label><select id="ai-mode" data-chg="aimode"><option value="ask"'+(a.mode==='ask'?' selected':'')+'>Answer my doubt</option><option value="explain"'+(a.mode==='explain'?' selected':'')+'>Explain a topic</option><option value="quiz"'+(a.mode==='quiz'?' selected':'')+'>Give me practice questions</option><option value="plan"'+(a.mode==='plan'?' selected':'')+'>Suggest how to study this week</option><option value="material"'+(a.mode==='material'?' selected':'')+'>Answer only from text I paste (from my material)</option></select>'+
+   '<label>What do you want?</label><select id="ai-mode" data-chg="aimode"><option value="ask"'+(a.mode==='ask'?' selected':'')+'>Answer my doubt</option><option value="explain"'+(a.mode==='explain'?' selected':'')+'>Explain a topic</option><option value="quiz"'+(a.mode==='quiz'?' selected':'')+'>Give me practice questions</option><option value="plan"'+(a.mode==='plan'?' selected':'')+'>Suggest how to study this week</option><option value="papers"'+(a.mode==='papers'?' selected':'')+'>Answer from the past papers library (PYQ, MTP, RTP)</option><option value="material"'+(a.mode==='material'?' selected':'')+'>Answer only from text I paste (from my material)</option></select>'+
+   (a.mode==='papers'?'<label>Subject</label><select data-chg="aisub">'+['FD1','FD2','FD3','FD4'].map(function(k){return '<option value="'+k+'"'+((a.sub||'FD1')===k?' selected':'')+'>'+esc(pfull(k))+'</option>';}).join('')+'</select><div class="mut">The AI reads the best matching parts of the papers (questions and answers) and answers only from them. Foundation only for now.</div>':'')+
    (a.mode==='material'?'<label>Paste text from your study material (up to 6000 characters)</label><textarea id="ai-mat" maxlength="6000" style="min-height:140px" placeholder="Paste the paragraph / page from your book here">'+esc(a.mat||'')+'</textarea><div class="mut">The AI will use only this text. If the answer is not in it, it will say so.</div>':'')+
    '<label>Your question or topic</label><textarea id="ai-q" maxlength="2000" placeholder="Example: Explain AS 10 with a simple example">'+esc(a.q)+'</textarea>'+
    '<label style="display:flex;gap:6px;align-items:center;color:var(--tx)"><input type="checkbox" id="ai-ctx"'+(a.ctx?' checked':'')+'> Share my papers, last scores and next chapters with the AI (nothing else)</label>'+
    '<div style="margin-top:8px"><button class="btn" data-act="aiask"'+(a.busy?' disabled':'')+'>'+(a.busy?'Thinking…':'Ask')+'</button></div></div>';
   if(a.err)h+='<div class="card"><span class="chip bad">'+esc(a.err)+'</span></div>';
-  if(a.ans)h+='<div class="card"><div style="white-space:pre-wrap;line-height:1.5">'+esc(a.ans)+'</div></div>';
+  if(a.ans)h+='<div class="card"><div style="white-space:pre-wrap;line-height:1.5">'+esc(a.ans)+'</div>'+(a.src&&a.src.length?'<div class="mut" style="margin-top:8px">Papers used: '+a.src.map(esc).join(' \u2022 ')+'</div>':'')+'</div>';
   return h;
+}
+var PIDX={};
+var STOPW='the,and,for,are,was,were that,this,with from have has had not but you your what which when where who whom why how can could would should will shall may might into any all one two per its their them they then than also such these those been being does did done use used using explain give tell about between under over each other more most some very our out off own same too just only'.replace(/ /g,',').split(',');
+function pTok(t){return String(t||'').toLowerCase().replace(/[^a-z0-9\u0900-\u097f]+/g,' ').split(' ').filter(function(w){return w.length>2&&STOPW.indexOf(w)<0;});}
+async function pLoad(k){
+  if(PIDX[k])return PIDX[k];
+  var r=await fetch('papers/search/'+k+'.json',{cache:'no-cache'});if(!r.ok)throw new Error('Paper index not found. Upload papers/search/'+k+'.json to the site.');
+  var docs=await r.json(),chunks=[],df={};
+  docs.forEach(function(d){d.c.forEach(function(c){var tk=pTok(c),seen={},tf={};tk.forEach(function(w){tf[w]=(tf[w]||0)+1;if(!seen[w]){seen[w]=1;df[w]=(df[w]||0)+1;}});chunks.push({t:d.t,c:c,tf:tf,low:c.toLowerCase()});});});
+  PIDX[k]={chunks:chunks,df:df,n:chunks.length};return PIDX[k];
+}
+function pSearch(ix,q,max){
+  var qt=pTok(q),qs=[];qt.forEach(function(w){if(qs.indexOf(w)<0)qs.push(w);});
+  var bg=[];for(var i=0;i+1<qt.length;i++)bg.push(qt[i]+' '+qt[i+1]);
+  var sc=ix.chunks.map(function(ch){
+    var s=0;qs.forEach(function(w){var f=ch.tf[w];if(f)s+=Math.log(1+ix.n/(1+(ix.df[w]||0)))*(1+Math.log(f));});
+    bg.forEach(function(b){if(ch.low.indexOf(b)>=0)s+=2.5;});
+    return {ch:ch,s:s};
+  }).filter(function(x){return x.s>0;}).sort(function(a,b){return b.s-a.s;});
+  var out=[],per={};
+  sc.forEach(function(x){if(out.length>=max)return;var n=per[x.ch.t]||0;if(n>=3)return;per[x.ch.t]=n+1;out.push(x.ch);});
+  return out;
 }
 async function aiAsk(P){
   var a=ui.ai;a.mode=readv('ai-mode')||a.mode;a.q=readv('ai-q').trim();if(a.mode==='material')a.mat=readv('ai-mat');var cx=document.getElementById('ai-ctx');a.ctx=cx?cx.checked:a.ctx;
   if(!a.q){a.err='Type your question first';a.ans='';render();return;}
   if(a.mode==='material'&&!String(a.mat||'').trim()){a.err='Paste the text from your material first';a.ans='';render();return;}
-  a.busy=true;a.err='';a.ans='';render();
+  a.busy=true;a.err='';a.ans='';a.src=null;render();
   try{
+    if(a.mode==='papers'){
+      var ix=await pLoad(a.sub||'FD1'),hits=pSearch(ix,a.q,8);
+      if(!hits.length)throw new Error('No matching part found in the papers. Try different words.');
+      var mt='';hits.forEach(function(h){mt+='[Source: '+h.t+']\n'+h.c+'\n\n';});
+      var rp=await cloud.client.functions.invoke('ai-tutor',{body:{lang:getLang(),mode:'material',question:a.q+'\n(Answer using only the paper extracts. Name the paper (the Source) for each point. The extracts may be questions, suggested answers or RTP/MTP text.)',context:'',material:mt.slice(0,9000)}});
+      if(rp.error){var m2='The AI function is not reachable. Has it been deployed?';try{if(rp.error.context&&rp.error.context.json){var j2=await rp.error.context.json();if(j2&&j2.error)m2=j2.error;}}catch(e){}throw new Error(m2);}
+      if(rp.data&&rp.data.error)throw new Error(rp.data.error);
+      a.ans=(rp.data&&rp.data.answer)||'No answer came back.';
+      var sn=[];hits.forEach(function(h){if(sn.indexOf(h.t)<0)sn.push(h.t);});a.src=sn;
+      a.busy=false;render();return;
+    }
     var r=await cloud.client.functions.invoke('ai-tutor',{body:{lang:getLang(),mode:a.mode,question:a.q,context:a.mode==='material'?'':(a.ctx?aiContext(P):''),material:a.mode==='material'?String(a.mat||'').slice(0,6000):''}});
     if(r.error){
       var msg='The AI function is not reachable. Has it been deployed? (see the setup guide)';
@@ -3492,6 +3526,7 @@ function chg(k,d,el){
   if(k==='apm'){var ri=Number(d&&d.i);if(ui.apSug&&ui.apSug.rows[ri]){var vv=Number(el.value);ui.apSug.rows[ri].m=isFinite(vv)&&vv>=0?vv:0;renderKeep();}return;}
   var P=cur();
   if(k==='prof'){S.active=el.value;ui.res=null;ui.modal=null;save();render();return;}
+  if(k==='aisub'){ui.ai.q=readv('ai-q');ui.ai.sub=el.value;render();return;}
   if(k==='aimode'){var a9=ui.ai;a9.q=readv('ai-q');a9.mat=readv('ai-mat')||a9.mat;var cx9=document.getElementById('ai-ctx');if(cx9)a9.ctx=cx9.checked;a9.mode=el.value;render();return;}
   if(k==='tmopt'){var oo=tmOpts();if(d.o==='every')oo.every=parseInt(el.value,10)||60;else oo[d.o]=el.checked;tmOptSave(oo);if(tmGet())tmPush();render();return;}
   if(k==='gcmode'){guard(rpc('set_group_mode',{p_group:GC.id,p_admins_only:el.checked}).then(function(m){toast(m);return refreshPartner();}));return;}
