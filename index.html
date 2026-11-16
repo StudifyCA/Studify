@@ -265,8 +265,11 @@ var GPW={"FD1":{"n":4,"m":{"Theoretical Framework":24,"Accounting Process":37,"B
 var SLIB=[];
 var SBASE='papers/';
 (function(){function ld(b){return fetch(b+'library.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){if(!Array.isArray(j))throw 0;SBASE=b;return j;});}
-try{ld('papers/').catch(function(){return ld('');}).then(function(j){SLIB=j.filter(function(x){return x&&/^[A-Za-z0-9_\/.-]+\.pdf$/.test(x.file||'');});try{renderKeep();}catch(e){}}).catch(function(){});}catch(e){}})();
-function sUrl(f){return SBASE+String(f).replace(/^papers\//,'');}
+try{ld('papers/').catch(function(){return ld('');}).then(function(j){SLIB=j.filter(function(x){return x&&/^[A-Za-z0-9_\/.-]+\.pdf$/.test(x.file||'');});try{renderKeep();}catch(e){}sProbe();}).catch(function(){});}catch(e){}})();
+var SFLAT=false;
+function sUrl(f){var r=String(f).replace(/^papers\//,'');return SBASE+(SFLAT?r.split('/').pop():r);}
+function sProbe(){if(!SLIB.length)return;var r=String(SLIB[0].file).replace(/^papers\//,'');
+  fetch(SBASE+r,{method:'HEAD',cache:'no-cache'}).then(function(a){if(a.ok)return;return fetch(SBASE+r.split('/').pop(),{method:'HEAD',cache:'no-cache'}).then(function(b){if(b.ok){SFLAT=true;try{renderKeep();}catch(e){}}});}).catch(function(){});}
 var ATTRANK=['May 2026','Jan 2026','May-Sep 2025','Sep 2025','May 2025','Jan 2025','Sep 2024','Jun 2024','Dec 2023','Nov 2023'];
 
 function applyRemote(r){
