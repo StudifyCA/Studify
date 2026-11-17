@@ -16,7 +16,8 @@
 [data-theme=dark]{--bg:#0f1220;--card:#181c2e;--tx:#eceefb;--mut:#9aa3c0;--bd:#2a3050;--ac:#8b86ff;--ac2:#232850;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
 *{box-sizing:border-box}
 body{margin:0;font:var(--fs,15px)/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx)}
-#app{max-width:900px;margin:0 auto;padding:12px 12px calc(90px + env(safe-area-inset-bottom,0px))}
+#app{max-width:900px;margin:0 auto;padding:12px 12px calc(32px + env(safe-area-inset-bottom,0px))}
+.dov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;animation:dfade .18s}.drawer{position:fixed;top:0;bottom:0;left:0;width:min(290px,82vw);background:var(--card);border-right:1px solid var(--bd);z-index:41;display:flex;flex-direction:column;padding:10px 8px calc(12px + env(safe-area-inset-bottom,0px));overflow-y:auto;animation:dslide .2s ease-out}.drawer .dhd{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 12px;font-size:17px}.drawer button:not(.btn){display:flex;align-items:center;gap:12px;background:none;border:0;border-radius:10px;padding:12px 12px;font:inherit;font-size:15px;color:var(--tx);text-align:left;cursor:pointer}.drawer button:not(.btn) b{font-size:20px;width:26px;text-align:center}.drawer button.on{background:var(--ac);color:#fff;font-weight:700}@keyframes dslide{from{transform:translateX(-100%)}to{transform:none}}@keyframes dfade{from{opacity:0}to{opacity:1}}
 header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 header h1{font-size:18px;margin:0;flex:0 1 auto;white-space:nowrap;min-width:0}
 header select{flex:1 1 0;min-width:0;width:auto}
@@ -54,7 +55,7 @@ nav{position:fixed;left:0;right:0;bottom:0;height:calc(64px + env(safe-area-inse
 nav.nvh{transform:translateY(120%)}
 nav button{flex:1 1 0;min-width:0;max-width:150px;background:none;border:0;padding:8px 0 10px;font:inherit;font-size:11px;color:var(--mut);cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 nav button.on{color:var(--ac);font-weight:700}
-nav button b{display:block;font-size:18px}nav{justify-content:flex-start;overflow-x:auto;scrollbar-width:none}nav::-webkit-scrollbar{display:none}nav button{flex:1 0 66px}@media(max-width:560px){nav button{font-size:10px;letter-spacing:-.2px}nav button b{font-size:17px}}
+nav button b{display:block;font-size:18px}
 table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--bd);vertical-align:top}
 .scroll{overflow-x:auto}
@@ -959,7 +960,7 @@ function commit(){var P=cur(),nb=[];if(P){P.dirty=true;try{nb=checkBadges(P);}ca
 /* ---------- views ---------- */
 function head(P){
   var opts=S.profiles.map(function(p){return '<option value="'+p.id+'"'+(P&&p.id===P.id?' selected':'')+'>'+esc(p.name)+' \u2022 '+esc(LEVELS[p.level].name)+(p.archived?' (done)':'')+'</option>';}).join('');
-  return '<header><img src="icon-192.png" alt="" width="30" height="30" style="border-radius:8px"><h1>Studify CA</h1>'+(S.profiles.length?'<select data-chg="prof">'+opts+'</select>':'')+
+  return '<header>'+(S.profiles.length?'<button class="btn sec sm" data-act="menu" title="Menu" style="position:relative;font-size:18px;padding:6px 10px">\u2630'+(gcUnread()>0?'<i class="ndot" style="top:2px;left:auto;right:2px"></i>':'')+'</button>':'')+'<img src="icon-192.png" alt="" width="30" height="30" style="border-radius:8px"><h1>Studify CA</h1>'+(S.profiles.length?'<select data-chg="prof">'+opts+'</select>':'')+
     '<button class="btn sec sm" data-act="newprof" title="Add profile">\uff0b</button>'+
     '<button class="btn sec sm" data-act="lang" title="Language">\ud83c\udf10</button><button class="btn sec sm" data-act="theme" title="Theme">\u25d0</button></header>'+
     cloudBadge()+offBanner()+(storageOK?'':'<div class="warnbox">Your browser is blocking saving. Data will be lost when you close this page. Use Settings \u2192 Export backup often.</div>');
@@ -970,8 +971,10 @@ var navHid=false,navY=0;
   else if(d>12){if(!navHid){navHid=true;if(n)n.classList.add('nvh');}navY=y;}
 });},{passive:true});})();
 function nav(){
-  return '<nav'+(navHid?' class="nvh"':'')+'>'+tabs.map(function(t){return '<button class="'+(ui.tab===t[0]?'on':'')+'" data-act="tab" data-t="'+t[0]+'"><b>'+t[1]+'</b>'+t[2]+(t[0]==='partner'&&gcUnread()>0?'<i class="ndot"></i>':'')+'</button>';}).join('')+'</nav>';
+  if(!ui.menu)return '';
+  return '<div class="dov" data-act="menuoff"></div><aside class="drawer"><div class="dhd"><b>Studify CA</b><button class="btn sec sm" data-act="menuoff" title="Close">✕</button></div>'+tabs.map(function(t){return '<button class="'+(ui.tab===t[0]?'on':'')+'" data-act="tab" data-t="'+t[0]+'"><b>'+t[1]+'</b><span>'+t[2]+'</span>'+(t[0]==='partner'&&gcUnread()>0?'<i class="ndot" style="position:static;margin-left:auto"></i>':'')+'</button>';}).join('')+'</aside>';
 }
+(function(){var x0=null,y0=0;document.addEventListener('touchstart',function(e){var t=e.touches[0];x0=t.clientX<24?t.clientX:null;y0=t.clientY;},{passive:true});document.addEventListener('touchmove',function(e){if(x0===null||ui.menu)return;var t=e.touches[0];if(t.clientX-x0>70&&Math.abs(t.clientY-y0)<50){x0=null;ui.menu=true;render();}},{passive:true});document.addEventListener('keydown',function(e){if(e.key==='Escape'&&ui.menu){ui.menu=false;render();}});})();
 function nextAttemptOptions(sel){
   var base=aIdx(today()),o='';
   for(var i=base;i<=base+8;i++)o+='<option value="'+i+'"'+(i===sel?' selected':'')+'>'+aLabel(i)+'</option>';
@@ -3120,7 +3123,9 @@ function act(a,d){
   if(a.indexOf('hw')===0){hwAct(a,d,P);return;}
   if(a==='stab'){ui.stab=d.s;render();window.scrollTo(0,0);return;}
   if(a==='pstab'){ui.ptab=d.s;render();window.scrollTo(0,0);return;}
-  if(a==='tab'){navHid=false;ui.tab=d.t;if(d.t==='settings'&&d.s)ui.stab=d.s;render();window.scrollTo(0,0);if(d.t==='partner'&&cloud.user)refreshPartner();return;}
+  if(a==='menu'){ui.menu=true;render();return;}
+  if(a==='menuoff'){ui.menu=false;render();return;}
+  if(a==='tab'){navHid=false;ui.menu=false;ui.tab=d.t;if(d.t==='settings'&&d.s)ui.stab=d.s;render();window.scrollTo(0,0);if(d.t==='partner'&&cloud.user)refreshPartner();return;}
   if(a==='aiask'){aiAsk(P);return;}
   if(a==='applysyl'){var rr=applySyl(P);commit();toast(rr.added+' added'+(rr.removed?', '+rr.removed+' removed':'')+(rr.flagged?', '+rr.flagged+' marked removed':''));return;}
   if(a==='skipsyl'){P.sylVer=SYLVER;commit();return;}
