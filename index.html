@@ -54,7 +54,7 @@ nav{position:fixed;left:0;right:0;bottom:0;height:calc(64px + env(safe-area-inse
 nav.nvh{transform:translateY(120%)}
 nav button{flex:1 1 0;min-width:0;max-width:150px;background:none;border:0;padding:8px 0 10px;font:inherit;font-size:11px;color:var(--mut);cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 nav button.on{color:var(--ac);font-weight:700}
-nav button b{display:block;font-size:18px}
+nav button b{display:block;font-size:18px}@media(max-width:560px){nav button{font-size:10px;letter-spacing:-.2px}nav button b{font-size:17px}}
 table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--bd);vertical-align:top}
 .scroll{overflow-x:auto}
@@ -947,7 +947,7 @@ function fmtTs(s){try{return new Date(s).toLocaleString([],{dateStyle:'medium',t
 
 /* ---------- UI state ---------- */
 var ui={open:{},tab:'today',modal:null,onb:null,res:null,toast:'',showAll:false};
-var tabs=[['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
+var tabs=[['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['rep','\ud83d\udd01','Repeat'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
 
 function toast(m){
   ui.toast=m;var old=document.querySelector('.toast');if(old)old.remove();
@@ -970,7 +970,7 @@ var navHid=false,navY=0;
   else if(d>12){if(!navHid){navHid=true;if(n)n.classList.add('nvh');}navY=y;}
 });},{passive:true});})();
 function nav(){
-  return '<nav'+(navHid?' class="nvh"':'')+'>'+tabs.map(function(t){return '<button class="'+((ui.tab===t[0]||(t[0]==='hw'&&ui.tab==='rep'))?'on':'')+'" data-act="tab" data-t="'+t[0]+'"><b>'+t[1]+'</b>'+t[2]+(t[0]==='partner'&&gcUnread()>0?'<i class="ndot"></i>':'')+'</button>';}).join('')+'</nav>';
+  return '<nav'+(navHid?' class="nvh"':'')+'>'+tabs.map(function(t){return '<button class="'+(ui.tab===t[0]?'on':'')+'" data-act="tab" data-t="'+t[0]+'"><b>'+t[1]+'</b>'+t[2]+(t[0]==='partner'&&gcUnread()>0?'<i class="ndot"></i>':'')+'</button>';}).join('')+'</nav>';
 }
 function nextAttemptOptions(sel){
   var base=aIdx(today()),o='';
@@ -2963,11 +2963,11 @@ function hwItemHtml(P,k,it,day){
 }
 function viewHW(c){
   var P=c.P,H=hwS(P);
-  hwLoadAll(P);var day=hwGen(P),st=hwStats(P),h='<div class="card"><div class="row sp"><h3>Daily homework</h3><button class="btn sec sm" data-act="tab" data-t="today">Back</button></div><div class="mut">One question for each subject, taken only from chapters you have ticked as done. It is like homework: finish it and it counts in your performance.</div>';
+  hwLoadAll(P);var day=hwGen(P),st=hwStats(P),h='<div class="card"><div class="row sp"><h3>Daily homework</h3></div><div class="mut">One question for each subject, taken only from chapters you have ticked as done. It is like homework: finish it and it counts in your performance.</div>';
   h+='<div class="row sp" style="margin-top:8px"><span>Last 7 days</span><b>'+st.dn+' / '+st.n+' done'+(st.pct!==null?' • score '+st.pct+'%':'')+'</b></div>';
   h+='<label style="display:flex;gap:6px;align-items:center;color:var(--tx);margin-top:10px"><input type="checkbox" data-chg="hwstrict"'+(H.strict?' checked':'')+'> Strict mode (remind me if homework is pending)</label><div class="mut" style="margin-top:4px">Turn on Notifications in Settings to also get a reminder on your phone at 6 PM.</div>';
   if(H.strict)h+='<div class="row" style="margin-top:6px;gap:8px;align-items:center"><span class="mut">Weekly deadline</span><select data-chg="hwdl">'+['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map(function(d,i){return '<option value="'+i+'"'+(H.dl===i?' selected':'')+'>'+d+'</option>';}).join('')+'</select></div>';
-  h+='<div style="margin-top:8px"><button class="btn sec sm" data-act="tab" data-t="rep">Repeated questions</button></div></div>';
+  h+='</div>';
   var keys=hwKeys(P),any=false;
   keys.forEach(function(k){
     var it=day.items[k];
@@ -2978,12 +2978,24 @@ function viewHW(c){
 }
 function viewRep(c){
   var P=c.P,ks=hwKeys(P),k=ui.repK&&ks.indexOf(ui.repK)>=0?ui.repK:ks[0];
-  var h='<div class="card"><div class="row sp"><h3>Repeated questions</h3><button class="btn sec sm" data-act="tab" data-t="hw">Back</button></div><div class="mut">Questions that came again in different papers (MTP, RTP, PYQ). The more papers, the more likely it comes again.</div>';
+  var h='<div class="card"><h3>Repeated questions</h3><div class="mut">Starred chapters carry the most marks. Below them are other chapters that are smaller but important or have questions that came again. Then the questions that came again in different papers (MTP, RTP, PYQ).</div>';
   h+='<div class="row" style="margin-top:8px;gap:8px"><select data-chg="hwrepk">'+ks.map(function(x){return '<option value="'+x+'"'+(x===k?' selected':'')+'>'+esc(pfull(x))+'</option>';}).join('')+'</select></div></div>';
   var B=HWQ[k];if(!B){hwLoad(k).then(function(){try{renderKeep();}catch(e){}});return h+'<div class="card mut">Loading...</div>';}
-  if(!B.rep||!B.rep.length)return h+'<div class="card mut">Nothing found yet for this subject.</div>';
-  B.rep.slice(0,40).forEach(function(r){
-    h+='<div class="card"><div class="row sp"><span class="chip warn">Repeated in '+r.n+' papers</span><span class="mut">'+esc(r.c.split(' › ').pop())+'</span></div><div style="white-space:pre-wrap;line-height:1.5;margin-top:8px">'+esc(r.q)+'</div><div class="mut" style="margin-top:6px">'+r.s.slice(0,6).map(esc).join(' • ')+'</div></div>';
+  var chs=(P.papers[k]?P.papers[k].ch:[]).filter(function(x){return !x.removed;}),pa=pwAll(P,k),hy=hyIds(P,k),tot=0;
+  chs.forEach(function(x){tot+=Number(pa[x.id])||0;});
+  var rc={};(B.rep||[]).forEach(function(r){rc[r.c]=(rc[r.c]||0)+1;});
+  var st=chs.filter(function(x){return hy[x.id];}).sort(function(a,b){return (pa[b.id]||0)-(pa[a.id]||0);});
+  var ot=chs.filter(function(x){return !hy[x.id]&&((Number(pa[x.id])||0)>0||rc[x.name]);}).sort(function(a,b){return (rc[b.name]||0)-(rc[a.name]||0)||(pa[b.id]||0)-(pa[a.id]||0);}).slice(0,12);
+  function row(x,star){var sh=tot?Math.round((Number(pa[x.id])||0)/tot*100):0,n=rc[x.name]||0;return '<tr><td>'+(star?'★ ':'')+esc(lblOf(x))+'</td><td>'+(sh?sh+'%':'-')+'</td><td>'+(n?n+' repeated':'-')+'</td><td>'+(x.status==='done'?'<span class="chip ok">Done</span>':(x.status==='learning'?'<span class="chip">Learning</span>':'<span class="chip warn">To do</span>'))+'</td></tr>';}
+  if(st.length){h+='<div class="card"><b>★ Starred chapters (most marks)</b><div class="scroll" style="margin-top:8px"><table><tr><th>Chapter</th><th>Share</th><th>Repeated Qs</th><th>Status</th></tr>'+st.map(function(x){return row(x,true);}).join('')+'</table></div></div>';}
+  if(ot.length){h+='<div class="card"><b>Also important (smaller chapters, still come in exams)</b><div class="scroll" style="margin-top:8px"><table><tr><th>Chapter</th><th>Share</th><th>Repeated Qs</th><th>Status</th></tr>'+ot.map(function(x){return row(x,false);}).join('')+'</table></div></div>';}
+  if(!B.rep||!B.rep.length)return h+'<div class="card mut">No repeated questions found yet for this subject.</div>';
+  var order={};st.concat(ot).forEach(function(x,i){order[x.name]=i;});
+  var reps=B.rep.slice().sort(function(a,b){var oa=order[a.c]===undefined?999:order[a.c],ob=order[b.c]===undefined?999:order[b.c];return oa-ob||b.n-a.n;});
+  h+='<h2>Questions that came again</h2>';
+  reps.slice(0,50).forEach(function(r){
+    var star=chs.some(function(x){return x.name===r.c&&hy[x.id];});
+    h+='<div class="card"><div class="row sp"><span class="chip warn">Repeated in '+r.n+' papers</span><span class="mut">'+(star?'★ ':'')+esc(r.c.split(' › ').pop().split(' – ').pop())+'</span></div><div style="white-space:pre-wrap;line-height:1.5;margin-top:8px">'+esc(r.q)+'</div><div class="mut" style="margin-top:6px">'+r.s.slice(0,4).map(esc).join(' • ')+'</div></div>';
   });
   return h;
 }
