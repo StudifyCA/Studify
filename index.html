@@ -2440,7 +2440,7 @@ async function aiAsk(P){
     var r=await cloud.client.functions.invoke('ai-tutor',{body:{lang:getLang(),mode:a.mode,question:a.q,context:a.mode==='material'?'':(a.ctx?aiContext(P):''),material:a.mode==='material'?String(a.mat||'').slice(0,6000):''}});
     if(r.error){
       var msg='The AI function is not reachable. Has it been deployed? (see the setup guide)';
-      try{if(r.error.context&&r.error.context.json){var j=await r.error.context.json();if(j&&j.error)msg=j.error;}}catch(e){}
+      try{var cx=r.error.context;if(cx){var st=cx.status;var tx=await cx.text();var j=null;try{j=JSON.parse(tx)}catch(e){}if(j&&j.error)msg=j.error;else msg='AI function error '+(st||'')+': '+String(tx||r.error.message||'').slice(0,200);}else if(r.error.message)msg+=' ['+r.error.message+']';}catch(e){}
       throw new Error(msg);
     }
     if(r.data&&r.data.error)throw new Error(r.data.error);
