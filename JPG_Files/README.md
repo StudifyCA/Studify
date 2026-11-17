@@ -1,0 +1,1 @@
+All JPG files
