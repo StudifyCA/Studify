@@ -752,10 +752,11 @@ function initCloud(){
   if(!window.supabase||!window.supabase.createClient){cloud.state='nolib';return;}
   try{
     cloud.client=window.supabase.createClient(cloud.cfg.url,cloud.cfg.key);
-    cloud.state='out';
+    cloud.state='out';cloud.sessChecked=false;cloud.syncDone=false;
     fetchRemote();
     cloud.client.auth.getSession().then(function(r){
       var s=r&&r.data&&r.data.session;
+      cloud.sessChecked=true;
       if(s&&!cloud.user){cloud.user=s.user;cloud.state='on';onSignedIn();}
       render();
     });
@@ -834,7 +835,7 @@ async function syncAll(){
     catch(e2){warn=' (partner summary not updated: '+((e2&&e2.message)||'error')+')';}
     cloud.syncMsg='Synced '+stamp+warn;
   }catch(e){cloud.syncMsg='Not synced: '+((e&&e.message)?e.message:'offline')+' (will retry)';}
-  cloud.busy=false;render();
+  cloud.busy=false;cloud.syncDone=true;render();
 }
 async function pushSummary(){
   var P=shareProfile();if(!P||!cloud.client||!cloud.user)return;
@@ -2585,7 +2586,43 @@ function timeVal(id){
 }
 function readv(id){var e=document.getElementById(id);return e?e.value:'';}
 function guard(p){return p.catch(function(e){toast((e&&e.message)?e.message:'Something went wrong');});}
+function kbCard(){
+  if(!cloud.isAdmin)return '';
+  var h='<div class="card"><h3>AI memory</h3><div class="mut">Answers the AI saved (and ICAI-seeded repeated MCQs). Students get these instantly and free. Check them, fix wrong ones, press Verify.</div>';
+  h+='<div class="row" style="margin-top:8px"><button class="btn sec sm" data-act="kbload">'+(ui.kb?'Reload':'Load memory')+'</button></div>';
+  if(ui.kbMsg)h+='<div class="chip" style="margin:8px 0;white-space:normal">'+esc(ui.kbMsg)+'</div>';
+  (ui.kb||[]).forEach(function(r,i){
+    h+='<div style="border-top:1px solid var(--bd);margin-top:10px;padding-top:8px"><div style="font-weight:600">'+esc(String(r.question||'').slice(0,300))+'</div>'+
+      '<div class="mut">'+esc(r.engine||'')+' \u2022 used '+(r.hits||0)+'x \u2022 '+(r.verified?'\u2705 verified':'not verified')+'</div>'+
+      '<textarea id="kb-'+i+'" rows="4" style="width:100%">'+esc(r.answer||'')+'</textarea>'+
+      '<div class="row" style="margin-top:6px"><button class="btn sm" data-act="kbsave" data-i="'+i+'">Save + Verify</button><button class="btn danger sm" data-act="kbdel" data-i="'+i+'">Delete</button></div></div>';
+  });
+  return h+'</div>';
+}
+function kbAct(a,d){
+  if(!cloud.client||!cloud.isAdmin){toast('Admin only');return true;}
+  if(a==='kbload'){
+    ui.kbMsg='Loading\u2026';render();
+    cloud.client.from('ai_kb').select('hash,question,answer,engine,hits,verified').order('verified',{ascending:true}).order('hits',{ascending:false}).limit(60).then(function(r){
+      if(r.error){ui.kbMsg='Could not load: '+r.error.message+' (run 14_ai_memory.sql)';}else{ui.kb=r.data||[];ui.kbMsg=ui.kb.length+' items';}
+      render();});
+    return true;
+  }
+  var i=Number(d&&d.i),row=ui.kb&&ui.kb[i];if(!row)return true;
+  if(a==='kbsave'){
+    var t=readv('kb-'+i).trim();if(!t){toast('Answer is empty');return true;}
+    cloud.client.from('ai_kb').update({answer:t,verified:true}).eq('hash',row.hash).then(function(r){if(r.error)toast(r.error.message);else{row.answer=t;row.verified=true;toast('Saved');}render();});
+    return true;
+  }
+  if(a==='kbdel'){
+    if(!window.confirm('Delete this saved answer?'))return true;
+    cloud.client.from('ai_kb').delete().eq('hash',row.hash).then(function(r){if(r.error)toast(r.error.message);else ui.kb.splice(i,1);render();});
+    return true;
+  }
+  return false;
+}
 function cact(a,d){
+  if(a==='kbload'||a==='kbsave'||a==='kbdel')return kbAct(a,d);
   if(a==='cloudsave'){
     var url=readv('cl-url').trim().replace(/\/(rest|auth|functions|storage)\/v1.*$/i,'').replace(/\/+$/,''),key=readv('cl-key').trim(),err=validateCfg(url,key);
     if(err){cmsg(err,'bad');render();return true;}
@@ -2601,6 +2638,7 @@ function cact(a,d){
     }
     return true;
   }
+  if(a==='skiplogin'){ui.skipLogin=true;render();return true;}
   if(a==='signin'||a==='signup'){
     var em=readv('cl-email').trim(),pw=readv('cl-pw');
     if(!em||!pw){cmsg('Enter your email and password','bad');render();return true;}
@@ -2873,9 +2911,9 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.1 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.3 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
-  html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
+  html+=adminCard()+kbCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
   var secHelp=html;
   var showAdm=!!(cloud.user&&cloud.isAdmin);
@@ -3303,9 +3341,24 @@ function hwChg(k,d,el){
   }
 }
 
+function viewGate(){
+  if(!cloud.cfg||cloud.state==='nolib'||cloud.state==='off')return '';
+  var logo='<div style="text-align:center;margin:28px 0 8px"><div style="font-size:26px;font-weight:800">Studify CA</div></div>';
+  var mk=cloud.msg?'<div class="chip '+(cloud.msgKind||'')+'" style="margin:8px 0;white-space:normal">'+esc(cloud.msg)+'</div>':'';
+  if(!cloud.sessChecked||(cloud.user&&!cloud.syncDone)){
+    return '<div class="wrap" style="max-width:460px;margin:0 auto;padding:16px">'+logo+'<div class="card" style="text-align:center"><h3>Loading your profile\u2026</h3><div class="mut">'+esc(cloud.syncMsg||'Please wait')+'</div></div></div>';
+  }
+  if(cloud.user)return '';
+  return '<div class="wrap" style="max-width:460px;margin:0 auto;padding:16px">'+logo+'<div class="card"><h3>Sign in</h3><div class="mut">Sign in first. If you already made a profile on another device, it opens here automatically.</div>'+mk+
+    '<label>Email</label><input type="text" id="cl-email" autocomplete="email">'+
+    '<label>Password (min 6 characters)</label><input type="password" id="cl-pw" autocomplete="current-password">'+
+    '<div class="row" style="margin-top:10px"><button class="btn" data-act="signin">Sign in</button><button class="btn sec" data-act="signup">Create account</button></div>'+
+    '<div style="margin-top:14px"><button class="btn sec sm" data-act="skiplogin">Continue without an account (this device only)</button></div></div></div>';
+}
 function render(){
   var app=document.getElementById('app'),P=cur();
   document.documentElement.dataset.theme=theme();applyFs();
+  if(!P&&!ui.onb&&!ui.skipLogin){var gt=viewGate();if(gt){app.innerHTML=gt;applyLang(app);return;}}
   if(!P||ui.onb){app.innerHTML=head(P)+viewOnboard();applyLang(app);return;}
   normP(P);
   var A=analyse(P),X=activeInfo(P,A),I=planInfo(P,A,X),c={P:P,A:A,X:X,I:I},body='';
@@ -3444,7 +3497,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.1\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.3\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
@@ -3781,6 +3834,7 @@ function act(a,d){
     if(o.fromId){var op=S.profiles.filter(function(x){return x.id===o.fromId;})[0];if(op){op.archived=true;op.dirty=true;}}
     S.profiles.push(np);S.active=np.id;ui.onb=null;ui.tab='today';ui.res=null;commit();toast('Plan created');return;
   }
+  if(a==='skiplogin'||a==='signin'||a==='signup'){cact(a,d);return;}
   if(!P)return;
   if(cact(a,d))return;
   if(a==='delprof'){
