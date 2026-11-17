@@ -2965,7 +2965,7 @@ function viewHW(c){
   var P=c.P,H=hwS(P);
   hwLoadAll(P);var day=hwGen(P),st=hwStats(P),h='<div class="card"><div class="row sp"><h3>Daily homework</h3><button class="btn sec sm" data-act="tab" data-t="today">Back</button></div><div class="mut">One question for each subject, taken only from chapters you have ticked as done. It is like homework: finish it and it counts in your performance.</div>';
   h+='<div class="row sp" style="margin-top:8px"><span>Last 7 days</span><b>'+st.dn+' / '+st.n+' done'+(st.pct!==null?' • score '+st.pct+'%':'')+'</b></div>';
-  h+='<label style="display:flex;gap:6px;align-items:center;color:var(--tx);margin-top:10px"><input type="checkbox" data-chg="hwstrict"'+(H.strict?' checked':'')+'> Strict mode (remind me if homework is pending)</label>';
+  h+='<label style="display:flex;gap:6px;align-items:center;color:var(--tx);margin-top:10px"><input type="checkbox" data-chg="hwstrict"'+(H.strict?' checked':'')+'> Strict mode (remind me if homework is pending)</label><div class="mut" style="margin-top:4px">Turn on Notifications in Settings to also get a reminder on your phone at 6 PM.</div>';
   if(H.strict)h+='<div class="row" style="margin-top:6px;gap:8px;align-items:center"><span class="mut">Weekly deadline</span><select data-chg="hwdl">'+['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map(function(d,i){return '<option value="'+i+'"'+(H.dl===i?' selected':'')+'>'+d+'</option>';}).join('')+'</select></div>';
   h+='<div style="margin-top:8px"><button class="btn sec sm" data-act="tab" data-t="rep">Repeated questions</button></div></div>';
   var keys=hwKeys(P),any=false;
