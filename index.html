@@ -2913,7 +2913,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.9 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.9b • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3080,9 +3080,9 @@ function qrPri(x){x=String(x||'').toLowerCase();return QRPR[x]?x:(/high|must|top
 function qrChart(ch,P,k){
   if(!ch||!ch.content||!Array.isArray(ch.content.topics))return '';
   var R=(qrS(P)[k])||{};
-  var h='<div class="card"><div class="row sp"><b>'+esc(ch.content.title||'Quick revision chart')+'</b><button class="btn sec sm" data-act="qrimg">Save as image</button></div><div class="mut" style="margin-top:4px">Made by AI from the ICAI syllabus. Check important points in ICAI material.</div>'+
+  var h='<div class="card"><div class="row sp"><b>'+esc(pfull(k)+' \u2013 Quick revision')+'</b><button class="btn sec sm" data-act="qrimg">Save as image</button></div><div class="mut" style="margin-top:4px">Made by AI from the ICAI syllabus. Check important points in ICAI material.</div>'+
     '<div class="row" style="gap:10px;margin-top:8px;flex-wrap:wrap">'+Object.keys(QRPR).map(function(x){return '<span style="display:inline-flex;gap:6px;align-items:center;font-size:12px"><i style="width:12px;height:12px;border-radius:3px;background:'+QRPR[x][0]+';display:inline-block"></i>'+QRPR[x][1]+' ('+QRPR[x][2]+')</span>';}).join('')+'</div></div>';
-  h+='<div id="qr-chart" style="padding:10px;background:#fff;color:#1b1f27;border-radius:10px"><div style="text-align:center;font-weight:800;font-size:17px;margin-bottom:10px">'+esc(ch.content.title||pfull(k))+'</div>';
+  h+='<div id="qr-chart" style="padding:10px;background:#fff;color:#1b1f27;border-radius:10px"><div style="text-align:center;font-weight:800;font-size:17px;margin-bottom:10px">'+esc(pfull(k)+' \u2013 Quick revision')+'</div>';
   ch.content.topics.forEach(function(t,ti){
     t.chapter=String(t.chapter||'').split(' | ')[0].replace(/\s*\(?\d+ repeated.*$/i,'').trim();
     var pr=qrPri(t.priority),c=QRPR[pr][0],e=R[t.chapter]||null;
@@ -3847,7 +3847,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.9\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.9b\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
