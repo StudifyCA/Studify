@@ -1,104 +1,96 @@
-                    is_pdf = probe_pdf_link(link)
+import os
+import re
+import time
+import hashlib
+from collections import deque
+from urllib.parse import urljoin, urlparse, urldefrag, unquote
 
-            if is_pdf:
-                if link not in saved_pdf_urls:
-                    save_pdf(title, link, f"{source_name} {context}")
-                    saved_pdf_urls.add(link)
-                    pdfs_found += 1
-                continue
-
-            if depth < MAX_DEPTH and should_crawl_link(title, link, context):
-                if link not in visited:
-                    queue.append((link, depth + 1))
-
-    print(
-        f"Finished {source_name}. Pages checked: {pages_checked}. "
-        f"Unique PDF links found: {pdfs_found}."
-    )
+import requests
+from bs4 import BeautifulSoup
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 # ============================================================
-# ANNOUNCEMENT MONITOR
+# STUDIFY ICAI MONITOR
+# Discovers ICAI academic PDFs and relevant announcements.
+# Saves PDF links and metadata to Supabase.
+#
+# IMPORTANT:
+# This monitor stores PDF LINKS in Supabase. It does not upload
+# PDF file bytes to Supabase Storage and does not create a ZIP.
 # ============================================================
 
-def monitor_announcements(source_name, page_url):
-    print(f"\nChecking announcements: {source_name}")
+SUPABASE_URL = os.environ["SUPABASE_URL"].rstrip("/")
+SUPABASE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 
-    html = fetch_page(page_url)
-    if not html:
-        print(f"Announcement source unavailable: {page_url}")
-        return
+HEADERS = {
+    "apikey": SUPABASE_KEY,
+    "Authorization": f"Bearer {SUPABASE_KEY}",
+    "Content-Type": "application/json",
+    "Prefer": "resolution=ignore-duplicates",
+}
 
-    links = extract_links(page_url, html)
-    saved = 0
-    seen = set()
+# ICAI official starting pages. The BoS portal is included as a
+# discovery source, but it may deny automated requests (403).
+SOURCE_PAGES = [
+    {
+        "name": "ICAI Announcements",
+        "url": "https://www.icai.org/category/announcements/3",
+        "kind": "announcements",
+    },
+    {
+        "name": "ICAI Board of Studies Announcements",
+        "url": "https://www.icai.org/category/board-of-studies-announcements",
+        "kind": "announcements",
+    },
+    {
+        "name": "ICAI Study Material",
+        "url": "https://www.icai.org/post/study-material-nset",
+        "kind": "academic",
+    },
+    {
+        "name": "ICAI New Scheme",
+        "url": "https://www.icai.org/post/new-scheme-of-education-and-training",
+        "kind": "academic",
+    },
+    {
+        "name": "Foundation RTP January 2027",
+        "url": "https://www.icai.org/post/rtp-foundation-course-jan2027",
+        "kind": "academic",
+    },
+    {
+        "name": "Intermediate RTP January 2027",
+        "url": "https://www.icai.org/post/rtp-intermediate-course-jan2027",
+        "kind": "academic",
+    },
+    {
+        "name": "ICAI BoS Knowledge Portal",
+        "url": "https://boslive.icai.org/",
+        "kind": "academic",
+    },
+]
 
-    for item in links:
-        title = item["title"]
-        link = item["url"]
-        context = item["context"]
-
-        if link in seen:
-            continue
-        seen.add(link)
-
-        parsed = urlparse(link)
-        path = parsed.path.lower()
-
-        if path.startswith("/category/"):
-            continue
-
-        if not (
-            path.startswith("/post/")
-            or "/announcement" in path
-            or "/notification" in path
-            or "/newsevent/" in path
-        ):
-            continue
-
-        if not title or len(title) < 8:
-            continue
-
-        if any(word in title.lower() for word in IGNORE_LINK_WORDS):
-            continue
-
-        if is_pdf_url(link):
-            save_pdf(title, link, context)
-            continue
-
-        save_announcement(
-            title,
-            link,
-            f"Detected from {source_name}. {context}",
-        )
-        saved += 1
-
-    print(f"Announcement links processed: {saved}")
-
-
-# ============================================================
-# MAIN
-# ============================================================
-
-def main():
-    print("=" * 64)
-    print("             STUDIFY ICAI ACADEMIC MONITOR v3")
-    print("=" * 64)
-
-    total_sources = 0
-    for source in SOURCE_PAGES:
-        total_sources += 1
-        if source["kind"] == "announcements":
-            monitor_announcements(source["name"], source["url"])
-        else:
-            crawl_academic_pages(source["name"], source["url"])
-
-    print("\n" + "=" * 64)
-    print(f"ICAI monitoring run completed. Sources attempted: {total_sources}")
-    print("PDF links and announcement metadata are sent to Supabase.")
-    print("This script does NOT download PDF files or create a ZIP archive.")
-    print("=" * 64)
+# Permit the root ICAI domains and their subdomains only.
+# Examples: www.icai.org, boslive.icai.org, kb.icai.org.
+def is_allowed_icai_host(host):
+    host = (host or "").lower().split(":")[0].rstrip(".")
+    return host == "icai.org" or host.endswith(".icai.org")
 
 
-if __name__ == "__main__":
-    main()
+ACADEMIC_KEYWORDS = [
+    "study material", "study-material", "foundation", "intermediate",
+    "final course", "rtp", "revision test", "revision-test",
+    "mtp", "mock test", "mock-test", "question paper", "question-paper",
+    "suggested answer", "suggested-answer", "answer key", "answer-key",
+    "case study", "case-study", "case scenario", "syllabus",
+    "new scheme", "new-scheme", "amendment", "supplementary",
+    "academic", "board of studies", "bos", "mcq", "practice",
+    "statutory update", "judicial update", "saransh",
+]
+
+IGNORE_LINK_WORDS = [
+    "home", "overview", "about icai", "contact us", "members",
+    "privacy policy", "terms", "copyright", "sitemap", "facebook",
+    "twitter", "instagram", "linkedin", "youtube", "tender",
+    "career", "placement", "advertisement", "certificate course",
