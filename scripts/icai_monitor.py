@@ -94,3 +94,5 @@ IGNORE_LINK_WORDS = [
     "privacy policy", "terms", "copyright", "sitemap", "facebook",
     "twitter", "instagram", "linkedin", "youtube", "tender",
     "career", "placement", "advertisement", "certificate course",
+    "startup", "cooperative", "mediation", "indas registration",
+]
