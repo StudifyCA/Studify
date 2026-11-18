@@ -2911,7 +2911,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.4b • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.5 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3073,21 +3073,33 @@ function qrRank(P){
   out.sort(function(a,b){return b.score-a.score;});return out;
 }
 function qrRowBtn(k,i,e){return '<button class="btn sm'+(e.n?' sec':'')+'" data-act="qrdone" data-k="'+k+'" data-i="'+i+'">Revised'+(e.n?' ('+e.n+'x)':'')+'</button>';}
+var QRPR={high:['#d94b4b','Must revise','Most marks / repeated'],medium:['#d9962b','Important','Revise next'],low:['#3f9a64','If time permits','Lower weight']};
+function qrPri(x){x=String(x||'').toLowerCase();return QRPR[x]?x:(/high|must|top|1/.test(x)?'high':(/low|slow|less|3/.test(x)?'low':'medium'));}
 function qrChart(ch,P,k){
   if(!ch||!ch.content||!Array.isArray(ch.content.topics))return '';
-  var R=(qrS(P)[k])||{},col={high:'#e25555',medium:'#e0a030',low:'#4aa36b'};
-  var h='<div class="card"><b>'+esc(ch.content.title||'Quick revision chart')+'</b><div class="mut">One chart for everyone, made by AI from the ICAI syllabus. Check important points in ICAI material.</div></div>';
+  var R=(qrS(P)[k])||{};
+  var h='<div class="card"><div class="row sp"><b>'+esc(ch.content.title||'Quick revision chart')+'</b><button class="btn sec sm" data-act="qrimg">Save as image</button></div><div class="mut" style="margin-top:4px">Made by AI from the ICAI syllabus. Check important points in ICAI material.</div>'+
+    '<div class="row" style="gap:10px;margin-top:8px;flex-wrap:wrap">'+Object.keys(QRPR).map(function(x){return '<span style="display:inline-flex;gap:6px;align-items:center;font-size:12px"><i style="width:12px;height:12px;border-radius:3px;background:'+QRPR[x][0]+';display:inline-block"></i>'+QRPR[x][1]+' ('+QRPR[x][2]+')</span>';}).join('')+'</div></div>';
+  h+='<div id="qr-chart" style="padding:10px;background:#fff;color:#1b1f27;border-radius:10px"><div style="text-align:center;font-weight:800;font-size:17px;margin-bottom:10px">'+esc(ch.content.title||pfull(k))+'</div>';
   ch.content.topics.forEach(function(t){
-    var pr=String(t.priority||'medium').toLowerCase(),e=R[t.chapter]||null;
-    h+='<div class="card" style="border-left:4px solid '+(col[pr]||col.medium)+'"><div class="row sp"><b>'+esc(t.chapter||'')+'</b><span class="chip">'+esc(pr)+'</span></div>';
-    if(Array.isArray(t.points)&&t.points.length)h+='<ul style="margin:8px 0 0 18px;padding:0;line-height:1.5">'+t.points.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';
-    if(Array.isArray(t.formulas)&&t.formulas.length)h+='<div style="margin-top:8px"><b>Formulas / rules</b><div style="white-space:pre-wrap;font-family:monospace;font-size:13px">'+t.formulas.map(esc).join('\n')+'</div></div>';
-    if(t.trap)h+='<div class="mut" style="margin-top:8px">Common mistake: '+esc(t.trap)+'</div>';
-    if(e)h+='<div class="mut" style="margin-top:4px">Revised '+e.n+'x</div>';
-    h+='</div>';
+    var pr=qrPri(t.priority),c=QRPR[pr][0],e=R[t.chapter]||null;
+    h+='<div style="border:2px solid '+c+';border-radius:12px;margin-bottom:12px;overflow:hidden">'+
+      '<div style="background:'+c+';color:#fff;padding:8px 10px;display:flex;justify-content:space-between;gap:8px"><b>'+esc(t.chapter||'')+'</b><span style="font-size:12px;white-space:nowrap">'+QRPR[pr][1]+'</span></div><div style="padding:10px">';
+    if(t.explain)h+='<div style="font-size:14px;line-height:1.5;margin-bottom:8px">'+esc(t.explain)+'</div>';
+    if(Array.isArray(t.flow)&&t.flow.length)h+='<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0">'+t.flow.map(function(f,i){return (i?'<span style="color:'+c+';font-weight:800">→</span>':'')+'<span style="border:1.5px solid '+c+';border-radius:8px;padding:4px 8px;font-size:12.5px;background:#fff">'+esc(f)+'</span>';}).join('')+'</div>';
+    if(Array.isArray(t.points)&&t.points.length)h+='<ul style="margin:6px 0 0 18px;padding:0;line-height:1.5;font-size:13.5px">'+t.points.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';
+    if(Array.isArray(t.formulas)&&t.formulas.length)h+='<div style="margin-top:8px;background:#f1f3f7;border-radius:8px;padding:6px 8px;font-family:monospace;font-size:12.5px;white-space:pre-wrap">'+t.formulas.map(esc).join('\n')+'</div>';
+    if(t.trap)h+='<div style="margin-top:8px;font-size:13px;color:#a02f2f"><b>Common mistake:</b> '+esc(t.trap)+'</div>';
+    h+='</div></div>';
   });
-  if(Array.isArray(ch.content.mnemonics)&&ch.content.mnemonics.length)h+='<div class="card"><b>Memory tricks</b><ul style="margin:8px 0 0 18px;padding:0;line-height:1.5">'+ch.content.mnemonics.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>';
-  return h;
+  if(Array.isArray(ch.content.mnemonics)&&ch.content.mnemonics.length)h+='<div style="border:2px dashed #6a7bd1;border-radius:12px;padding:10px"><b>Memory tricks</b><ul style="margin:6px 0 0 18px;padding:0;line-height:1.5;font-size:13.5px">'+ch.content.mnemonics.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>';
+  return h+'</div>';
+}
+function qrSaveImg(){
+  var el=document.getElementById('qr-chart');if(!el){toast('Chart not found');return;}
+  function go(){window.html2canvas(el,{backgroundColor:'#ffffff',scale:2}).then(function(cv){var a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='quick-revision-'+(ui.qrK||'chart')+'.png';document.body.appendChild(a);a.click();a.remove();toast('Image saved');}).catch(function(){toast('Could not make the image');});}
+  if(window.html2canvas){go();return;}
+  toast('Making image...');var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';sc.onload=go;sc.onerror=function(){toast('Could not load the image tool. Check internet.');};document.head.appendChild(sc);
 }
 function viewQR(c){
   var P=c.P,ks=hwKeys(P),k=ui.qrK&&ks.indexOf(ui.qrK)>=0?ui.qrK:ks[0],R=qrS(P);
@@ -3133,6 +3145,7 @@ async function qrGen(k){
   return true;
 }
 function qrAct(a,d,P){
+  if(a==='qrimg'){qrSaveImg();return;}
   if(a==='qrdone'){var k=d.k,ch=(P.papers[k].ch||[]).filter(function(x){return !x.removed;})[Number(d.i)];if(!ch)return;var R=qrS(P);if(!R[k])R[k]={};var e=R[k][ch.name]||(R[k][ch.name]={n:0,at:0});e.n++;e.at=Date.now();P.dirty=true;commit();toast('Revision saved');return;}
   if(!cloud.isAdmin||!cloud.client)return;
   if(a==='qrgen'||a==='qrgenall'){
@@ -3641,7 +3654,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.4b\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.5\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
