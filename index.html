@@ -2911,7 +2911,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.6b • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.7 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3133,15 +3133,28 @@ function viewQR(c){
   }
   return h;
 }
-async function qrGen(k){
-  var B=HWQ[k]&&!HWQ[k].bad?HWQ[k]:null,rc=B?repCnt(B):{},gw=(GPW[k]&&GPW[k].m)||{},tot=0;
-  Object.keys(gw).forEach(function(n){tot+=Number(gw[n])||0;});
-  var names=SYL[k].map(function(n){return typeof n==='string'?n:(n.name||n.unit||'');}).filter(Boolean);
-  var lines=names.map(function(n){var sh=tot&&gw[n]?Math.round(gw[n]/tot*100):0;return n+(sh?' | about '+sh+'% of past marks':'')+(rc[n]?' | '+rc[n]+' repeated questions':'');});
-  var q='Subject: '+pfull(k)+' (ICAI CA '+({FD:'Foundation',IN:'Intermediate',FN:'Final'}[k.slice(0,2)])+')\nChapters (keep these exact names and order):\n'+lines.join('\n');
-  var r=await cloud.client.functions.invoke('ai-tutor',{body:{mode:'revchart',key:k,question:q.slice(0,5800),lang:'en'}});
+async function qrCall(body){
+  var r=await cloud.client.functions.invoke('ai-tutor',{body:body});
   if(r.error){var m='Function error';try{var tx=await r.error.context.text();var j=null;try{j=JSON.parse(tx)}catch(e){}m=(j&&j.error)||tx||r.error.message;}catch(e){m=r.error.message||m;}throw new Error(String(m).slice(0,200));}
   if(r.data&&r.data.error)throw new Error(r.data.error);
+  return true;
+}
+function qrUnits(k){
+  var out=[];
+  SYL[k].forEach(function(n){n=typeof n==='string'?n:(n.name||n.unit||'');if(!n)return;if(SUB[n])SUB[n].forEach(function(u){out.push({top:n,name:n+' › '+u});});else out.push({top:n,name:n});});
+  return out;
+}
+async function qrGen(k,onPart){
+  var B=HWQ[k]&&!HWQ[k].bad?HWQ[k]:null,rc=B?repCnt(B):{},gw=(GPW[k]&&GPW[k].m)||{},tot=0;
+  Object.keys(gw).forEach(function(n){tot+=Number(gw[n])||0;});
+  var us=qrUnits(k),size=5,parts=Math.ceil(us.length/size);
+  for(var pi=0;pi<parts;pi++){
+    var seg=us.slice(pi*size,pi*size+size);
+    if(onPart)onPart(pi+1,parts);
+    var lines=seg.map(function(u){var sh=tot&&gw[u.top]?Math.round(gw[u.top]/tot*100):0;return u.name+(sh?' | its chapter has about '+sh+'% of past marks':'')+(rc[u.top]?' | '+rc[u.top]+' repeated questions in this chapter':'');});
+    var q='Subject: '+pfull(k)+' (ICAI CA '+({FD:'Foundation',IN:'Intermediate',FN:'Final'}[k.slice(0,2)])+'), new scheme\nThis is part '+(pi+1)+' of '+parts+' of the subject. Write notes ONLY for these items (keep exact names and order). Each item is a separate topic:\n'+lines.join('\n');
+    await qrCall({mode:'revchart',key:k,append:pi>0,question:q.slice(0,5800),lang:'en'});
+  }
   return true;
 }
 function qrAct(a,d,P){
@@ -3155,7 +3168,7 @@ function qrAct(a,d,P){
       var okn=0;
       for(var i=0;i<todo.length;i++){
         ui.qrMsg='Generating '+todo[i]+' ('+(i+1)+'/'+todo.length+')...';renderKeep();
-        try{await hwLoad(todo[i]);await qrGen(todo[i]);okn++;}catch(e){ui.qrMsg='Stopped at '+todo[i]+': '+e.message;QRB.on=false;cloud.rcTried=false;qrLoad();return;}
+        try{await hwLoad(todo[i]);await qrGen(todo[i],function(a1,b1){ui.qrMsg='Generating '+todo[i]+' ('+(i+1)+'/'+todo.length+'), part '+a1+' of '+b1+'...';renderKeep();});okn++;}catch(e){ui.qrMsg='Stopped at '+todo[i]+': '+e.message;QRB.on=false;cloud.rcTried=false;qrLoad();return;}
       }
       QRB.on=false;ui.qrMsg='Done: '+okn+' chart(s) made.';cloud.rcTried=false;qrLoad();
     })();
@@ -3654,7 +3667,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.6b\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.7\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
