@@ -283,6 +283,7 @@ function applyRemote(r){
   if(r.calendar&&r.calendar.attempts){CAL.attempts=Object.assign({},CAL.attempts,r.calendar.attempts);if(r.calendar.version)CAL.version=r.calendar.version>CAL.version?r.calendar.version:CAL.version;}
   if(r.icai_news&&Array.isArray(r.icai_news.items))NEWSR=r.icai_news.items.filter(newsOk).slice(0,60);
   if(r.icai_news_feed&&Array.isArray(r.icai_news_feed.items)){NEWSF=r.icai_news_feed.items.filter(feedOk).slice(0,30);NEWSFU=String(r.icai_news_feed.updated||'').slice(0,40);}
+  if(r.icai_docs&&Array.isArray(r.icai_docs.items)){DOCS=r.icai_docs.items.filter(docOk).slice(0,500);DOCSU=String(r.icai_docs.updated||'').slice(0,40);}
   var y=r.syllabus;
   if(y&&y.version&&y.version>SYLVER){
     SYLVER=y.version;SYLINFO=y.note||'';
@@ -965,7 +966,7 @@ function fmtTs(s){try{return new Date(s).toLocaleString([],{dateStyle:'medium',t
 
 /* ---------- UI state ---------- */
 var ui={open:{},tab:'today',modal:null,onb:null,res:null,toast:'',showAll:false};
-var tabs=[['qr','\u26a1','Quick revision'],['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['pt','\ud83e\uddea','Practice'],['star','\u2b50','Starred'],['rep','\ud83d\udd01','Repeat'],['guide','\ud83d\udcd8','Exam guide'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
+var tabs=[['qr','\u26a1','Quick revision'],['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['pt','\ud83e\uddea','Practice'],['star','\u2b50','Starred'],['rep','\ud83d\udd01','Repeat'],['guide','\ud83d\udcd8','Exam guide'],['calc','\ud83e\uddee','Calculator'],['yt','\ud83c\udfac','Video notes'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
 
 function toast(m){
   ui.toast=m;var old=document.querySelector('.toast');if(old)old.remove();
@@ -2913,7 +2914,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.10 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.12 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3296,17 +3297,161 @@ function gdMeth(){
   function box(t,L){return '<div class="card"><h3>'+t+'</h3>'+L.map(function(x){return '<details style="border-top:1px solid var(--bd);padding:6px 0"><summary><b>'+esc(x[0])+'</b></summary><div class="mut" style="margin-top:4px">'+esc(x[1])+'</div></details>';}).join('')+'</div>';}
   return box('Study methods',GDM)+box('Answer writing and exam approach',GDW);
 }
+
+/* ===== v1.11: official ICAI documents (links only; files stay on icai.org) ===== */
+var DOCS=[],DOCSU='',HDOCS=[],HLOAD=0;
+function hdocLoad(){if(HLOAD)return;HLOAD=1;try{fetch('icai-docs/index.json?'+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&Array.isArray(j.items)){HDOCS=j.items.filter(function(x){return docOk(x)&&(!x.f||/^icai-docs\/[A-Za-z0-9._\/-]+\.pdf$/.test(x.f));}).slice(0,1500);if(j.updated&&!DOCSU)DOCSU=String(j.updated).slice(0,40);renderKeep();}}).catch(function(){});}catch(e){}}
+function allDocs(){var u={};HDOCS.forEach(function(x){u[x.url]=1;});return HDOCS.concat(DOCS.filter(function(x){return !u[x.url];}));}
+function docOk(x){return x&&typeof x.t==='string'&&x.t.length>0&&x.t.length<=140&&typeof x.url==='string'&&/^https:\/\/([a-z0-9-]+\.)*icai\.org\/[^\s"'<>]{0,470}$/i.test(x.url)&&Array.isArray(x.lv);}
+var DOCCATS=['All','Announcement','Study material','RTP','MTP','Past paper','Syllabus','Result','Other'];
+var ICAIL=[['ICAI website','https://www.icai.org/'],['Study material, RTP, MTP (BoS Knowledge Portal)','https://boslive.icai.org/'],['Exam results and admit cards','https://icaiexam.icai.org/'],['Student services','https://eservices.icai.org/']];
+function gdDocs(P){
+  var f=ui.docC||'All',q=(ui.docQ||'').toLowerCase(),lv=ui.docL||P.level;
+  var h='<div class="card"><h3>Official ICAI documents</h3><div class="mut">Links open the original file on icai.org, so you always get the latest version. Nothing is copied into this app.</div>';
+  h+='<div style="margin-top:8px">'+ICAIL.map(function(x){return '<a class="btn sec sm" style="margin:0 6px 6px 0;display:inline-block" href="'+x[1]+'" target="_blank" rel="noopener noreferrer">'+esc(x[0])+'</a>';}).join('')+'</div>';
+  hdocLoad();var L=allDocs().filter(function(x){return (f==='All'||x.c===f)&&x.lv.indexOf(lv)>=0&&(!q||x.t.toLowerCase().indexOf(q)>=0);});
+  h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><select data-chg="gddl">'+LVORD.map(function(v){return '<option value="'+v+'"'+(v===lv?' selected':'')+'>'+esc(LVNAME[v])+'</option>';}).join('')+'</select><select data-chg="gddc">'+DOCCATS.map(function(v){return '<option'+(v===f?' selected':'')+'>'+v+'</option>';}).join('')+'</select><input id="gd-dq" placeholder="Search" value="'+esc(ui.docQ||'')+'" data-chg="gddq" style="flex:1;min-width:120px"></div>';
+  if(!allDocs().length)h+='<div class="mut" style="margin-top:10px">No documents synced yet. Use the buttons above to open ICAI directly'+(cloud.isAdmin?', or press Sync now.':'.')+'</div>';
+  else if(!L.length)h+='<div class="mut" style="margin-top:10px">Nothing matches this filter.</div>';
+  var td=iso(today());
+  L.slice(0,40).forEach(function(x){
+    var age=0;try{age=Math.round((parse(td)-parse(x.d))/864e5);}catch(e){}
+    h+='<div class="blk" style="margin-top:8px"><div><a href="'+esc(x.f||x.url)+'" target="_blank" rel="noopener noreferrer"><b>'+esc(x.t)+'</b></a><div class="mut">'+esc(x.c||'Other')+(x.f?' • PDF saved in app':(x.pdf?' • PDF on icai.org':''))+(x.s?' • '+(x.s/1048576).toFixed(1)+' MB':'')+' • found '+esc(x.d||'')+(x.f?' • <a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">original</a>':'')+'</div></div>'+(age<=14?'<span class="chip ok">New</span>':'')+'</div>';
+  });
+  if(L.length>40)h+='<div class="mut" style="margin-top:6px">Showing 40 of '+L.length+'. Use search to narrow down.</div>';
+  if(DOCSU)h+='<div class="mut" style="margin-top:8px">Last checked: '+esc(fmtTs(DOCSU))+'. Titles are read automatically from icai.org, so confirm details in the file.</div>';
+  if(cloud.isAdmin){
+    h+='<div style="border-top:1px solid var(--bd);margin-top:12px;padding-top:10px"><b>Admin</b><div class="row" style="gap:8px;margin-top:6px"><button class="btn sec sm" data-act="gddocsync">Sync now</button></div>'+
+      '<input id="gd-dt" placeholder="Title (e.g. RTP Nov 2026 Inter)" style="margin-top:8px;width:100%"><input id="gd-du" placeholder="Full link from icai.org (https://...)" style="margin-top:6px;width:100%"><button class="btn sm" style="margin-top:6px" data-act="gddocadd">Add this link for everyone</button></div>';
+  }
+  return h+'</div>';
+}
+async function gdDocCall(body){
+  var r=await cloud.client.functions.invoke('icai-docs',{body:body});
+  if(r.error){var m='Function error';try{var tx=await r.error.context.text();var j=null;try{j=JSON.parse(tx)}catch(e){}m=(j&&j.error)||tx||r.error.message;}catch(e){m=r.error.message||m;}throw new Error(String(m).slice(0,220));}
+  if(r.data&&r.data.error)throw new Error(r.data.error);
+  return r.data;
+}
+function gdDocRun(body){
+  toast('Working...');
+  guard(gdDocCall(body).then(function(d){toast('Done: '+d.new+' new, '+d.total+' total'+((d.unreachable&&d.unreachable.length)?' (some pages not reachable)':''));return fetchRemote?fetchRemote():null;}).then(function(){renderKeep();}));
+}
+
+/* ===== v1.12: calculator tricks + practice ===== */
+var CLT=[
+['Negative numbers','To enter a negative number press the sign key: (−) on Casio fx-991 ES/EX, +/− on many basic and older models. Example: 5 then +/− gives −5. A minus (−) used as subtraction is a different key.'],
+['Powers with repeated equals (xⁿ)','On most Casio scientific calculators: type 3 × 3 = to get 3² = 9, then keep pressing = to multiply by 3 again (27, 81...). For 3⁴ press = two more times after the first. Or use the xʸ / ^ key: 3 ^ 4 =. Test once on your own model, some calculators behave differently.'],
+['Reciprocal 1/x','Use the x⁻¹ key: type the number, press x⁻¹ (or 1 ÷ number). Useful for 1/(1+r) discount factors. Example: 21870 ÷ (0.9)²: first do 0.9 x² = 0.81, then 21870 ÷ 0.81 = 27000.'],
+['AP nth term by repeated equals','For an AP with first term a and common difference d: type a + d =. That gives the 2nd term. Each extra = adds d again (3rd, 4th ...). For the 7th term press = six times in total after a + d (first = gives term 2). Cross-check with a + (n−1)d.'],
+['Sum of AP / GP','AP: Sₙ = n/2 × [2a + (n−1)d]. GP: Sₙ = a(rⁿ − 1)/(r − 1). Type the bracket first, store it with STO or use Ans so you do not retype.'],
+['Mean and mean deviation','Mean = sum ÷ n (use STAT mode if you have many numbers). Mean deviation about mean = Σ|x − mean| ÷ n: find the mean first, write each |x − mean| in a column, add, divide by n. Do not forget the absolute value (ignore the sign).'],
+['Compound interest with repeated multiply','A = P(1 + r/100)ⁿ. Type P × 1.1 = then press = again for each further year (10% p.a.). For 3 years: 1 initial + 2 more =. Round only at the end.'],
+['Percentage change','New value = old × (1 ± p/100). A 20% rise on 450: 450 × 1.2 = 540. A 20% fall: 450 × 0.8 = 360.'],
+['nCr, nPr and factorial','Use the nCr / nPr keys (SHIFT + ÷ for nCr on many Casio models) and x! (SHIFT + x⁻¹). Example 8C3: 8 nCr 3 = 56.'],
+['Use Ans and memory','Ans holds the last result: press an operator right after = to continue. STO / M+ keeps one value. Clear memory before the exam so old values are not reused. Always use only the calculator type permitted by ICAI for your exam.']
+];
+var CCS=null;try{CCS=JSON.parse(localStorage.getItem('studify-cc')||'null');}catch(e){}
+if(!CCS)CCS={n:0,ok:0};
+function ccSave(){try{localStorage.setItem('studify-cc',JSON.stringify(CCS));}catch(e){}}
+function ri(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+function ccGen(){
+  var t=ri(1,10),o;
+  if(t===1){var b=ri(2,9),e=ri(3,5);o={q:'Find '+b+'^'+e,a:Math.pow(b,e),tip:'Type '+b+' × '+b+' = then press = '+(e-2)+' more time(s). Or '+b+' ^ '+e+' =.'};}
+  else if(t===2){var a=ri(2,20),d=ri(2,9),n=ri(6,12);o={q:'AP: first term '+a+', common difference '+d+'. Find the '+n+'th term.',a:a+(n-1)*d,tip:'Type '+a+' + '+d+' = (gives 2nd term), then press = '+(n-2)+' more time(s). Check: a + (n−1)d.'};}
+  else if(t===3){var a2=ri(2,15),d2=ri(2,8),n2=ri(6,15);o={q:'AP: a = '+a2+', d = '+d2+'. Find the sum of first '+n2+' terms.',a:n2*(2*a2+(n2-1)*d2)/2,tip:'S = n/2 × [2a + (n−1)d] = '+n2+'/2 × ('+(2*a2)+' + '+((n2-1)*d2)+').'};}
+  else if(t===4){var a3=ri(2,5),r=ri(2,3),n3=ri(4,7);o={q:'GP: first term '+a3+', common ratio '+r+'. Find the '+n3+'th term.',a:a3*Math.pow(r,n3-1),tip:'Type '+a3+' × '+r+' = (2nd term), then press = '+(n3-2)+' more time(s). Check: a × r^(n−1).'};}
+  else if(t===5){var P=ri(1,9)*1000,rr=[10,20][ri(0,1)],n4=ri(2,3);o={q:'Compound interest: ₹'+P+' at '+rr+'% p.a. for '+n4+' years. Find the amount (₹).',a:Math.round(P*Math.pow(1+rr/100,n4)),tip:'Type '+P+' × '+(1+rr/100)+' = then press = '+(n4-1)+' more time(s).'};}
+  else if(t===6){var xs=[];for(var i=0;i<4;i++)xs.push(ri(10,60));var sm=xs.reduce(function(x,y){return x+y;},0);var last=ri(10,60);while((sm+last)%5)last++;xs.push(last);o={q:'Find the mean of: '+xs.join(', '),a:(sm+last)/5,tip:'Add all numbers = '+(sm+last)+', divide by 5.'};}
+  else if(t===7){var ys=[];for(var j=0;j<4;j++)ys.push(ri(4,30));var s2=ys.reduce(function(x,y){return x+y;},0);var l2=ri(4,30);while((s2+l2)%5)l2++;ys.push(l2);var m=(s2+l2)/5,dv=ys.reduce(function(x,y){return x+Math.abs(y-m);},0)/5;o={q:'Mean deviation about the mean of: '+ys.join(', ')+' (answer to 2 decimals)',a:Math.round(dv*100)/100,tol:0.011,tip:'Mean = '+m+'. Add |x − '+m+'| for each number = '+(dv*5)+', then divide by 5.'};}
+  else if(t===8){var xv=[4,5,8,16,20,25,0.5,0.25][ri(0,7)];o={q:'Find the reciprocal of '+xv+' (1/x)',a:1/xv,tol:0.0001,tip:'Type '+xv+' then press the x⁻¹ key.'};}
+  else if(t===9){var nn=ri(6,10),kk=ri(2,4),c=1;for(var q=1;q<=kk;q++)c=c*(nn-q+1)/q;o={q:'Find '+nn+'C'+kk+' (combinations)',a:Math.round(c),tip:'Use the nCr key: '+nn+' nCr '+kk+' =.'};}
+  else{var ov=ri(4,16)*50,pc=[10,20,25][ri(0,2)],up=ri(0,1)===0;o={q:ov+' is '+(up?'increased':'decreased')+' by '+pc+'%. Find the new value.',a:ov*(1+(up?1:-1)*pc/100),tol:0.011,tip:ov+' × '+(1+(up?1:-1)*pc/100)+' ='};}
+  o.show=false;return o;
+}
+function ccEval(src){
+  var s=String(src||'').replace(/\s+/g,'').replace(/×/g,'*').replace(/÷/g,'/'),i=0;
+  if(!s||s.length>80||!/^[0-9+\-*\/().^]+$/.test(s))return NaN;
+  function ex(){var v=tm();while(s[i]==='+'||s[i]==='-'){var o=s[i++],r=tm();v=o==='+'?v+r:v-r;}return v;}
+  function tm(){var v=pw();while(s[i]==='*'||s[i]==='/'){var o=s[i++],r=pw();v=o==='*'?v*r:v/r;}return v;}
+  function pw(){var b=un();if(s[i]==='^'){i++;var e=pw();return Math.pow(b,e);}return b;}
+  function un(){if(s[i]==='-'){i++;return -un();}if(s[i]==='+'){i++;return un();}return at();}
+  function at(){if(s[i]==='('){i++;var v=ex();if(s[i]!==')')throw 0;i++;return v;}var st=i;while(i<s.length&&/[0-9.]/.test(s[i]))i++;if(st===i)throw 0;return parseFloat(s.slice(st,i));}
+  try{var v=ex();if(i!==s.length)return NaN;return v;}catch(e){return NaN;}
+}
+function viewCalc(c){
+  if(!ui.cq)ui.cq=ccGen();
+  var q=ui.cq,h='<div class="card"><h3>Calculator tricks</h3><div class="mut">Shortcuts to save time in the exam. Key names follow Casio fx-991/fx-82 style calculators. Try each trick once on your own calculator.</div></div>';
+  h+='<div class="card"><h3>Practice</h3><div class="row sp mut"><span>Attempted '+CCS.n+'</span><span>Correct '+CCS.ok+(CCS.n?' ('+Math.round(CCS.ok/CCS.n*100)+'%)':'')+'</span></div>';
+  h+='<div style="margin-top:10px;font-size:15px"><b>'+esc(q.q)+'</b></div>';
+  if(q.res==null){h+='<div class="row" style="gap:8px;margin-top:8px"><input id="cc-a" inputmode="decimal" placeholder="Your answer" style="flex:1"><button class="btn" data-act="clcchk">Check</button></div>';}
+  else{h+='<div class="chip '+(q.res?'ok':'bad')+'" style="margin-top:8px;white-space:normal">'+(q.res?'Correct':'Not correct. Answer: '+esc(String(Math.round(q.a*10000)/10000)))+'</div><div class="mut" style="margin-top:6px">Trick: '+esc(q.tip)+'</div>';}
+  h+='<div class="row" style="gap:8px;margin-top:8px"><button class="btn sec sm" data-act="clcnext">'+(q.res==null?'Skip':'Next question')+'</button>'+(q.res==null?'<button class="btn sec sm" data-act="clctip">Show trick</button>':'')+'</div>'+(q.res==null&&q.show?'<div class="mut" style="margin-top:6px">Trick: '+esc(q.tip)+'</div>':'')+'</div>';
+  h+='<div class="card"><h3>Quick calculator</h3><div class="mut">Type a sum with + − × ÷ ^ and brackets, e.g. 21870/(0.9^2)</div><div class="row" style="gap:8px;margin-top:6px"><input id="cc-e" placeholder="Expression" style="flex:1" value="'+esc(ui.ccE||'')+'"><button class="btn sm" data-act="clceval">=</button></div>'+(ui.ccR!=null?'<div style="margin-top:8px;font-size:18px"><b>'+esc(ui.ccR)+'</b></div>':'')+'</div>';
+  h+='<div class="card"><h3>Tricks to revise</h3>'+CLT.map(function(x){return '<details style="border-top:1px solid var(--bd);padding:6px 0"><summary><b>'+esc(x[0])+'</b></summary><div class="mut" style="margin-top:4px">'+esc(x[1])+'</div></details>';}).join('')+'<div class="mut" style="margin-top:8px;font-size:12px">Written for revision. Calculator keys differ by model, so confirm on yours.</div></div>';
+  return h;
+}
+function clcAct(a){
+  if(a==='clcnext'){ui.cq=ccGen();renderKeep();return;}
+  if(a==='clctip'){ui.cq.show=true;renderKeep();return;}
+  if(a==='clcchk'){var v=parseFloat(String(readv('cc-a')).replace(/,/g,''));if(!isFinite(v)){toast('Type a number');return;}var q=ui.cq,tol=q.tol||0.0001;q.res=Math.abs(v-q.a)<=tol;CCS.n++;if(q.res)CCS.ok++;ccSave();renderKeep();return;}
+  if(a==='clceval'){var e=readv('cc-e');ui.ccE=e;var r=ccEval(e);ui.ccR=isNaN(r)?'Check the expression':String(Math.round(r*1e8)/1e8);renderKeep();return;}
+}
+
+/* ===== v1.12: YouTube lecture -> notes ===== */
+var YTL=[];try{YTL=JSON.parse(localStorage.getItem('studify-yt')||'[]');if(!Array.isArray(YTL))YTL=[];}catch(e){YTL=[];}
+function ytSave(){try{localStorage.setItem('studify-yt',JSON.stringify(YTL.slice(0,8)));}catch(e){toast('Storage full: delete an old video');}}
+function ytSecs(t){var p=String(t||'').split(':').map(Number);if(p.some(isNaN))return 0;return p.length===3?p[0]*3600+p[1]*60+p[2]:(p.length===2?p[0]*60+p[1]:0);}
+function ytLink(id,t){return 'https://www.youtube.com/watch?v='+encodeURIComponent(id)+'&t='+ytSecs(t)+'s';}
+function viewYT(c){
+  var h='<div class="card"><h3>Video notes</h3><div class="mut">Paste a link of a public YouTube lecture. The AI watches it and makes chapters, notes and practice questions. Works best for videos up to about 40 minutes. It uses one of your daily AI questions.</div>';
+  if(!cloud.user)return h+'<div class="warnbox" style="margin-top:8px">Sign in first (Settings > Account).</div></div>';
+  h+='<div class="row" style="gap:8px;margin-top:8px"><input id="yt-u" placeholder="https://youtu.be/..." style="flex:1" value="'+esc(ui.ytU||'')+'"><button class="btn" data-act="ytmake"'+(ui.ytBusy?' disabled':'')+'>'+(ui.ytBusy?'Working...':'Make notes')+'</button></div>'+(ui.ytBusy?'<div class="mut" style="margin-top:6px">This can take 1 to 2 minutes. Keep this screen open.</div>':'')+'</div>';
+  if(YTL.length){
+    h+='<div class="card"><b>Saved on this device</b>'+YTL.map(function(x,i){return '<div class="row sp" style="margin-top:6px;gap:8px"><a href="#" data-act="ytopen" data-i="'+i+'">'+esc(x.title||x.id)+'</a><button class="btn sec sm" data-act="ytdel" data-i="'+i+'">Delete</button></div>';}).join('')+'</div>';
+  }
+  var v=YTL[ui.ytI];if(!v)return h;
+  var tb=ui.ytT||'ch';
+  h+='<div class="card"><b>'+esc(v.title||'Lecture')+'</b>'+(v.summary?'<div class="mut" style="margin-top:6px">'+esc(v.summary)+'</div>':'')+
+   '<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">'+[['ch','Chapters ('+v.chapters.length+')'],['nt','Notes ('+v.notes.length+')'],['qs','Questions ('+v.questions.length+')']].map(function(x){return '<button class="btn '+(tb===x[0]?'':'sec')+' sm" data-act="ytab" data-t="'+x[0]+'">'+x[1]+'</button>';}).join('')+'<button class="btn sec sm" data-act="ytpdf">Save as PDF</button></div></div>';
+  if(tb==='ch')h+='<div class="card">'+v.chapters.map(function(x){return '<div class="row" style="gap:8px;margin-top:6px"><a href="'+ytLink(v.id,x.at)+'" target="_blank" rel="noopener noreferrer" style="min-width:64px">'+esc(x.at||'')+'</a><span>'+esc(x.title||'')+'</span></div>';}).join('')+'<div class="mut" style="margin-top:8px">Tap a time to open the video at that point.</div></div>';
+  else if(tb==='nt')h+=v.notes.map(function(n){return '<div class="card"><b>'+esc(n.h||'')+'</b><div style="margin-top:6px;white-space:pre-wrap">'+esc(n.b||'')+'</div>'+((n.f&&n.f.length)?'<div style="margin-top:6px;background:var(--bg2,#f1f3f7);border-radius:8px;padding:6px 8px;font-family:monospace;white-space:pre-wrap">'+n.f.map(esc).join('\n')+'</div>':'')+'</div>';}).join('')+((v.tips&&v.tips.length)?'<div class="card"><b>Shortcuts mentioned</b><ul>'+v.tips.map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ul></div>':'');
+  else h+=v.questions.map(function(x,i){return '<div class="card"><b>Q'+(i+1)+'. '+esc(x.q||'')+'</b><details style="margin-top:6px"><summary>Show answer</summary><div style="margin-top:4px;white-space:pre-wrap">'+esc(x.a||'')+'</div>'+(x.at?'<div class="mut" style="margin-top:4px">Explained at <a href="'+ytLink(v.id,x.at)+'" target="_blank" rel="noopener noreferrer">'+esc(x.at)+'</a></div>':'')+'</details></div>';}).join('');
+  h+='<div class="mut" style="margin:8px 0">Made by AI from the video. It can make mistakes: check important points in your book.</div>';
+  return h;
+}
+async function ytCall(u){
+  var r=await cloud.client.functions.invoke('ai-tutor',{body:{mode:'yt',url:u}});
+  if(r.error){var m='Function error';try{var tx=await r.error.context.text();var j=null;try{j=JSON.parse(tx)}catch(e){}m=(j&&j.error)||tx||r.error.message;}catch(e){m=r.error.message||m;}throw new Error(String(m).slice(0,240));}
+  if(r.data&&r.data.error)throw new Error(r.data.error);
+  if(!r.data||!r.data.yt)throw new Error('No notes came back');
+  return r.data.yt;
+}
+function ytAct(a,d){
+  if(a==='ytmake'){var u=readv('yt-u').trim();ui.ytU=u;if(!/^https:\/\//.test(u)){toast('Paste the full https link');return;}ui.ytBusy=true;renderKeep();
+    ytCall(u).then(function(o){YTL=YTL.filter(function(x){return x.id!==o.id;});YTL.unshift(o);YTL=YTL.slice(0,8);ytSave();ui.ytI=0;ui.ytT='ch';ui.ytBusy=false;renderKeep();toast('Notes ready');}).catch(function(e){ui.ytBusy=false;renderKeep();toast(e.message||'Could not make notes');});return;}
+  if(a==='ytopen'){ui.ytI=Number(d.i);ui.ytT='ch';renderKeep();return;}
+  if(a==='ytdel'){YTL.splice(Number(d.i),1);ytSave();if(ui.ytI>=YTL.length)ui.ytI=0;renderKeep();return;}
+  if(a==='ytab'){ui.ytT=d.t;renderKeep();return;}
+  if(a==='ytpdf'){var v=YTL[ui.ytI];if(!v)return;
+    var h='<html><head><meta charset="utf-8"><title>'+esc(v.title||'Lecture notes')+'</title><style>@page{size:A4;margin:12mm}body{font-family:Arial,sans-serif;color:#111;line-height:1.5}h1{font-size:20px}h2{font-size:15px;margin:14px 0 4px;break-after:avoid}.n{break-inside:avoid;margin-bottom:8px}pre{background:#f1f3f7;padding:6px;white-space:pre-wrap}.hint{background:#fff7d6;padding:8px;font-size:13px}@media print{.hint{display:none}}</style></head><body><div class="hint">Choose <b>Save as PDF</b> in the print window.</div><h1>'+esc(v.title||'')+'</h1><p>'+esc(v.summary||'')+'</p><h2>Chapters</h2>'+v.chapters.map(function(x){return '<div>'+esc(x.at||'')+' – '+esc(x.title||'')+'</div>';}).join('')+'<h2>Notes</h2>'+v.notes.map(function(n){return '<div class="n"><b>'+esc(n.h||'')+'</b><div style="white-space:pre-wrap">'+esc(n.b||'')+'</div>'+((n.f&&n.f.length)?'<pre>'+n.f.map(esc).join('\n')+'</pre>':'')+'</div>';}).join('')+'<h2>Questions</h2>'+v.questions.map(function(x,i){return '<div class="n"><b>Q'+(i+1)+'. '+esc(x.q||'')+'</b><div>Ans: '+esc(x.a||'')+'</div></div>';}).join('')+'<script>window.onload=function(){setTimeout(function(){window.print()},400)}<\/script></body></html>';
+    var w=window.open('','_blank');if(!w){toast('Allow pop-ups, then try again');return;}w.document.write(h);w.document.close();return;}
+}
 function viewGuide(c){
   var P=c.P;
-  return gdHead('Exam guide','Exam pattern, your path, syllabus changes, study material and budget in one place.')+gdPattern(P)+gdPath(P)+gdSyl(P)+gdMat(P)+gdMeth()+gdBud(P);
+  return gdHead('Exam guide','Exam pattern, your path, syllabus changes, study material and budget in one place.')+gdPattern(P)+gdPath(P)+gdSyl(P)+gdDocs(P)+gdMat(P)+gdMeth()+gdBud(P);
 }
 function gdAct(a,d,P){
+  if(a==='gddocsync'){gdDocRun({});return;}
+  if(a==='gddocadd'){gdDocRun({add:{title:readv('gd-dt'),url:readv('gd-du')}});return;}
   if(!P.bgt)P.bgt={items:[]};
   if(a==='gdbdadd'){var l=readv('gd-bl'),v=Number(readv('gd-ba'));if(!isFinite(v)||v<=0){toast('Enter an amount');return;}P.bgt.items.push({t:l,a:Math.round(v),p:false});P.dirty=true;commit();return;}
   if(a==='gdbddel'){P.bgt.items.splice(Number(d.i),1);P.dirty=true;commit();return;}
 }
 function gdChg(k,d,el){
   var P=cur();
+  if(k==='gddl'){ui.docL=el.value;renderKeep();return;}
+  if(k==='gddc'){ui.docC=el.value;renderKeep();return;}
+  if(k==='gddq'){ui.docQ=el.value;renderKeep();return;}
   if(k==='gdlv'){ui.gdLv=el.value;renderKeep();return;}
   if(k==='gdsm'){if(!P.sm)P.sm={};if(!P.sm[d.k])P.sm[d.k]={};P.sm[d.k][Number(d.i)]=!!el.checked;P.dirty=true;commit();return;}
   if(k==='gdbp'){if(!P.bgt)P.bgt={items:[]};var it=P.bgt.items[Number(d.i)];if(it){it.p=!!el.checked;P.dirty=true;commit();}return;}
@@ -3767,6 +3912,8 @@ function render(){
   else if(ui.tab==='rep')body=viewRep(c);
   else if(ui.tab==='qr')body=viewQR(c);
   else if(ui.tab==='guide')body=viewGuide(c);
+  else if(ui.tab==='calc')body=viewCalc(c);
+  else if(ui.tab==='yt')body=viewYT(c);
   else if(ui.tab==='papers')body=viewPapers(c);
   else if(ui.tab==='results')body=hwPerfCard(P)+insightCards(P)+viewResults(c);
   else if(ui.tab==='plan')body=viewPlan(c);
@@ -3815,6 +3962,8 @@ function act(a,d){
   if(a.indexOf('rp')===0){rpAct(a,d,P);return;}
   if(a.indexOf('qr')===0){qrAct(a,d,P);return;}
   if(a.indexOf('gd')===0){gdAct(a,d,P);return;}
+  if(a.indexOf('clc')===0){clcAct(a);return;}
+  if(a.indexOf('yt')===0){ytAct(a,d);return;}
   if(a==='xdadd'||a==='xddel'){xdAct(a,d,P);return;}
   if(a==='accstop'){try{speechSynthesis.cancel();}catch(e){}return;}
   if(a.indexOf('pt')===0&&a!=='ptab'){ptAct(a,d,P);return;}
@@ -3901,7 +4050,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.10\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.12\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
