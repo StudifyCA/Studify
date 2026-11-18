@@ -2096,7 +2096,7 @@ function viewToday(c){
   html+='</div>';
   html+=simBanner(P)+focusCard(c,T);
   if(S.compact&&I.phase!=='over'){html+=announceBanner()+nudgeBanner()+kalBanner(P)+idBanner()+bakBanner()+wkBanner(P)+newsCard(P)+instCard()+dlCard()+cardReview(P)+examCard(P,X,I)+timerCard(P,X)+'<div style="margin:10px 0"><button class="btn sec" data-act="compact">Show the full day</button></div>';return html;}
-  html+=announceBanner()+nudgeBanner()+kalBanner(P)+idBanner()+bakBanner()+wkBanner(P)+newsCard(P)+instCard()+dlCard()+ringCard(P,I)+burnoutCard(P)+cardReview(P)+levelUpCard(P,c.A)+examCard(P,X,I)+replanCard(P,X,I)+retestCard(P)+attemptCard(P,c.A,X,true)+tipsCard()+sylBanner(P)+partnerGlance()+icaiCard(P,X)+timerCard(P,X);
+  html+=announceBanner()+nudgeBanner()+kalBanner(P)+idBanner()+bakBanner()+wkBanner(P)+newsCard(P)+instCard()+dlCard()+verdictCard(c)+ringCard(P,I)+burnoutCard(P)+cardReview(P)+levelUpCard(P,c.A)+examCard(P,X,I)+replanCard(P,X,I)+retestCard(P)+attemptCard(P,c.A,X,true)+tipsCard()+sylBanner(P)+partnerGlance()+icaiCard(P,X)+timerCard(P,X);
   if(I.phase!=='over'){
     html+='<h2>Today\u2019s plan</h2><div class="card">';
     if(T.rest)html+='<div>Today is your rest day. Optional: 20 minutes of light revision.</div>';
@@ -2913,7 +2913,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.9b • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.10 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3080,13 +3080,13 @@ function qrPri(x){x=String(x||'').toLowerCase();return QRPR[x]?x:(/high|must|top
 function qrChart(ch,P,k){
   if(!ch||!ch.content||!Array.isArray(ch.content.topics))return '';
   var R=(qrS(P)[k])||{};
-  var h='<div class="card"><div class="row sp"><b>'+esc(pfull(k)+' \u2013 Quick revision')+'</b><button class="btn sec sm" data-act="qrimg">Save as image</button></div><div class="mut" style="margin-top:4px">Made by AI from the ICAI syllabus. Check important points in ICAI material.</div>'+
+  var h='<div class="card"><div class="row sp"><b>'+esc(pfull(k)+' \u2013 Quick revision')+'</b><button class="btn sec sm" data-act="qrimg">Save as PDF</button></div><div class="mut" style="margin-top:4px">Made by AI from the ICAI syllabus. Check important points in ICAI material.</div>'+
     '<div class="row" style="gap:10px;margin-top:8px;flex-wrap:wrap">'+Object.keys(QRPR).map(function(x){return '<span style="display:inline-flex;gap:6px;align-items:center;font-size:12px"><i style="width:12px;height:12px;border-radius:3px;background:'+QRPR[x][0]+';display:inline-block"></i>'+QRPR[x][1]+' ('+QRPR[x][2]+')</span>';}).join('')+'</div></div>';
   h+='<div id="qr-chart" style="padding:10px;background:#fff;color:#1b1f27;border-radius:10px"><div style="text-align:center;font-weight:800;font-size:17px;margin-bottom:10px">'+esc(pfull(k)+' \u2013 Quick revision')+'</div>';
   ch.content.topics.forEach(function(t,ti){
     t.chapter=String(t.chapter||'').split(' | ')[0].replace(/\s*\(?\d+ repeated.*$/i,'').trim();
     var pr=qrPri(t.priority),c=QRPR[pr][0],e=R[t.chapter]||null;
-    h+='<div style="border:2px solid '+c+';border-radius:12px;margin-bottom:12px;overflow:hidden">'+
+    h+='<div class="qt" style="border:2px solid '+c+';border-radius:12px;margin-bottom:12px;overflow:hidden">'+
       '<div style="background:'+c+';color:#fff;padding:8px 10px;display:flex;justify-content:space-between;gap:8px"><b>'+esc(t.chapter||'')+'</b><span style="font-size:12px;white-space:nowrap">'+QRPR[pr][1]+'</span></div><div style="padding:10px">';
     if(t.explain)h+='<div style="font-size:14px;line-height:1.6;margin-bottom:8px">'+esc(t.explain)+'</div>';
     if(Array.isArray(t.terms)&&t.terms.length)h+='<div style="margin:8px 0;border:1px solid #d9dde5;border-radius:8px;overflow:hidden">'+t.terms.map(function(x,n){return '<div style="padding:6px 8px;font-size:13px;line-height:1.45;background:'+(n%2?'#f6f7fa':'#fff')+'"><b>'+esc(x&&x.t||'')+'</b>: '+esc(x&&x.d||'')+'</div>';}).join('')+'</div>';
@@ -3106,6 +3106,13 @@ function qrSaveImg(){
   function go(){window.html2canvas(el,{backgroundColor:'#ffffff',scale:2}).then(function(cv){var a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='quick-revision-'+(ui.qrK||'chart')+'.png';document.body.appendChild(a);a.click();a.remove();toast('Image saved');}).catch(function(){toast('Could not make the image');});}
   if(window.html2canvas){go();return;}
   toast('Making image...');var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';sc.onload=go;sc.onerror=function(){toast('Could not load the image tool. Check internet.');};document.head.appendChild(sc);
+}
+
+function qrSavePdf(){
+  var el=document.getElementById('qr-chart');if(!el){toast('Chart not found');return;}
+  var cl=el.cloneNode(true);Array.prototype.forEach.call(cl.querySelectorAll('[data-html2canvas-ignore]'),function(n){n.remove();});
+  var h='<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc('Quick revision '+pfull(ui.qrK||''))+'</title><style>@page{size:A4;margin:12mm}*{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;color:#1b1f27}.qt{break-inside:avoid;page-break-inside:avoid}ul,li{break-inside:avoid}#qr-chart{border-radius:0!important;padding:0!important}.hint{background:#fff7d6;border:1px solid #e3c85a;padding:8px;font-size:13px;margin-bottom:10px}@media print{.hint{display:none}}</style></head><body><div class="hint">Print window will open. Choose <b>Save as PDF</b> as the printer, then Save.</div>'+cl.outerHTML+'<script>window.onload=function(){setTimeout(function(){window.print()},400)}<\/script></body></html>';
+  var w=window.open('','_blank');if(!w){toast('Allow pop-ups, then tap Save as PDF again');return;}w.document.write(h);w.document.close();
 }
 /* ===== v1.8: accessibility + exam-day checklist + error types ===== */
 var ACC={lh:false,hc:false,rm:false,tts:false};
@@ -3242,9 +3249,56 @@ function gdBud(P){
   if(B.items.length)h+='<div style="margin-top:12px;border-top:1px solid var(--bd);padding-top:8px"><div class="row sp"><span>Total</span><b>₹'+tot.toLocaleString('en-IN')+'</b></div><div class="row sp"><span>Paid</span><b>₹'+paid.toLocaleString('en-IN')+'</b></div><div class="row sp"><span>Still to pay</span><b>₹'+rem.toLocaleString('en-IN')+'</b></div>'+(rem>0?'<div class="mut" style="margin-top:6px">About ₹'+Math.ceil(rem/mo).toLocaleString('en-IN')+' to set aside each month for the next '+mo+' month'+(mo>1?'s':'')+' (until your exam date).</div>':'')+'</div>';
   return h+'</div>';
 }
+
+/* ===== v1.10: preparation verdict + daily briefing (no AI) ===== */
+function verdictCard(c){
+  var P=c.P,I=c.I,ks=hwKeys(P),tot=0,dn=0,sc=[],low=null;
+  ks.forEach(function(k){var p=P.papers[k];if(!p)return;p.ch.forEach(function(x){if(x.removed)return;tot++;if(x.status==='done')dn++;});var v=lastScore(P,k);if(v!==null){sc.push(v);if(!low||v<low.v)low={k:k,v:v};}});
+  var pct=tot?Math.round(dn/tot*100):0,avg=sc.length?Math.round(sc.reduce(function(a,b){return a+b;},0)/sc.length):null;
+  var st=streakDays(P),tm=0,t0=iso(today());P.sessions.forEach(function(x){if(x.date===t0)tm+=x.min;});
+  var goal=Math.round((P.dailyHours||4)*60),tp=goal?Math.min(100,Math.round(tm/goal*100)):0;
+  var pts=0;if(I.status==='ontrack'||I.status==='done')pts+=2;else if(I.status==='tight')pts+=1;
+  if(avg!==null&&avg>=(P.target||50))pts+=2;else if(avg!==null&&avg>=(P.target||50)-10)pts+=1;
+  if(st>=3)pts+=1;if(tp>=50)pts+=1;
+  var vd=pts>=5?['Strong, keep going','ok']:pts>=3?['Needs polish','warn']:['Needs attention','bad'];
+  var b;
+  if(I.phase==='over')b='Exam date has passed. Add your result in Results and plan the next attempt.';
+  else if(tm===0)b='You have not studied yet today. Start with the first item in your top-3 and finish one chapter before checking your phone.';
+  else if(I.status==='behind')b='You are behind. Protect your hardest subject slot first and skip low-weight chapters for now.';
+  else if(low&&low.v<(P.target||50))b='Your weakest paper is '+plab(low.k)+' ('+Math.round(low.v)+'%). Give it your first focused slot today.';
+  else if(I.phase==='revise')b='Revision phase: revise important chapters, then solve one past paper and note every mistake.';
+  else if(tp<100)b='Do the hardest chapter early while your mind is fresh. You have done '+tp+'% of today’s target.';
+  else b='Daily target done. Use extra time for revision or one practice test.';
+  return '<div class="card"><div class="row sp"><b>Preparation check</b><span class="chip '+vd[1]+'">'+vd[0]+'</span></div>'+
+   '<div class="row sp mut" style="margin-top:6px"><span>Syllabus done</span><span>'+dn+' / '+tot+' chapters ('+pct+'%)</span></div><div class="bar"><i style="width:'+pct+'%"></i></div>'+
+   '<div class="row sp mut" style="margin-top:6px"><span>Today</span><span>'+fmtMin(tm)+' / '+fmtMin(goal)+' ('+tp+'%)</span></div><div class="bar"><i style="width:'+tp+'%"></i></div>'+
+   '<div class="row sp mut" style="margin-top:6px"><span>Average latest score</span><span>'+(avg===null?'no tests yet':avg+'%')+'</span></div>'+
+   '<div class="mut" style="margin-top:8px"><b>Today’s briefing:</b> '+esc(b)+'</div></div>';
+}
+/* ===== v1.10: study methods + answer writing (static) ===== */
+var GDM=[
+['Spaced revision (1-2-4-7)','Revise a chapter the next day, then after 2, 4 and 7 more days. Each round only 10–15 minutes: read your notes, close them, write what you remember.'],
+['Active recall','After reading, close the book and write or say the main points. Check what you missed. This beats re-reading.'],
+['SQ3R','Survey the chapter headings, ask questions from them, then Read, Recite and Review. Good for theory-heavy chapters (Law, Audit).'],
+['Feynman method','Explain the topic in simple words as if teaching a friend. Where you get stuck is the gap to fix.'],
+['80/20 (ABC) rule','Mark chapters as A (high marks), B, C. Finish A first. The Quick revision and Starred tabs already show this.'],
+['Pomodoro','25 minutes focus, 5 minutes break; after 4 rounds take 20 minutes. Use the timer in Today.'],
+['Mind map','Draw the chapter on one page with the main heading in the middle. Useful before exams for fast revision.']
+];
+var GDW=[
+['Theory answers','Start with a one-line definition or provision, give points under short headings, add a section number or standard name, and end with a one-line conclusion. Keep paragraphs short.'],
+['Case study / MCQ','Read the last line (the question) first, then the case. Underline numbers and dates. Eliminate two wrong options before choosing.'],
+['Practical (numerical)','Show working notes and assumptions even if the final number is wrong. Use a table format and mark the answer clearly.'],
+['Common mistakes','Spending too long on one question, skipping working notes, writing without section/standard numbers, not reading the instruction (e.g. “state” vs “explain”), leaving questions blank.'],
+['Last 1.5 days','Do not start new chapters. Revise only A-priority chapters from your own short notes, solve one past paper, sleep well.']
+];
+function gdMeth(){
+  function box(t,L){return '<div class="card"><h3>'+t+'</h3>'+L.map(function(x){return '<details style="border-top:1px solid var(--bd);padding:6px 0"><summary><b>'+esc(x[0])+'</b></summary><div class="mut" style="margin-top:4px">'+esc(x[1])+'</div></details>';}).join('')+'</div>';}
+  return box('Study methods',GDM)+box('Answer writing and exam approach',GDW);
+}
 function viewGuide(c){
   var P=c.P;
-  return gdHead('Exam guide','Exam pattern, your path, syllabus changes, study material and budget in one place.')+gdPattern(P)+gdPath(P)+gdSyl(P)+gdMat(P)+gdBud(P);
+  return gdHead('Exam guide','Exam pattern, your path, syllabus changes, study material and budget in one place.')+gdPattern(P)+gdPath(P)+gdSyl(P)+gdMat(P)+gdMeth()+gdBud(P);
 }
 function gdAct(a,d,P){
   if(!P.bgt)P.bgt={items:[]};
@@ -3315,7 +3369,7 @@ async function qrGen(k,onPart){
   return true;
 }
 function qrAct(a,d,P){
-  if(a==='qrimg'){qrSaveImg();return;}
+  if(a==='qrimg'){qrSavePdf();return;}
   if(a==='qrspeak'){var ch0=cloud.rc&&cloud.rc[ui.qrK||hwKeys(P)[0]],t0=ch0&&ch0.content&&ch0.content.topics&&ch0.content.topics[Number(d.i)];if(t0)accSpeak([t0.chapter,t0.explain].concat((t0.terms||[]).map(function(x){return x.t+'. '+x.d;})).concat(t0.points||[]).concat([t0.example?'Example. '+t0.example:'',t0.trap?'Common mistake. '+t0.trap:'']).filter(Boolean).join('. '));return;}
   if(a==='accstop'){try{speechSynthesis.cancel();}catch(e){}return;}
   if(a==='xdadd'||a==='xddel'){xdAct(a,d,P);return;}
@@ -3847,7 +3901,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.9b\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.10\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
