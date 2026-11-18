@@ -110,6 +110,7 @@ body.gc-open{overflow:hidden}
 .gub{background:#4f46e5;color:#fff;border-radius:99px;font-size:12px;font-weight:700;min-width:20px;height:20px;line-height:20px;text-align:center;padding:0 6px;flex:0 0 auto}
 nav button{position:relative}.ndot{position:absolute;top:6px;left:calc(50% + 10px);width:10px;height:10px;border-radius:50%;background:#ef4444;border:2px solid var(--card)}
 body.gc-open .toast{bottom:auto;top:70px}
+html.acc-lh body{line-height:1.9;letter-spacing:.02em;word-spacing:.06em}html.acc-hc body{filter:contrast(1.22)}html.acc-hc .card{border-width:2px}html.acc-rm *,html.acc-rm *::before,html.acc-rm *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 </style>
 </head>
 <body>
@@ -2905,13 +2906,14 @@ function viewSettings(c){
   html+='<div class="card"><h3>Share this app</h3><div class="mut">Send the link to friends. Each person signs up with their own email and gets their own plan.</div><div style="margin-top:8px"><button class="btn sec" data-act="shareapp">Share app link</button></div></div>';
   html+='<div class="card"><h3>Backup</h3><div class="mut">Your data lives only in this browser. Export a backup file regularly and keep it safe. Importing adds profiles; it never overwrites existing ones.</div>'+(S.lastBackup?'<div class="mut" style="margin-top:6px">Last backup: '+esc(fmt(parse(S.lastBackup)))+'</div>':'')+'<div class="row" style="margin-top:10px"><button class="btn" data-act="exportshare">Back up and share</button><button class="btn sec" data-act="export">Export backup</button><button class="btn sec" data-act="import">Import backup</button><input type="file" id="impf" accept=".json,application/json" style="display:none" data-chg="importfile"></div></div>';
   html+='<div class="card"><h3>Danger zone</h3><button class="btn danger" data-act="delprof">Delete this profile</button></div>';
+  html+=accessCard();
   var secGen=html;html='';
   html+='<div class="card"><h3>Daily reminder</h3><div class="mut">Adds a repeating study reminder to your phone calendar. Open the downloaded file and choose your calendar app.</div><div class="row" style="margin-top:8px">'+timeSel('rm-time','06:30')+'<button class="btn sec" data-act="icsdl">Download reminder</button></div></div>';
   html+=(DSK?'':instCard()+dlCard(true)+pushCard())+timerOptsCard()+dskCard();
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.7b • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.8 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3023,7 +3025,7 @@ function hwItemHtml(P,k,it,day){
     if(!it.done){
       var bz=HWAI['c'+k]&&HWAI['c'+k].busy;
       h+='<div class="row" style="margin-top:8px;gap:8px;align-items:center">'+ref+'<span class="mut">My marks (only if auto check fails)</span><input type="number" min="0" max="'+q.mk+'" step="0.5" id="hw-sc-'+k+'" style="width:80px" placeholder="0-'+q.mk+'"><button class="btn sm" data-act="hwdone" data-k="'+k+'"'+(bz?' disabled':'')+'>'+(bz?'Checking...':'Mark done')+'</button></div>';
-    }else h+='<div style="margin-top:8px"><span class="chip ok">Done • '+it.sc+'/'+it.mx+(it.ai?' • checked':'')+'</span> '+ref+'</div>'+(it.fb?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(it.fb)+'</div>':'');
+    }else h+='<div style="margin-top:8px"><span class="chip ok">Done • '+it.sc+'/'+it.mx+(it.ai?' • checked':'')+'</span> '+ref+'</div>'+(it.fb?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(it.fb)+'</div>':'')+(it.et&&ETY[it.et]?'<div class="mut" style="margin-top:4px">Main reason for lost marks: '+ETY[it.et]+'</div>':'')+(typeof it.ps==='number'?'<div class="mut" style="margin-top:4px">Presentation: '+it.ps+'/5'+(it.pt?' \u2022 '+esc(it.pt):'')+' (AI guidance, not an ICAI mark)</div>':'');
   }
   if(!it.done)h+='<div style="margin-top:8px"><button class="btn sec sm" data-act="hwskip" data-k="'+k+'">I have not studied this topic yet</button></div>';
   if(AIOPEN||(cloud.user&&cloud.isAdmin)){
@@ -3081,16 +3083,19 @@ function qrChart(ch,P,k){
   var h='<div class="card"><div class="row sp"><b>'+esc(ch.content.title||'Quick revision chart')+'</b><button class="btn sec sm" data-act="qrimg">Save as image</button></div><div class="mut" style="margin-top:4px">Made by AI from the ICAI syllabus. Check important points in ICAI material.</div>'+
     '<div class="row" style="gap:10px;margin-top:8px;flex-wrap:wrap">'+Object.keys(QRPR).map(function(x){return '<span style="display:inline-flex;gap:6px;align-items:center;font-size:12px"><i style="width:12px;height:12px;border-radius:3px;background:'+QRPR[x][0]+';display:inline-block"></i>'+QRPR[x][1]+' ('+QRPR[x][2]+')</span>';}).join('')+'</div></div>';
   h+='<div id="qr-chart" style="padding:10px;background:#fff;color:#1b1f27;border-radius:10px"><div style="text-align:center;font-weight:800;font-size:17px;margin-bottom:10px">'+esc(ch.content.title||pfull(k))+'</div>';
-  ch.content.topics.forEach(function(t){
+  ch.content.topics.forEach(function(t,ti){
     t.chapter=String(t.chapter||'').split(' | ')[0].replace(/\s*\(?\d+ repeated.*$/i,'').trim();
     var pr=qrPri(t.priority),c=QRPR[pr][0],e=R[t.chapter]||null;
     h+='<div style="border:2px solid '+c+';border-radius:12px;margin-bottom:12px;overflow:hidden">'+
       '<div style="background:'+c+';color:#fff;padding:8px 10px;display:flex;justify-content:space-between;gap:8px"><b>'+esc(t.chapter||'')+'</b><span style="font-size:12px;white-space:nowrap">'+QRPR[pr][1]+'</span></div><div style="padding:10px">';
-    if(t.explain)h+='<div style="font-size:14px;line-height:1.5;margin-bottom:8px">'+esc(t.explain)+'</div>';
+    if(t.explain)h+='<div style="font-size:14px;line-height:1.6;margin-bottom:8px">'+esc(t.explain)+'</div>';
+    if(Array.isArray(t.terms)&&t.terms.length)h+='<div style="margin:8px 0;border:1px solid #d9dde5;border-radius:8px;overflow:hidden">'+t.terms.map(function(x,n){return '<div style="padding:6px 8px;font-size:13px;line-height:1.45;background:'+(n%2?'#f6f7fa':'#fff')+'"><b>'+esc(x&&x.t||'')+'</b>: '+esc(x&&x.d||'')+'</div>';}).join('')+'</div>';
     if(Array.isArray(t.flow)&&t.flow.length)h+='<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0">'+t.flow.map(function(f,i){return (i?'<span style="color:'+c+';font-weight:800">→</span>':'')+'<span style="border:1.5px solid '+c+';border-radius:8px;padding:4px 8px;font-size:12.5px;background:#fff">'+esc(f)+'</span>';}).join('')+'</div>';
-    if(Array.isArray(t.points)&&t.points.length)h+='<ul style="margin:6px 0 0 18px;padding:0;line-height:1.5;font-size:13.5px">'+t.points.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';
+    if(Array.isArray(t.points)&&t.points.length)h+='<ul style="margin:6px 0 0 18px;padding:0;line-height:1.55;font-size:13.5px">'+t.points.map(function(x){return '<li style="margin-bottom:4px">'+esc(x)+'</li>';}).join('')+'</ul>';
+    if(t.example)h+='<div style="margin-top:8px;background:#eef4ff;border-radius:8px;padding:8px;font-size:13px;line-height:1.5"><b>Example:</b> '+esc(t.example)+'</div>';
     if(Array.isArray(t.formulas)&&t.formulas.length)h+='<div style="margin-top:8px;background:#f1f3f7;border-radius:8px;padding:6px 8px;font-family:monospace;font-size:12.5px;white-space:pre-wrap">'+t.formulas.map(esc).join('\n')+'</div>';
     if(t.trap)h+='<div style="margin-top:8px;font-size:13px;color:#a02f2f"><b>Common mistake:</b> '+esc(t.trap)+'</div>';
+    if(ACC.tts&&window.speechSynthesis)h+='<div data-html2canvas-ignore="true" style="margin-top:8px"><button class="btn sec sm" data-act="qrspeak" data-i="'+ti+'">Listen</button></div>';
     h+='</div></div>';
   });
   if(Array.isArray(ch.content.mnemonics)&&ch.content.mnemonics.length)h+='<div style="border:2px dashed #6a7bd1;border-radius:12px;padding:10px"><b>Memory tricks</b><ul style="margin:6px 0 0 18px;padding:0;line-height:1.5;font-size:13.5px">'+ch.content.mnemonics.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>';
@@ -3101,6 +3106,51 @@ function qrSaveImg(){
   function go(){window.html2canvas(el,{backgroundColor:'#ffffff',scale:2}).then(function(cv){var a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='quick-revision-'+(ui.qrK||'chart')+'.png';document.body.appendChild(a);a.click();a.remove();toast('Image saved');}).catch(function(){toast('Could not make the image');});}
   if(window.html2canvas){go();return;}
   toast('Making image...');var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';sc.onload=go;sc.onerror=function(){toast('Could not load the image tool. Check internet.');};document.head.appendChild(sc);
+}
+/* ===== v1.8: accessibility + exam-day checklist + error types ===== */
+var ACC={lh:false,hc:false,rm:false,tts:false};
+try{var _a=JSON.parse(localStorage.getItem('studify-acc')||'null');if(_a)ACC=Object.assign(ACC,_a);}catch(e){}
+function accApply(){var h=document.documentElement;h.classList.toggle('acc-lh',!!ACC.lh);h.classList.toggle('acc-hc',!!ACC.hc);h.classList.toggle('acc-rm',!!ACC.rm);}
+function accSave(){try{localStorage.setItem('studify-acc',JSON.stringify(ACC));}catch(e){}accApply();}
+function accSpeak(t){
+  if(!window.speechSynthesis){toast('Your phone or browser cannot read aloud');return;}
+  try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(String(t).slice(0,4000));u.lang='en-IN';u.rate=0.95;speechSynthesis.speak(u);}catch(e){toast('Could not read aloud');}
+}
+function accessCard(){
+  function row(k,l,d){return '<label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;color:var(--tx)"><input type="checkbox" data-chg="accset" data-k="'+k+'"'+(ACC[k]?' checked':'')+'><span><b>'+l+'</b><div class="mut">'+d+'</div></span></label>';}
+  return '<div class="card"><h3>Reading comfort</h3><div class="mut">Optional. These only change how this app looks on this device.</div>'+
+    row('lh','More line spacing','Wider lines and letter spacing for easier reading.')+
+    row('hc','Higher contrast','Stronger text and borders.')+
+    row('rm','Reduce motion','Turns off animations and smooth scrolling.')+
+    row('tts','Show Listen buttons','Read revision notes aloud (uses your device voice).')+
+    (ACC.tts?'<div style="margin-top:10px"><button class="btn sec sm" data-act="accstop">Stop reading</button></div>':'')+'</div>';
+}
+var XDEF=['Admit card (printed copy)','Photo ID card','Pens, pencils and other items allowed in the ICAI instructions','Exam centre address and route checked','Reporting time noted','Phone photo of admit card and ID (backup)','Emergency contact saved','Last revision cut-off time decided','Sleep and wake time planned'];
+function xdS(P){if(!P.xd)P.xd={items:XDEF.map(function(t){return {t:t,done:false};}),f:{}};return P.xd;}
+function xdCard(P){
+  var X=xdS(P),dl='';try{var dd=Math.round((parse(P.examDate)-today())/864e5);if(dd>=0)dl=dd+' days to your exam';}catch(e){}
+  var h='<div class="card"><h3>Exam-day checklist</h3><div class="mut">'+esc(dl)+(dl?' • ':'')+'This is your own list. Rules for permitted items and timings are set by ICAI, so read the official instructions on your admit card and on <a href="https://www.icai.org" target="_blank" rel="noopener">icai.org</a>.</div>';
+  var n=X.items.filter(function(x){return x.done;}).length;
+  h+='<div class="mut" style="margin-top:6px">'+n+' of '+X.items.length+' ready</div>';
+  X.items.forEach(function(x,i){h+='<div class="row sp" style="margin-top:6px;gap:8px"><label style="display:flex;gap:8px;align-items:flex-start;color:var(--tx);flex:1"><input type="checkbox" data-chg="xdtog" data-i="'+i+'"'+(x.done?' checked':'')+'><span'+(x.done?' style="text-decoration:line-through;opacity:.7"':'')+'>'+esc(x.t)+'</span></label><button class="btn sec sm" data-act="xddel" data-i="'+i+'">Remove</button></div>';});
+  h+='<div class="row" style="margin-top:10px;gap:8px"><input type="text" id="xd-new" placeholder="Add your own item" style="flex:1"><button class="btn sm" data-act="xdadd">Add</button></div>';
+  h+='<div style="margin-top:12px"><label class="mut">Exam centre and reporting time (for your reference)</label><input type="text" id="xd-f1" data-chg="xdf" placeholder="e.g. Centre name, 1:30 PM" value="'+esc((X.f&&X.f.c)||'')+'"></div></div>';
+  return h;
+}
+function xdAct(a,d,P){
+  var X=xdS(P);
+  if(a==='xdadd'){var t=readv('xd-new').trim();if(!t){toast('Type an item first');return;}X.items.push({t:t.slice(0,120),done:false});P.dirty=true;commit();return;}
+  if(a==='xddel'){X.items.splice(Number(d.i),1);P.dirty=true;commit();return;}
+}
+var ETY={concept:'Concept confusion',assumption:'Wrong assumption / missed fact',formula:'Formula or method',calculation:'Calculation slip',reading:'Misread the question',presentation:'Presentation'};
+function errCard(P){
+  var hs=hwS(P),cnt={},tot=0,ps=0,pn=0,ch={};
+  Object.keys(hs.days).forEach(function(d){var its=hs.days[d].items;Object.keys(its).forEach(function(k){var x=its[k];if(!x||!x.done)return;if(x.et&&x.et!=='none'&&ETY[x.et]){cnt[x.et]=(cnt[x.et]||0)+1;tot++;if(x.c){ch[x.et]=ch[x.et]||{};ch[x.et][x.c]=1;}}if(typeof x.ps==='number'){ps+=x.ps;pn++;}});});
+  if(!tot&&!pn)return '<div class="card"><b>Why marks are lost</b><div class="mut" style="margin-top:4px">When AI checks your written homework, the reason for lost marks (concept, formula, calculation, reading, presentation) and your answer-presentation score will show here. This is AI guidance, not an official ICAI marking.</div></div>';
+  var h='<div class="card"><b>Why marks are lost</b><div class="mut">From your AI-checked homework. This is guidance, not an official ICAI marking.</div>';
+  Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a];}).forEach(function(t){h+='<div class="row sp" style="margin-top:8px"><span>'+ETY[t]+'</span><b>'+cnt[t]+'x</b></div><div class="mut" style="font-size:12px">'+esc(Object.keys(ch[t]||{}).slice(0,3).map(function(n){return n.split(' › ').pop();}).join(', '))+'</div>';});
+  if(pn)h+='<div style="margin-top:10px">Answer presentation: <b>'+(ps/pn).toFixed(1)+' / 5</b> <span class="mut">(average of '+pn+' answers)</span></div>';
+  return h+'</div>';
 }
 function viewQR(c){
   var P=c.P,ks=hwKeys(P),k=ui.qrK&&ks.indexOf(ui.qrK)>=0?ui.qrK:ks[0],R=qrS(P);
@@ -3127,6 +3177,7 @@ function viewQR(c){
   if(ch)h+=qrChart(ch,P,k);
   else if(!cloud.user)h+='<div class="card mut">Sign in to see the quick revision chart for this subject.</div>';
   else h+='<div class="card mut">The chart for this subject is not ready yet.'+(cloud.rcErr?' ('+esc(cloud.rcErr)+')':'')+'</div>';
+  h+=xdCard(P);
   if(cloud.user&&cloud.isAdmin){
     var all=Object.keys(SYL),miss=all.filter(function(x){return !(cloud.rc&&cloud.rc[x]);});
     h+='<div class="card"><b>Admin: AI charts</b><div class="mut">Made once and shown to every student of that level. '+(all.length-miss.length)+' of '+all.length+' ready.</div>'+(ui.qrMsg?'<div class="chip" style="margin:8px 0;white-space:normal">'+esc(ui.qrMsg)+'</div>':'')+
@@ -3148,7 +3199,7 @@ function qrUnits(k){
 async function qrGen(k,onPart){
   var B=HWQ[k]&&!HWQ[k].bad?HWQ[k]:null,rc=B?repCnt(B):{},gw=(GPW[k]&&GPW[k].m)||{},tot=0;
   Object.keys(gw).forEach(function(n){tot+=Number(gw[n])||0;});
-  var us=qrUnits(k),size=5,parts=Math.ceil(us.length/size);
+  var us=qrUnits(k),size=3,parts=Math.ceil(us.length/size);
   for(var pi=0;pi<parts;pi++){
     var seg=us.slice(pi*size,pi*size+size);
     if(onPart)onPart(pi+1,parts);
@@ -3160,6 +3211,9 @@ async function qrGen(k,onPart){
 }
 function qrAct(a,d,P){
   if(a==='qrimg'){qrSaveImg();return;}
+  if(a==='qrspeak'){var ch0=cloud.rc&&cloud.rc[ui.qrK||hwKeys(P)[0]],t0=ch0&&ch0.content&&ch0.content.topics&&ch0.content.topics[Number(d.i)];if(t0)accSpeak([t0.chapter,t0.explain].concat((t0.terms||[]).map(function(x){return x.t+'. '+x.d;})).concat(t0.points||[]).concat([t0.example?'Example. '+t0.example:'',t0.trap?'Common mistake. '+t0.trap:'']).filter(Boolean).join('. '));return;}
+  if(a==='accstop'){try{speechSynthesis.cancel();}catch(e){}return;}
+  if(a==='xdadd'||a==='xddel'){xdAct(a,d,P);return;}
   if(a==='qrdone'){var k=d.k,ch=(P.papers[k].ch||[]).filter(function(x){return !x.removed;})[Number(d.i)];if(!ch)return;var R=qrS(P);if(!R[k])R[k]={};var e=R[k][ch.name]||(R[k][ch.name]={n:0,at:0});e.n++;e.at=Date.now();P.dirty=true;commit();toast('Revision saved');return;}
   if(!cloud.isAdmin||!cloud.client)return;
   if(a==='qrgen'||a==='qrgenall'){
@@ -3308,6 +3362,17 @@ function ptQs(P,k,ch,n){
   var B=HWQ[k];if(!B)return [];
   var pool=B.q.filter(function(x){return x.t==='m';});
   if(ch==='#'){var dn={};(P.papers[k]?P.papers[k].ch:[]).forEach(function(x){if(x.status==='done')dn[x.name]=1;});pool=pool.filter(function(x){return dn[x.c];});}
+  else if(ch==='MIX'){
+    var st0=P.pq||{},by={};pool.forEach(function(x){(by[x.c]=by[x.c]||[]).push(x);});
+    var cs=Object.keys(by);if(cs.length<2)return [];
+    cs.forEach(function(c){by[c].sort(function(a,b){var sa=st0[a.i],sb=st0[b.i];return ((!sa?3:(sa.c<sa.a?4:1))*(Math.random()+0.1))<((!sb?3:(sb.c<sb.a?4:1))*(Math.random()+0.1))?1:-1;});});
+    var out=[],last='',guard=0;
+    while(out.length<n&&guard++<5000){
+      var avail=cs.filter(function(c){return by[c].length&&c!==last;});if(!avail.length)avail=cs.filter(function(c){return by[c].length;});if(!avail.length)break;
+      var c=avail[Math.floor(Math.random()*avail.length)];out.push(by[c].shift());last=c;
+    }
+    return out;
+  }
   else if(ch&&ch!=='*')pool=pool.filter(function(x){return x.c===ch;});
   var st=P.pq||{};
   var w=pool.map(function(x){var s=st[x.i];return {x:x,w:(Math.random()+0.1)*(!s?3:(s.c<s.a?4:1))};}).sort(function(a,b){return b.w-a.w;});
@@ -3330,6 +3395,11 @@ function ptSubmit(P){
   P.pt.unshift({t:Date.now(),k:r.k,ch:r.ch,n:r.qs.length,sc:sc,tot:tot,secs:secs,items:items});P.pt=P.pt.slice(0,80);
   clearInterval(PTTM);PTTM=null;commit();
 }
+function ptMixNote(r){
+  var miss={};r.qs.forEach(function(q,i){var a=r.ans[i];if(!(a!==undefined&&['a','b','c','d'][a]===q.a)){var n=q.c.split(' \u203a ').pop();miss[n]=(miss[n]||0)+1;}});
+  var ks=Object.keys(miss).sort(function(a,b){return miss[b]-miss[a];});
+  return '<div class="card"><b>Mixed practice</b><div class="mut" style="margin-top:4px">'+(ks.length?'You missed questions from: '+esc(ks.slice(0,5).map(function(n){return n+' ('+miss[n]+')';}).join(', '))+'. Each question below shows its chapter, so check whether you picked the wrong method.':'You got every question right without seeing the chapter names.')+'</div></div>';
+}
 function viewPT(c){
   var P=ptS(c.P),ks=hwKeys(P),pt=ui.pt||(ui.pt={k:ks[0],ch:'*',n:10,timed:true,run:null});
   if(ks.indexOf(pt.k)<0)pt.k=ks[0];
@@ -3339,13 +3409,13 @@ function viewPT(c){
     var r=pt.run;
     if(!r.res){
       h+='<div class="card"><div class="row sp"><h3>Practice test</h3>'+(r.limit?'<span class="chip warn">Time left <b id="pt-timer">--</b></span>':'')+'</div><div class="mut">'+esc(pfull(r.k))+' • '+r.qs.length+' questions</div></div>';
-      r.qs.forEach(function(q,i){h+='<div class="card"><div class="mut">Q'+(i+1)+' • '+esc(q.c.split(' › ').pop())+' • '+q.mk+' mark'+(q.mk>1?'s':'')+'</div><div style="white-space:pre-wrap;line-height:1.5;margin-top:6px">'+esc(q.q)+'</div>'+q.o.map(function(o,j){return '<label style="display:flex;gap:8px;margin-top:8px;align-items:flex-start;color:var(--tx)"><input type="radio" name="ptq'+i+'" data-chg="ptans" data-i="'+i+'" data-o="'+j+'"'+(r.ans[i]===j?' checked':'')+'><span>('+['a','b','c','d'][j]+') '+esc(o)+'</span></label>';}).join('')+'</div>';});
+      r.qs.forEach(function(q,i){h+='<div class="card"><div class="mut">Q'+(i+1)+' • '+(r.ch==='MIX'?'Chapter hidden':esc(q.c.split(' › ').pop()))+' • '+q.mk+' mark'+(q.mk>1?'s':'')+'</div><div style="white-space:pre-wrap;line-height:1.5;margin-top:6px">'+esc(q.q)+'</div>'+q.o.map(function(o,j){return '<label style="display:flex;gap:8px;margin-top:8px;align-items:flex-start;color:var(--tx)"><input type="radio" name="ptq'+i+'" data-chg="ptans" data-i="'+i+'" data-o="'+j+'"'+(r.ans[i]===j?' checked':'')+'><span>('+['a','b','c','d'][j]+') '+esc(o)+'</span></label>';}).join('')+'</div>';});
       h+='<div class="card"><button class="btn" data-act="ptsub">Submit test</button> <button class="btn sec" data-act="ptquit">Cancel</button></div>';
       if(r.limit&&!PTTM)PTTM=setInterval(ptTick,1000);
       setTimeout(ptTick,50);
     }else{
       var pc=r.res.tot?Math.round(r.res.sc/r.res.tot*100):0;
-      h+='<div class="card" style="border-color:var(--ac)"><h3>Result: '+r.res.sc+' / '+r.res.tot+' ('+pc+'%)</h3><div class="mut">'+esc(pfull(r.k))+' • '+fdt(Date.now())+'</div><div style="margin-top:8px"><button class="btn" data-act="ptagain">Another test</button> <button class="btn sec" data-act="ptquit">Back</button></div></div>';
+      h+='<div class="card" style="border-color:var(--ac)"><h3>Result: '+r.res.sc+' / '+r.res.tot+' ('+pc+'%)</h3><div class="mut">'+esc(pfull(r.k))+' • '+fdt(Date.now())+'</div><div style="margin-top:8px"><button class="btn" data-act="ptagain">Another test</button> <button class="btn sec" data-act="ptquit">Back</button></div></div>'+(r.ch==='MIX'?ptMixNote(r):'');
       r.qs.forEach(function(q,i){var a=r.ans[i],ok=a!==undefined&&['a','b','c','d'][a]===q.a,ci=['a','b','c','d'].indexOf(q.a);h+='<div class="card"><div class="row sp"><span class="chip '+(ok?'ok':'warn')+'">'+(ok?'Correct':(a===undefined?'Not answered':'Wrong'))+'</span><span class="mut">Q'+(i+1)+' • '+esc(q.c.split(' › ').pop())+'</span></div><div style="white-space:pre-wrap;line-height:1.5;margin-top:6px">'+esc(q.q)+'</div><div style="margin-top:6px">Correct: ('+q.a+') '+esc(q.o[ci]||'')+'</div>'+(a!==undefined&&!ok?'<div class="mut">You chose: ('+['a','b','c','d'][a]+') '+esc(q.o[a])+'</div>':'')+'<div class="mut" style="margin-top:4px">'+esc(q.s)+(q.r?' • <a href="'+esc(sUrl(q.r))+'" target="_blank" rel="noopener">Answers PDF</a>':'')+'</div></div>';});
     }
     return h;
@@ -3357,7 +3427,7 @@ function viewPT(c){
   if(!B)h+='<div class="mut" style="margin-top:8px">Loading questions...</div>';
   else if(!tot)h+='<div class="mut" style="margin-top:8px">No MCQ questions are available for this subject yet. Use the Repeat tab and Daily homework for it.</div>';
   else{
-    h+='<div style="margin-top:8px"><label class="mut">Chapter</label><select data-chg="ptch"><option value="*"'+(pt.ch==='*'?' selected':'')+'>All chapters ('+tot+')</option><option value="#"'+(pt.ch==='#'?' selected':'')+'>Only chapters I ticked as done</option>'+Object.keys(mc).sort().map(function(n){return '<option value="'+esc(n)+'"'+(pt.ch===n?' selected':'')+'>'+esc(n)+' ('+mc[n]+')</option>';}).join('')+'</select></div>';
+    h+='<div style="margin-top:8px"><label class="mut">Chapter</label><select data-chg="ptch"><option value="*"'+(pt.ch==='*'?' selected':'')+'>All chapters ('+tot+')</option><option value="#"'+(pt.ch==='#'?' selected':'')+'>Only chapters I ticked as done</option><option value="MIX"'+(pt.ch==='MIX'?' selected':'')+'>Mixed practice (chapter names hidden)</option>'+Object.keys(mc).sort().map(function(n){return '<option value="'+esc(n)+'"'+(pt.ch===n?' selected':'')+'>'+esc(n)+' ('+mc[n]+')</option>';}).join('')+'</select></div>';
     h+='<div style="margin-top:8px"><label class="mut">Questions</label><select data-chg="ptn">'+[10,20,30].map(function(n){return '<option value="'+n+'"'+(pt.n===n?' selected':'')+'>'+n+'</option>';}).join('')+'</select></div>';
     h+='<label style="display:flex;gap:8px;align-items:center;margin-top:8px;color:var(--tx)"><input type="checkbox" data-chg="pttimed"'+(pt.timed?' checked':'')+'> Timed (about 1.5 minutes per question)</label>';
     h+='<div style="margin-top:10px"><button class="btn" data-act="ptstart">Start test</button></div>';
@@ -3444,7 +3514,7 @@ function printReport(P){
   var w=window.open('','_blank');if(!w){toast('Allow pop-ups to print the report');return;}w.document.write(h);w.document.close();
 }
 function exportCard(){return '<div class="card"><b>Export my data</b><div class="mut" style="margin-top:4px">Download everything as a spreadsheet file, or print a short report (you can save it as PDF).</div><div class="row" style="margin-top:8px;gap:8px"><button class="btn sm" data-act="exdl">Download CSV</button><button class="btn sec sm" data-act="expr">Print / Save PDF</button></div></div>';}
-function insightCards(P){return predictCard(P)+plannedActualCard(P)+weakCard(P)+exportCard();}
+function insightCards(P){return predictCard(P)+plannedActualCard(P)+weakCard(P)+errCard(P)+exportCard();}
 function exAct(a,d,P){if(a==='exdl')exportData(P);else if(a==='expr')printReport(P);}
 
 function hwIdb(fn){return new Promise(function(res){try{var r=indexedDB.open('studify-hw',1);r.onupgradeneeded=function(){r.result.createObjectStore('img');};r.onsuccess=function(){fn(r.result,res);};r.onerror=function(){res(null);};}catch(e){res(null);}});}
@@ -3477,14 +3547,14 @@ function hwAct(a,d,P){
   if(a==='hwopt'&&it&&q&&!it.done){var o=Number(d.o);it.ans=o;it.ok=['a','b','c','d'][o]===q.a;it.sc=it.ok?q.mk:0;it.mx=q.mk;it.done=true;it.at=Date.now();H.seen[q.i]=(H.seen[q.i]||0)+1;commit();return;}
   if(a==='hwdone'&&it&&q&&!it.done){
     var v=Number(readv('hw-sc-'+d.k));if(!isFinite(v)||v<0)v=0;if(v>q.mk)v=q.mk;
-    var fin=function(sc,fb,ai){it.sc=sc;it.mx=q.mk;it.done=true;it.at=Date.now();if(fb)it.fb=fb;if(ai)it.ai=1;H.seen[q.i]=(H.seen[q.i]||0)+1;HWAI['c'+d.k]=null;commit();};
+    var fin=function(sc,fb,ai,ety,pres){it.sc=sc;it.mx=q.mk;it.done=true;it.at=Date.now();if(fb)it.fb=fb;if(ai)it.ai=1;if(ety&&ety!=='none')it.et=ety;if(pres&&typeof pres.s==='number'){it.ps=pres.s;it.pt=String(pres.tip||'').slice(0,160);}H.seen[q.i]=(H.seen[q.i]||0)+1;HWAI['c'+d.k]=null;commit();};
     var pid=it.id+'|'+td,soft='AI check was not available, your own marks are counted.',hard='AI check is not available now. Enter your own marks and press Mark done.';
     if(!(cloud.client&&cloud.user)){fin(v,'',0);return;}
     HWAI['c'+d.k]={busy:true};render();
     hwImgGet(pid).then(function(imgs){
       if(!imgs.length){fin(v,'',0);return null;}
       return hwRef(d.k,q).then(function(ref){return cloud.client.functions.invoke('hw-check',{body:{question:q.q,ref:ref,max:q.mk,images:imgs}});}).then(function(r){
-        var o=r&&r.data;if(o&&typeof o.score==='number'){fin(o.score,o.feedback||'',1);}
+        var o=r&&r.data;if(o&&typeof o.score==='number'){fin(o.score,o.feedback||'',1,o.type,o.pres);}
         else{HWAI['c'+d.k]=null;if(v>0)fin(v,soft,0);else{toast((o&&o.error)||hard);render();}}
       });
     }).catch(function(){HWAI['c'+d.k]=null;if(v>0)fin(v,soft,0);else{toast(hard);render();}});
@@ -3526,7 +3596,7 @@ function viewGate(){
 }
 function render(){
   var app=document.getElementById('app'),P=cur();
-  document.documentElement.dataset.theme=theme();applyFs();
+  document.documentElement.dataset.theme=theme();applyFs();accApply();
   if(!P&&!ui.onb&&!ui.skipLogin){var gt=viewGate();if(gt){app.innerHTML=gt;applyLang(app);return;}}
   if(!P||ui.onb){app.innerHTML=head(P)+viewOnboard();applyLang(app);return;}
   normP(P);
@@ -3584,6 +3654,8 @@ function act(a,d){
   if(a.indexOf('hw')===0){hwAct(a,d,P);return;}
   if(a.indexOf('rp')===0){rpAct(a,d,P);return;}
   if(a.indexOf('qr')===0){qrAct(a,d,P);return;}
+  if(a==='xdadd'||a==='xddel'){xdAct(a,d,P);return;}
+  if(a==='accstop'){try{speechSynthesis.cancel();}catch(e){}return;}
   if(a.indexOf('pt')===0&&a!=='ptab'){ptAct(a,d,P);return;}
   if(a==='exdl'||a==='expr'){exAct(a,d,P);return;}
   if(a==='stab'){ui.stab=d.s;render();window.scrollTo(0,0);return;}
@@ -3668,7 +3740,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.7b\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.8\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
@@ -4192,6 +4264,9 @@ function chg(k,d,el){
   var P=cur();
   if(k==='prof'){S.active=el.value;ui.res=null;ui.modal=null;save();render();return;}
   if(k==='kbu'){ui.kbU=!!el.checked;return;}
+  if(k==='accset'){ACC[d.k]=!!el.checked;accSave();renderKeep();return;}
+  if(k==='xdtog'){var Px=cur(),Xx=xdS(Px),itx=Xx.items[Number(d.i)];if(itx){itx.done=!!el.checked;Px.dirty=true;commit();}return;}
+  if(k==='xdf'){var Py=cur(),Xy=xdS(Py);Xy.f=Xy.f||{};Xy.f.c=String(el.value||'').slice(0,100);Py.dirty=true;commit();return;}
   if(k==='aisub'){ui.ai.q=readv('ai-q');ui.ai.sub=el.value;render();return;}
   if(k==='aimode'){var a9=ui.ai;a9.q=readv('ai-q');a9.mat=readv('ai-mat')||a9.mat;var cx9=document.getElementById('ai-ctx');if(cx9)a9.ctx=cx9.checked;a9.mode=el.value;render();return;}
   if(k==='tmopt'){var oo=tmOpts();if(d.o==='every')oo.every=parseInt(el.value,10)||60;else oo[d.o]=el.checked;tmOptSave(oo);if(tmGet())tmPush();render();return;}
