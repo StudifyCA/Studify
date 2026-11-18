@@ -2911,7 +2911,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.7 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.7b • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3082,6 +3082,7 @@ function qrChart(ch,P,k){
     '<div class="row" style="gap:10px;margin-top:8px;flex-wrap:wrap">'+Object.keys(QRPR).map(function(x){return '<span style="display:inline-flex;gap:6px;align-items:center;font-size:12px"><i style="width:12px;height:12px;border-radius:3px;background:'+QRPR[x][0]+';display:inline-block"></i>'+QRPR[x][1]+' ('+QRPR[x][2]+')</span>';}).join('')+'</div></div>';
   h+='<div id="qr-chart" style="padding:10px;background:#fff;color:#1b1f27;border-radius:10px"><div style="text-align:center;font-weight:800;font-size:17px;margin-bottom:10px">'+esc(ch.content.title||pfull(k))+'</div>';
   ch.content.topics.forEach(function(t){
+    t.chapter=String(t.chapter||'').split(' | ')[0].replace(/\s*\(?\d+ repeated.*$/i,'').trim();
     var pr=qrPri(t.priority),c=QRPR[pr][0],e=R[t.chapter]||null;
     h+='<div style="border:2px solid '+c+';border-radius:12px;margin-bottom:12px;overflow:hidden">'+
       '<div style="background:'+c+';color:#fff;padding:8px 10px;display:flex;justify-content:space-between;gap:8px"><b>'+esc(t.chapter||'')+'</b><span style="font-size:12px;white-space:nowrap">'+QRPR[pr][1]+'</span></div><div style="padding:10px">';
@@ -3151,8 +3152,8 @@ async function qrGen(k,onPart){
   for(var pi=0;pi<parts;pi++){
     var seg=us.slice(pi*size,pi*size+size);
     if(onPart)onPart(pi+1,parts);
-    var lines=seg.map(function(u){var sh=tot&&gw[u.top]?Math.round(gw[u.top]/tot*100):0;return u.name+(sh?' | its chapter has about '+sh+'% of past marks':'')+(rc[u.top]?' | '+rc[u.top]+' repeated questions in this chapter':'');});
-    var q='Subject: '+pfull(k)+' (ICAI CA '+({FD:'Foundation',IN:'Intermediate',FN:'Final'}[k.slice(0,2)])+'), new scheme\nThis is part '+(pi+1)+' of '+parts+' of the subject. Write notes ONLY for these items (keep exact names and order). Each item is a separate topic:\n'+lines.join('\n');
+    var lines=seg.map(function(u){return u.name;}),hints=seg.map(function(u){var sh=tot&&gw[u.top]?Math.round(gw[u.top]/tot*100):0;return (sh||rc[u.top])?u.name+': '+(sh?'about '+sh+'% of past marks':'')+(sh&&rc[u.top]?', ':'')+(rc[u.top]?rc[u.top]+' repeated questions':''):'';}).filter(Boolean);
+    var q='Subject: '+pfull(k)+' (ICAI CA '+({FD:'Foundation',IN:'Intermediate',FN:'Final'}[k.slice(0,2)])+'), new scheme\nThis is part '+(pi+1)+' of '+parts+' of the subject. Write notes ONLY for these items (keep exact names and order). Each item is a separate topic:\n'+lines.join('\n')+(hints.length?'\n\nHints for choosing priority only (never copy into names):\n'+hints.join('\n'):'');
     await qrCall({mode:'revchart',key:k,append:pi>0,question:q.slice(0,5800),lang:'en'});
   }
   return true;
@@ -3667,7 +3668,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.7\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.7b\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
