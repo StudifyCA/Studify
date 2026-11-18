@@ -1,0 +1,34 @@
+page failed https://boslive.icai.org/ HTTP Error 403: Forbidden
+page failed https://www.icai.org/post/announcements HTTP Error 404: Not Found
+seed pages ok: 1 of 3 | deeper pages: 49
+pdf links found: 315
+saved icai-docs/other/86965cmib-62nd-campus-brochure-783aca.pdf 2305740
+saved icai-docs/other/84397cacaf68004-32b604.pdf 3312384
+saved icai-docs/other/79764mss63758-f56481.pdf 302119
+saved icai-docs/other/93219cg_advt2008-f7cd2f.pdf 276372
+saved icai-docs/other/93220guidelines_cfp-b3c43f.pdf 355925
+saved icai-docs/other/93221ges_esb2026-6e3dc3.pdf 265218
+saved icai-docs/other/64061mss51444-dee4ab.pdf 532192
+saved icai-docs/other/24889announ14695-b0b9b7.pdf 44140
+saved icai-docs/other/8891PQC_19Sep05-3fbd40.pdf 64078
+saved icai-docs/other/62804srsb50814-ea2d59.pdf 110201
+saved icai-docs/other/84821cfmip070325a-be398f.pdf 600698
+saved icai-docs/other/84823cfmip070325c-c546c3.pdf 1002791
+saved icai-docs/other/87429cfmip-aps1868-c78682.pdf 215386
+saved icai-docs/other/90017cfmip-aps3656-6df53d.pdf 423853
+saved icai-docs/other/91275examdept_contact-details2025new-99283e.pdf 533308
+saved icai-docs/other/94875exam-sep2026-int-verify-f0751a.pdf 11265
+saved icai-docs/other/93419exam-may2026-guide-fnd-75768d.pdf 8280
+saved icai-docs/other/93386exam-may2026-guide-mcq-int-final-8bd170.pdf 49497
+saved icai-docs/other/89244exam-aps2999-86190e.pdf 11795
+saved icai-docs/other/86798exam-certified-copies-discrepancy-report-format-fdd35a.pdf 15070
+saved icai-docs/other/45418cabf3551820-2015-2016-1ffb4c.pdf 175074
+saved icai-docs/other/45417cabf3551820-2014-2015-62f2ec.pdf 150692
+saved icai-docs/other/45416cabf3551820-2013-2014-36d5fc.pdf 139681
+saved icai-docs/other/14455m_enrolment-7b273d.pdf 68953
+saved icai-docs/other/14456m_grant-710ea1.pdf 25115
+saved icai-docs/other/14459m_fellow-62cfb9.pdf 31694
+saved icai-docs/other/14465pay_ann_fee-bbb5d2.pdf 46487
+saved icai-docs/other/14463m_removal-8471a6.pdf 103648
+saved icai-docs/other/14462m_nameres-747011.pdf 22297
+saved icai-docs/other/14458m_cancel-e58996.pdf 180296
