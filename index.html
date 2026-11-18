@@ -964,7 +964,7 @@ function fmtTs(s){try{return new Date(s).toLocaleString([],{dateStyle:'medium',t
 
 /* ---------- UI state ---------- */
 var ui={open:{},tab:'today',modal:null,onb:null,res:null,toast:'',showAll:false};
-var tabs=[['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['pt','\ud83e\uddea','Practice'],['star','\u2b50','Starred'],['rep','\ud83d\udd01','Repeat'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
+var tabs=[['qr','\u26a1','Quick revision'],['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['pt','\ud83e\uddea','Practice'],['star','\u2b50','Starred'],['rep','\ud83d\udd01','Repeat'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
 
 function toast(m){
   ui.toast=m;var old=document.querySelector('.toast');if(old)old.remove();
@@ -2589,7 +2589,7 @@ function guard(p){return p.catch(function(e){toast((e&&e.message)?e.message:'Som
 function kbCard(){
   if(!cloud.isAdmin)return '';
   var h='<div class="card"><h3>AI memory</h3><div class="mut">Answers the AI saved (and ICAI-seeded repeated MCQs). Students get these instantly and free. Check them, fix wrong ones, press Verify.</div>';
-  h+='<div class="row" style="margin-top:8px"><button class="btn sec sm" data-act="kbload">'+(ui.kb?'Reload':'Load memory')+'</button></div>';
+  h+='<div class="row" style="margin-top:8px;gap:8px"><input type="text" id="kb-s" placeholder="Search question" value="" style="flex:1"><label style="color:var(--tx)"><input type="checkbox" data-chg="kbu"'+(ui.kbU?' checked':'')+'> Not verified only</label><button class="btn sm" data-act="kbload">'+(ui.kb?'Search / Reload':'Load memory')+'</button></div>';
   if(ui.kbMsg)h+='<div class="chip" style="margin:8px 0;white-space:normal">'+esc(ui.kbMsg)+'</div>';
   (ui.kb||[]).forEach(function(r,i){
     h+='<div style="border-top:1px solid var(--bd);margin-top:10px;padding-top:8px"><div style="font-weight:600">'+esc(String(r.question||'').slice(0,300))+'</div>'+
@@ -2603,7 +2603,7 @@ function kbAct(a,d){
   if(!cloud.client||!cloud.isAdmin){toast('Admin only');return true;}
   if(a==='kbload'){
     ui.kbMsg='Loading\u2026';render();
-    cloud.client.from('ai_kb').select('hash,question,answer,engine,hits,verified').order('verified',{ascending:true}).order('hits',{ascending:false}).limit(60).then(function(r){
+    (function(){var qq=cloud.client.from('ai_kb').select('hash,question,answer,engine,hits,verified');var sv=readv('kb-s').trim().replace(/[%,()]/g,' ');if(sv)qq=qq.ilike('question','%'+sv+'%');if(ui.kbU)qq=qq.eq('verified',false);return qq.order('verified',{ascending:true}).order('hits',{ascending:false}).limit(30);})().then(function(r){
       if(r.error){ui.kbMsg='Could not load: '+r.error.message+' (run 14_ai_memory.sql)';}else{ui.kb=r.data||[];ui.kbMsg=ui.kb.length+' items';}
       render();});
     return true;
@@ -2611,12 +2611,12 @@ function kbAct(a,d){
   var i=Number(d&&d.i),row=ui.kb&&ui.kb[i];if(!row)return true;
   if(a==='kbsave'){
     var t=readv('kb-'+i).trim();if(!t){toast('Answer is empty');return true;}
-    cloud.client.from('ai_kb').update({answer:t,verified:true}).eq('hash',row.hash).then(function(r){if(r.error)toast(r.error.message);else{row.answer=t;row.verified=true;toast('Saved');}render();});
+    cloud.client.from('ai_kb').update({answer:t,verified:true}).eq('hash',row.hash).select('hash').then(function(r){if(r.error)toast(r.error.message);else if(!r.data||!r.data.length)toast('NOT saved: no permission. Run 14_ai_memory.sql in Supabase SQL Editor.');else{row.answer=t;row.verified=true;toast('Saved and verified');}render();});
     return true;
   }
   if(a==='kbdel'){
     if(!window.confirm('Delete this saved answer?'))return true;
-    cloud.client.from('ai_kb').delete().eq('hash',row.hash).then(function(r){if(r.error)toast(r.error.message);else ui.kb.splice(i,1);render();});
+    cloud.client.from('ai_kb').delete().eq('hash',row.hash).select('hash').then(function(r){if(r.error)toast(r.error.message);else if(!r.data||!r.data.length)toast('NOT deleted: no permission. Run 14_ai_memory.sql.');else ui.kb.splice(i,1);render();});
     return true;
   }
   return false;
@@ -2913,15 +2913,15 @@ function viewSettings(c){
   html+=cloudCard();
   html+='<div class="mut" style="margin:6px 0">App v1.3 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
-  html+=adminCard()+kbCard()+announceAdmin()+adminHub();var secAdm=html;html='';
+  html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
   var secHelp=html;
   var showAdm=!!(cloud.user&&cloud.isAdmin);
-  var tabs=[['gen','Profile'],['rem','Reminders'],['acct','Account']];if(showAdm)tabs.push(['adm','Admin']);tabs.push(['help','Help']);
-  var st=ui.stab||'gen';if(st==='adm'&&!showAdm)st='gen';
+  var tabs=[['gen','Profile'],['rem','Reminders'],['acct','Account']];if(showAdm){tabs.push(['adm','Admin']);tabs.push(['kb','AI memory']);}tabs.push(['help','Help']);
+  var st=ui.stab||'gen';if((st==='adm'||st==='kb')&&!showAdm)st='gen';
   var bar='<div class="stabs" role="tablist">'+tabs.map(function(t){return '<button class="chip stab'+(st===t[0]?' on':'')+'" data-act="stab" data-s="'+t[0]+'">'+t[1]+'</button>';}).join('')+'</div>';
-  if(ui.allSec)return secGen+secRem+secAcct+secAdm+secHelp;
-  var map={gen:secGen,rem:secRem,acct:secAcct,adm:secAdm,help:secHelp};
+  if(ui.allSec)return secGen+secRem+secAcct+secAdm+kbCard()+secHelp;
+  var map={gen:secGen,rem:secRem,acct:secAcct,adm:secAdm,kb:kbCard(),help:secHelp};
   return bar+map[st];
 }
 
@@ -2955,14 +2955,22 @@ function hwLoad(k){
 }
 function hwLoadAll(P,cb){var ks=hwKeys(P),need=ks.filter(function(k){return !HWQ[k];});if(!need.length)return;Promise.all(need.map(hwLoad)).then(function(){try{renderKeep();}catch(e){}});}
 function hRand(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0)/4294967296;}
-function hwTick(P,k){var o={};(P.papers[k].ch||[]).forEach(function(c){if(c.status==='done'){var n=c.name||((c.grp?c.grp+' › ':'')+c.unit);o[n]=1;}});return o;}
+function hwNorm(t){return String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'');}
+function hwTick(P,k){var o={},ns=(hwS(P).ns||{})[k]||{};(P.papers[k].ch||[]).forEach(function(c){if(c.removed)return;if(c.status==='done'||c.status==='learning'){var n=c.name||((c.grp?c.grp+' › ':'')+c.unit);if(!ns[n])o[n]=1;}});return o;}
+function hwCands(P,k,B){
+  var tk=hwTick(P,k),names=Object.keys(tk);if(!names.length)return [];
+  var c=B.q.filter(function(x){return tk[x.c];});if(c.length)return c;
+  var nn=names.map(hwNorm);
+  c=B.q.filter(function(x){var y=hwNorm(x.c);return nn.some(function(z){return z&&y&&(y===z||y.indexOf(z)>=0||z.indexOf(y)>=0);});});
+  return c;
+}
 function hwGen(P){
   var H=hwS(P),td=iso(today()),day=H.days[td];if(!day)day=H.days[td]={items:{}};
   var par=Math.floor(today().getTime()/86400000)%2,ch=false;
   hwKeys(P).forEach(function(k){
     var B=HWQ[k];if(!B||B.bad)return;
     var it=day.items[k];if(it&&it.id)return;
-    var tk=hwTick(P,k),cands=B.q.filter(function(x){return tk[x.c];});
+    var cands=hwCands(P,k,B);
     if(!cands.length)return;
     var m=cands.filter(function(x){return x.t==='m';}),d=cands.filter(function(x){return x.t==='d';});
     var pool=(m.length&&d.length)?(par?m:d):(m.length?m:d);
@@ -3017,6 +3025,7 @@ function hwItemHtml(P,k,it,day){
       h+='<div class="row" style="margin-top:8px;gap:8px;align-items:center">'+ref+'<span class="mut">My marks (only if auto check fails)</span><input type="number" min="0" max="'+q.mk+'" step="0.5" id="hw-sc-'+k+'" style="width:80px" placeholder="0-'+q.mk+'"><button class="btn sm" data-act="hwdone" data-k="'+k+'"'+(bz?' disabled':'')+'>'+(bz?'Checking...':'Mark done')+'</button></div>';
     }else h+='<div style="margin-top:8px"><span class="chip ok">Done • '+it.sc+'/'+it.mx+(it.ai?' • checked':'')+'</span> '+ref+'</div>'+(it.fb?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(it.fb)+'</div>':'');
   }
+  if(!it.done)h+='<div style="margin-top:8px"><button class="btn sec sm" data-act="hwskip" data-k="'+k+'">I have not studied this topic yet</button></div>';
   if(AIOPEN||(cloud.user&&cloud.isAdmin)){
     h+='<div style="margin-top:8px"><button class="btn sec sm" data-act="hwai" data-k="'+k+'"'+(HWAI[k]&&HWAI[k].busy?' disabled':'')+'>'+(HWAI[k]&&HWAI[k].busy?'Thinking...':'AI: one new similar question')+'</button></div>';
     if(HWAI[k]&&HWAI[k].txt)h+='<div class="card" style="margin-top:8px"><div style="white-space:pre-wrap;line-height:1.5">'+esc(HWAI[k].txt)+'</div></div>';
@@ -3025,20 +3034,122 @@ function hwItemHtml(P,k,it,day){
 }
 function viewHW(c){
   var P=c.P,H=hwS(P);
-  hwLoadAll(P);var day=hwGen(P),st=hwStats(P),h='<div class="card"><div class="row sp"><h3>Daily homework</h3></div><div class="mut">One question for each subject, taken only from chapters you have ticked as done. It is like homework: finish it and it counts in your performance.</div>';
+  hwLoadAll(P);var day=hwGen(P),st=hwStats(P),h='<div class="card"><div class="row sp"><h3>Daily homework</h3></div><div class="mut">One question for each subject, taken from chapters you have started or finished. It is like homework: finish it and it counts in your performance.</div>';
   h+='<div class="row sp" style="margin-top:8px"><span>Last 7 days</span><b>'+st.dn+' / '+st.n+' done'+(st.pct!==null?' • score '+st.pct+'%':'')+'</b></div>';
   h+='<label style="display:flex;gap:6px;align-items:center;color:var(--tx);margin-top:10px"><input type="checkbox" data-chg="hwstrict"'+(H.strict?' checked':'')+'> Strict mode (remind me if homework is pending)</label><div class="mut" style="margin-top:4px">Turn on Notifications in Settings to also get a reminder on your phone at 6 PM.</div>';
   if(H.strict)h+='<div class="row" style="margin-top:6px;gap:8px;align-items:center"><span class="mut">Weekly deadline</span><select data-chg="hwdl">'+['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map(function(d,i){return '<option value="'+i+'"'+(H.dl===i?' selected':'')+'>'+d+'</option>';}).join('')+'</select></div>';
   h+='</div>';
   var keys=hwKeys(P),any=false;
+  if(H.ns&&Object.keys(H.ns).some(function(z){return Object.keys(H.ns[z]).length;}))h+='<div class="mut" style="margin:6px 0">You skipped some topics. <button class="btn sec sm" data-act="hwresetns">Bring them back</button></div>';
   keys.forEach(function(k){
     var it=day.items[k];
-    if(!it||!it.id){h+='<div class="card"><b>'+esc(pfull(k))+'</b><div class="mut">'+(HWQ[k]&&!HWQ[k].bad?'No question yet. Tick a chapter of this subject as done in Papers.':(HWQ[k]&&HWQ[k].bad?'Question bank not found. Upload the qbank folder.':'Loading...'))+'</div></div>';return;}
+    if(!it||!it.id){h+='<div class="card"><b>'+esc(pfull(k))+'</b><div class="mut">'+(HWQ[k]&&!HWQ[k].bad?'No question yet. Mark a chapter of this subject as Learning or Done in Papers.':(HWQ[k]&&HWQ[k].bad?'Question bank not found. Upload the qbank folder.':'Loading...'))+'</div></div>';return;}
     any=true;h+=hwItemHtml(P,k,it,day);
   });
   return h;
 }
 function repCnt(B){var rc={};(B.rep||[]).forEach(function(r){rc[r.c]=(rc[r.c]||0)+1;});return rc;}
+/* ===== v1.4: quick revision tab ===== */
+var QRB={};
+function qrS(P){if(!P.rv)P.rv={};return P.rv;}
+function qrLoad(){
+  if(!cloud.client||!cloud.user||cloud.rcTried)return;cloud.rcTried=true;cloud.rc=cloud.rc||{};
+  cloud.client.from('rev_charts').select('key,content,updated_at').then(function(r){if(!r.error&&r.data){r.data.forEach(function(x){cloud.rc[x.key]=x;});}else cloud.rcErr=r.error?r.error.message:'';try{renderKeep();}catch(e){}});
+}
+function qrDays(t){if(!t)return null;return Math.floor((Date.now()-t)/864e5);}
+function qrRank(P){
+  var out=[],R=qrS(P);
+  hwKeys(P).forEach(function(k){
+    var B=HWQ[k];if(!B||B.bad)return;
+    var chs=(P.papers[k]?P.papers[k].ch:[]).filter(function(x){return !x.removed;}),pa=pwAll(P,k),rc=repCnt(B),tot=0;
+    chs.forEach(function(x){tot+=Number(pa[x.id])||0;});
+    chs.forEach(function(x,i){
+      var sh=tot?(Number(pa[x.id])||0)/tot*100:0,n=rc[x.name]||0,e=(R[k]&&R[k][x.name])||{n:0,at:0};
+      var dd=qrDays(e.at),score=sh+n*3+(e.n?0:12)+(dd===null?0:Math.min(dd,14))-(e.n>=3?10:0);
+      if(sh+n===0)return;
+      out.push({k:k,i:i,x:x,sh:Math.round(sh),n:n,e:e,dd:dd,score:score});
+    });
+  });
+  out.sort(function(a,b){return b.score-a.score;});return out;
+}
+function qrRowBtn(k,i,e){return '<button class="btn sm'+(e.n?' sec':'')+'" data-act="qrdone" data-k="'+k+'" data-i="'+i+'">Revised'+(e.n?' ('+e.n+'x)':'')+'</button>';}
+function qrChart(ch,P,k){
+  if(!ch||!ch.content||!Array.isArray(ch.content.topics))return '';
+  var R=(qrS(P)[k])||{},col={high:'#e25555',medium:'#e0a030',low:'#4aa36b'};
+  var h='<div class="card"><b>'+esc(ch.content.title||'Quick revision chart')+'</b><div class="mut">One chart for everyone, made by AI from the ICAI syllabus. Check important points in ICAI material.</div></div>';
+  ch.content.topics.forEach(function(t){
+    var pr=String(t.priority||'medium').toLowerCase(),e=R[t.chapter]||null;
+    h+='<div class="card" style="border-left:4px solid '+(col[pr]||col.medium)+'"><div class="row sp"><b>'+esc(t.chapter||'')+'</b><span class="chip">'+esc(pr)+'</span></div>';
+    if(Array.isArray(t.points)&&t.points.length)h+='<ul style="margin:8px 0 0 18px;padding:0;line-height:1.5">'+t.points.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';
+    if(Array.isArray(t.formulas)&&t.formulas.length)h+='<div style="margin-top:8px"><b>Formulas / rules</b><div style="white-space:pre-wrap;font-family:monospace;font-size:13px">'+t.formulas.map(esc).join('\n')+'</div></div>';
+    if(t.trap)h+='<div class="mut" style="margin-top:8px">Common mistake: '+esc(t.trap)+'</div>';
+    if(e)h+='<div class="mut" style="margin-top:4px">Revised '+e.n+'x</div>';
+    h+='</div>';
+  });
+  if(Array.isArray(ch.content.mnemonics)&&ch.content.mnemonics.length)h+='<div class="card"><b>Memory tricks</b><ul style="margin:8px 0 0 18px;padding:0;line-height:1.5">'+ch.content.mnemonics.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>';
+  return h;
+}
+function viewQR(c){
+  var P=c.P,ks=hwKeys(P),k=ui.qrK&&ks.indexOf(ui.qrK)>=0?ui.qrK:ks[0],R=qrS(P);
+  hwLoadAll(P);qrLoad();
+  var dl='';try{var dd=Math.round((parse(P.examDate)-today())/864e5);if(dd>=0)dl=' • '+dd+' days to your exam';}catch(e){}
+  var h='<div class="card"><h3>Quick revision</h3><div class="mut">Revise what gives the most marks, and track how many times you revised each chapter'+dl+'.</div></div>';
+  var rk=qrRank(P);
+  if(!rk.length)h+='<div class="card mut">Loading important topics... (needs the qbank files)</div>';
+  else{
+    h+='<div class="card"><b>Revise these first</b><div class="mut">Ranked by marks share, repeated questions, and how long since you last revised.</div>';
+    rk.slice(0,8).forEach(function(r){
+      h+='<div class="row sp" style="border-top:1px solid var(--bd);margin-top:8px;padding-top:8px;gap:8px"><div><b>'+esc(lblOf(r.x))+'</b><div class="mut">'+esc(plab(r.k))+' • '+(r.sh?r.sh+'% marks':'')+(r.n?' • '+r.n+' repeated':'')+' • '+(r.e.n?'last revised '+(r.dd===0?'today':r.dd+' days ago'):'not revised yet')+'</div></div>'+qrRowBtn(r.k,r.i,r.e)+'</div>';
+    });
+    h+='</div>';
+  }
+  h+='<div class="card"><div class="row" style="gap:8px"><select data-chg="qrk">'+ks.map(function(x){return '<option value="'+x+'"'+(x===k?' selected':'')+'>'+esc(pfull(x))+'</option>';}).join('')+'</select></div>';
+  var chs=(P.papers[k]?P.papers[k].ch:[]).filter(function(x){return !x.removed;}),rv=R[k]||{},seen=0;
+  chs.forEach(function(x){if(rv[x.name]&&rv[x.name].n)seen++;});
+  h+='<div class="mut" style="margin-top:8px">Revised at least once: '+seen+' of '+chs.length+' chapters</div>';
+  chs.forEach(function(x,i){var e=rv[x.name]||{n:0,at:0},dd=qrDays(e.at);
+    h+='<div class="row sp" style="border-top:1px solid var(--bd);margin-top:8px;padding-top:8px;gap:8px"><div>'+esc(lblOf(x))+'<div class="mut">'+(e.n?e.n+'x • last '+(dd===0?'today':dd+' days ago'):'not revised yet')+'</div></div>'+qrRowBtn(k,i,e)+'</div>';});
+  h+='</div>';
+  var ch=cloud.rc&&cloud.rc[k];
+  if(ch)h+=qrChart(ch,P,k);
+  else if(!cloud.user)h+='<div class="card mut">Sign in to see the quick revision chart for this subject.</div>';
+  else h+='<div class="card mut">The chart for this subject is not ready yet.'+(cloud.rcErr?' ('+esc(cloud.rcErr)+')':'')+'</div>';
+  if(cloud.user&&cloud.isAdmin){
+    var all=Object.keys(SYL),miss=all.filter(function(x){return !(cloud.rc&&cloud.rc[x]);});
+    h+='<div class="card"><b>Admin: AI charts</b><div class="mut">Made once and shown to every student of that level. '+(all.length-miss.length)+' of '+all.length+' ready.</div>'+(ui.qrMsg?'<div class="chip" style="margin:8px 0;white-space:normal">'+esc(ui.qrMsg)+'</div>':'')+
+      '<div class="row" style="margin-top:8px;gap:8px"><button class="btn sm"'+(QRB.on?' disabled':'')+' data-act="qrgen" data-k="'+k+'">'+(ch?'Regenerate this subject':'Generate this subject')+'</button><button class="btn sec sm"'+(QRB.on?' disabled':'')+' data-act="qrgenall">Generate all missing ('+miss.length+')</button></div></div>';
+  }
+  return h;
+}
+async function qrGen(k){
+  var B=HWQ[k]&&!HWQ[k].bad?HWQ[k]:null,rc=B?repCnt(B):{},gw=(GPW[k]&&GPW[k].m)||{},tot=0;
+  Object.keys(gw).forEach(function(n){tot+=Number(gw[n])||0;});
+  var names=SYL[k].map(function(n){return typeof n==='string'?n:(n.name||n.unit||'');}).filter(Boolean);
+  var lines=names.map(function(n){var sh=tot&&gw[n]?Math.round(gw[n]/tot*100):0;return n+(sh?' | about '+sh+'% of past marks':'')+(rc[n]?' | '+rc[n]+' repeated questions':'');});
+  var q='Subject: '+pfull(k)+' (ICAI CA '+({FD:'Foundation',IN:'Intermediate',FN:'Final'}[k.slice(0,2)])+')\nChapters (keep these exact names and order):\n'+lines.join('\n');
+  var r=await cloud.client.functions.invoke('ai-tutor',{body:{mode:'revchart',key:k,question:q.slice(0,5800),lang:'en'}});
+  if(r.error){var m='Function error';try{var tx=await r.error.context.text();var j=null;try{j=JSON.parse(tx)}catch(e){}m=(j&&j.error)||tx||r.error.message;}catch(e){m=r.error.message||m;}throw new Error(String(m).slice(0,200));}
+  if(r.data&&r.data.error)throw new Error(r.data.error);
+  return true;
+}
+function qrAct(a,d,P){
+  if(a==='qrdone'){var k=d.k,ch=(P.papers[k].ch||[]).filter(function(x){return !x.removed;})[Number(d.i)];if(!ch)return;var R=qrS(P);if(!R[k])R[k]={};var e=R[k][ch.name]||(R[k][ch.name]={n:0,at:0});e.n++;e.at=Date.now();P.dirty=true;commit();toast('Revision saved');return;}
+  if(!cloud.isAdmin||!cloud.client)return;
+  if(a==='qrgen'||a==='qrgenall'){
+    if(QRB.on)return;QRB.on=true;
+    var todo=a==='qrgen'?[d.k]:Object.keys(SYL).filter(function(x){return !(cloud.rc&&cloud.rc[x]);});
+    (async function(){
+      var okn=0;
+      for(var i=0;i<todo.length;i++){
+        ui.qrMsg='Generating '+todo[i]+' ('+(i+1)+'/'+todo.length+')...';renderKeep();
+        try{await hwLoad(todo[i]);await qrGen(todo[i]);okn++;}catch(e){ui.qrMsg='Stopped at '+todo[i]+': '+e.message;QRB.on=false;cloud.rcTried=false;qrLoad();return;}
+      }
+      QRB.on=false;ui.qrMsg='Done: '+okn+' chart(s) made.';cloud.rcTried=false;qrLoad();
+    })();
+    renderKeep();return;
+  }
+}
+function viewQRwrap(c){return viewQR(c);}
 function viewStar(c){
   var P=c.P,ks=hwKeys(P),k=ui.repK&&ks.indexOf(ui.repK)>=0?ui.repK:ks[0];
   var h='<div class="card"><h3>Starred chapters</h3><div class="mut">Starred chapters give the most marks in past papers. Below them are chapters without a star whose questions came again in different papers, so they are important too.</div>';
@@ -3056,6 +3167,8 @@ function viewStar(c){
 }
 /* ===== v1.2: repeated-question practice, practice tests, insights, export ===== */
 var RPREF={},RPBUSY={},RPSHOW={};
+function shN(p){var m=/^shots\/([A-Z0-9]+)\/(\d+-[aq]\.jpg)$/.exec(String(p||''));return m?'sh-'+m[1]+'-'+m[2]:String(p||'');}
+function shImg(p,alt){var n=shN(p);return '<img src="'+esc(n)+'" data-n="'+esc(n)+'" onerror="if(!this.dataset.f){this.dataset.f=1;this.src=\''+esc(SBASE)+'\'+this.dataset.n;}" loading="lazy" alt="'+alt+'" style="width:100%;border-radius:8px;margin-top:8px;border:1px solid var(--bd);background:#fff">';}
 function rpS(P){if(!P.rp)P.rp={};return P.rp;}
 function rpE(P,id){var R=rpS(P);if(!R[id])R[id]={n:0,done:false,log:[]};if(!R[id].log)R[id].log=[];return R[id];}
 function fdt(ms){try{return new Date(ms).toLocaleString([],{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});}catch(e){return '';}}
@@ -3070,7 +3183,7 @@ function rpCard(P,k,r,isS){
   var h='<div class="card"'+(e.done?' style="opacity:.8"':'')+'><div class="row sp"><span class="chip warn">Repeated in '+r.n+' papers</span><span class="mut">'+(isS?'★ ':'')+esc(r.c.split(' › ').pop().split(' – ').pop())+'</span></div>';
   if(e.n)h+='<div style="margin-top:6px"><span class="chip ok">Solved '+e.n+' time'+(e.n>1?'s':'')+'</span> <span class="mut">last '+esc(fdt(e.log.length?e.log[e.log.length-1].t:e.at))+'</span></div>';
   h+='<div style="white-space:pre-wrap;line-height:1.5;margin-top:8px">'+esc(r.q)+'</div>';
-  if(r.qi)h+='<img src="'+SBASE+esc(r.qi)+'" loading="lazy" alt="Question from the paper" style="width:100%;border-radius:8px;margin-top:8px;border:1px solid var(--bd);background:#fff">'+(r.qf?'<div class="mut" style="margin-top:4px">Page '+r.qp+' of '+esc(r.ms||'')+' • <a href="'+esc(sUrl(r.qf))+'#page='+r.qp+'" target="_blank" rel="noopener">Open PDF</a></div>':'');
+  if(r.qi)h+=shImg(r.qi,'Question from the paper')+(r.qf?'<div class="mut" style="margin-top:4px">Page '+r.qp+' of '+esc(r.ms||'')+' • <a href="'+esc(sUrl(r.qf))+'#page='+r.qp+'" target="_blank" rel="noopener">Open PDF</a></div>':'');
   else h+='<div class="mut" style="margin-top:4px">'+r.s.slice(0,4).map(esc).join(' • ')+'</div>';
   if(r.o){
     h+='<div style="margin-top:8px">'+r.o.map(function(o,i){var cl='btn sec',L=['a','b','c','d'][i];if(la&&la.o!==undefined){if(L===r.a)cl='btn ok';else if(i===la.o)cl='btn bad';}return '<div style="margin-top:6px"><button class="'+cl+'" style="width:100%;text-align:left;white-space:normal" data-act="rpopt" data-id="'+id+'" data-o="'+i+'">('+L+') '+esc(o)+'</button></div>';}).join('')+'</div>';
@@ -3085,7 +3198,7 @@ function rpCard(P,k,r,isS){
     if(show||(la&&la.sc!==undefined&&la.sc/(la.mx||1)<0.6)){
       var t=RPREF[id];
       h+='<div class="card" style="margin-top:8px;background:var(--bg)"><b>Answer</b>';
-      if(r.ai)h+='<img src="'+SBASE+esc(r.ai)+'" loading="lazy" alt="Answer from the paper" style="width:100%;border-radius:8px;margin-top:8px;border:1px solid var(--bd);background:#fff"><div class="mut" style="margin-top:4px">Page '+r.ap+' • <a href="'+esc(sUrl(r.af))+'#page='+r.ap+'" target="_blank" rel="noopener">Open PDF</a></div>';
+      if(r.ai)h+=shImg(r.ai,'Answer from the paper')+'<div class="mut" style="margin-top:4px">Page '+r.ap+' • <a href="'+esc(sUrl(r.af))+'#page='+r.ap+'" target="_blank" rel="noopener">Open PDF</a></div>';
       h+=t===undefined?'<div class="mut" style="margin-top:6px">Loading answer text...</div>':(t?'<div style="white-space:pre-wrap;line-height:1.5;margin-top:8px;font-size:13px">'+esc(t.slice(0,1800))+'</div>':(r.ai?'':'<div class="mut" style="margin-top:6px">Answer text not found for this one. Open the answers PDF.</div>'));
       h+='</div>';
       if(t===undefined)rpRefText(r).then(function(){try{renderKeep();}catch(e){}});
@@ -3305,6 +3418,12 @@ async function hwRef(k,q){
 }
 function hwAct(a,d,P){
   var H=hwS(P),td=iso(today()),day=H.days[td],it=day&&day.items[d.k],B=HWQ[d.k],q=it&&B&&B.map&&B.map[it.id];
+  if(a==='hwskip'&&it&&q&&!it.done){
+    if(!H.ns)H.ns={};if(!H.ns[d.k])H.ns[d.k]={};H.ns[d.k][q.c]=1;delete day.items[d.k];P.dirty=true;
+    var left=Object.keys(hwTick(P,d.k)).length;
+    commit();toast(left?'Okay. A question from another topic is shown now.':'No other topic is in progress. Tick or start another chapter in Papers.');return;
+  }
+  if(a==='hwresetns'){H.ns={};P.dirty=true;commit();toast('Skipped topics are back in homework');return;}
   if(a==='hwopt'&&it&&q&&!it.done){var o=Number(d.o);it.ans=o;it.ok=['a','b','c','d'][o]===q.a;it.sc=it.ok?q.mk:0;it.mx=q.mk;it.done=true;it.at=Date.now();H.seen[q.i]=(H.seen[q.i]||0)+1;commit();return;}
   if(a==='hwdone'&&it&&q&&!it.done){
     var v=Number(readv('hw-sc-'+d.k));if(!isFinite(v)||v<0)v=0;if(v>q.mk)v=q.mk;
@@ -3367,6 +3486,7 @@ function render(){
   else if(ui.tab==='pt')body=viewPT(c);
   else if(ui.tab==='star')body=viewStar(c);
   else if(ui.tab==='rep')body=viewRep(c);
+  else if(ui.tab==='qr')body=viewQR(c);
   else if(ui.tab==='papers')body=viewPapers(c);
   else if(ui.tab==='results')body=hwPerfCard(P)+insightCards(P)+viewResults(c);
   else if(ui.tab==='plan')body=viewPlan(c);
@@ -3413,6 +3533,7 @@ function act(a,d){
   var P=cur();
   if(a.indexOf('hw')===0){hwAct(a,d,P);return;}
   if(a.indexOf('rp')===0){rpAct(a,d,P);return;}
+  if(a.indexOf('qr')===0){qrAct(a,d,P);return;}
   if(a.indexOf('pt')===0&&a!=='ptab'){ptAct(a,d,P);return;}
   if(a==='exdl'||a==='expr'){exAct(a,d,P);return;}
   if(a==='stab'){ui.stab=d.s;render();window.scrollTo(0,0);return;}
@@ -4006,6 +4127,7 @@ function startOnb(){
 function chg(k,d,el){
   if(k.indexOf('hw')===0){hwChg(k,d,el);return;}
   if(k.indexOf('rp')===0){rpChg(k,d,el);return;}
+  if(k==='qrk'){ui.qrK=el.value;renderKeep();return;}
   if(k.indexOf('pt')===0){ptChg(k,d,el);return;}
   if(k==='pushremind'||k==='pushnudge'||k==='pushtime'){var po=pushPrefs();if(k==='pushremind')po.remind=el.checked;else if(k==='pushnudge')po.nudge=el.checked;else{var tv=timeVal('push-time');if(/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(tv))po.time=tv;}pushSave(po);guard(pushUpdate().then(function(){toast('Saved');}));return;}
   if(k==='allownudge'){guard(rpc('set_allow_nudges',{p_allow:el.checked}).then(function(m){cloud.allowNudges=el.checked;toast(m);}));return;}
@@ -4019,6 +4141,7 @@ function chg(k,d,el){
   if(k==='apm'){var ri=Number(d&&d.i);if(ui.apSug&&ui.apSug.rows[ri]){var vv=Number(el.value);ui.apSug.rows[ri].m=isFinite(vv)&&vv>=0?vv:0;renderKeep();}return;}
   var P=cur();
   if(k==='prof'){S.active=el.value;ui.res=null;ui.modal=null;save();render();return;}
+  if(k==='kbu'){ui.kbU=!!el.checked;return;}
   if(k==='aisub'){ui.ai.q=readv('ai-q');ui.ai.sub=el.value;render();return;}
   if(k==='aimode'){var a9=ui.ai;a9.q=readv('ai-q');a9.mat=readv('ai-mat')||a9.mat;var cx9=document.getElementById('ai-ctx');if(cx9)a9.ctx=cx9.checked;a9.mode=el.value;render();return;}
   if(k==='tmopt'){var oo=tmOpts();if(d.o==='every')oo.every=parseInt(el.value,10)||60;else oo[d.o]=el.checked;tmOptSave(oo);if(tmGet())tmPush();render();return;}
