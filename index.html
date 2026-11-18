@@ -3168,7 +3168,30 @@ function viewStar(c){
 /* ===== v1.2: repeated-question practice, practice tests, insights, export ===== */
 var RPREF={},RPBUSY={},RPSHOW={};
 function shN(p){var m=/^shots\/([A-Z0-9]+)\/(\d+-[aq]\.jpg)$/.exec(String(p||''));return m?'sh-'+m[1]+'-'+m[2]:String(p||'');}
-function shImg(p,alt){var n=shN(p);return '<img src="'+esc(n)+'" data-n="'+esc(n)+'" onerror="if(!this.dataset.f){this.dataset.f=1;this.src=\''+esc(SBASE)+'\'+this.dataset.n;}" loading="lazy" alt="'+alt+'" style="width:100%;border-radius:8px;margin-top:8px;border:1px solid var(--bd);background:#fff">';}
+function shImg(p,alt,pf,pg){var n=shN(p);return '<img src="'+esc(n)+'" data-n="'+esc(n)+'" data-pf="'+esc(pf?sUrl(pf):'')+'" data-pg="'+(pg||1)+'" onerror="shFb(this)" loading="lazy" alt="'+alt+'" style="width:100%;border-radius:8px;margin-top:8px;border:1px solid var(--bd);background:#fff;min-height:40px">';}
+var PDFJS=null;
+function shLoadPdfJs(){
+  if(PDFJS)return PDFJS;
+  PDFJS=new Promise(function(res,rej){
+    if(window.pdfjsLib){res(window.pdfjsLib);return;}
+    var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    sc.onload=function(){try{window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';res(window.pdfjsLib);}catch(e){rej(e);}};
+    sc.onerror=function(){PDFJS=null;rej(new Error('pdf.js'));};document.head.appendChild(sc);
+  });
+  return PDFJS;
+}
+window.shFb=function(img){return shFb(img);};
+function shFb(img){
+  var st=Number(img.dataset.f||0);
+  if(st===0){img.dataset.f=1;img.src=SBASE+img.dataset.n;return;}
+  if(st===1&&img.dataset.pf){
+    img.dataset.f=2;
+    shLoadPdfJs().then(function(L){return L.getDocument({url:img.dataset.pf,disableWorker:false}).promise;}).then(function(doc){return doc.getPage(Number(img.dataset.pg)||1);}).then(function(pg){
+      var vp=pg.getViewport({scale:1.4}),cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;
+      return pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise.then(function(){img.src=cv.toDataURL('image/jpeg',0.72);});
+    }).catch(function(){img.alt=(img.alt||'')+' (not available)';});
+  }
+}
 function rpS(P){if(!P.rp)P.rp={};return P.rp;}
 function rpE(P,id){var R=rpS(P);if(!R[id])R[id]={n:0,done:false,log:[]};if(!R[id].log)R[id].log=[];return R[id];}
 function fdt(ms){try{return new Date(ms).toLocaleString([],{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});}catch(e){return '';}}
@@ -3183,7 +3206,7 @@ function rpCard(P,k,r,isS){
   var h='<div class="card"'+(e.done?' style="opacity:.8"':'')+'><div class="row sp"><span class="chip warn">Repeated in '+r.n+' papers</span><span class="mut">'+(isS?'★ ':'')+esc(r.c.split(' › ').pop().split(' – ').pop())+'</span></div>';
   if(e.n)h+='<div style="margin-top:6px"><span class="chip ok">Solved '+e.n+' time'+(e.n>1?'s':'')+'</span> <span class="mut">last '+esc(fdt(e.log.length?e.log[e.log.length-1].t:e.at))+'</span></div>';
   h+='<div style="white-space:pre-wrap;line-height:1.5;margin-top:8px">'+esc(r.q)+'</div>';
-  if(r.qi)h+=shImg(r.qi,'Question from the paper')+(r.qf?'<div class="mut" style="margin-top:4px">Page '+r.qp+' of '+esc(r.ms||'')+' • <a href="'+esc(sUrl(r.qf))+'#page='+r.qp+'" target="_blank" rel="noopener">Open PDF</a></div>':'');
+  if(r.qi)h+=shImg(r.qi,'Question from the paper',r.qf,r.qp)+(r.qf?'<div class="mut" style="margin-top:4px">Page '+r.qp+' of '+esc(r.ms||'')+' • <a href="'+esc(sUrl(r.qf))+'#page='+r.qp+'" target="_blank" rel="noopener">Open PDF</a></div>':'');
   else h+='<div class="mut" style="margin-top:4px">'+r.s.slice(0,4).map(esc).join(' • ')+'</div>';
   if(r.o){
     h+='<div style="margin-top:8px">'+r.o.map(function(o,i){var cl='btn sec',L=['a','b','c','d'][i];if(la&&la.o!==undefined){if(L===r.a)cl='btn ok';else if(i===la.o)cl='btn bad';}return '<div style="margin-top:6px"><button class="'+cl+'" style="width:100%;text-align:left;white-space:normal" data-act="rpopt" data-id="'+id+'" data-o="'+i+'">('+L+') '+esc(o)+'</button></div>';}).join('')+'</div>';
@@ -3198,7 +3221,7 @@ function rpCard(P,k,r,isS){
     if(show||(la&&la.sc!==undefined&&la.sc/(la.mx||1)<0.6)){
       var t=RPREF[id];
       h+='<div class="card" style="margin-top:8px;background:var(--bg)"><b>Answer</b>';
-      if(r.ai)h+=shImg(r.ai,'Answer from the paper')+'<div class="mut" style="margin-top:4px">Page '+r.ap+' • <a href="'+esc(sUrl(r.af))+'#page='+r.ap+'" target="_blank" rel="noopener">Open PDF</a></div>';
+      if(r.ai)h+=shImg(r.ai,'Answer from the paper',r.af,r.ap)+'<div class="mut" style="margin-top:4px">Page '+r.ap+' • <a href="'+esc(sUrl(r.af))+'#page='+r.ap+'" target="_blank" rel="noopener">Open PDF</a></div>';
       h+=t===undefined?'<div class="mut" style="margin-top:6px">Loading answer text...</div>':(t?'<div style="white-space:pre-wrap;line-height:1.5;margin-top:8px;font-size:13px">'+esc(t.slice(0,1800))+'</div>':(r.ai?'':'<div class="mut" style="margin-top:6px">Answer text not found for this one. Open the answers PDF.</div>'));
       h+='</div>';
       if(t===undefined)rpRefText(r).then(function(){try{renderKeep();}catch(e){}});
