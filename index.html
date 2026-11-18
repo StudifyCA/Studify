@@ -965,7 +965,7 @@ function fmtTs(s){try{return new Date(s).toLocaleString([],{dateStyle:'medium',t
 
 /* ---------- UI state ---------- */
 var ui={open:{},tab:'today',modal:null,onb:null,res:null,toast:'',showAll:false};
-var tabs=[['qr','\u26a1','Quick revision'],['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['pt','\ud83e\uddea','Practice'],['star','\u2b50','Starred'],['rep','\ud83d\udd01','Repeat'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
+var tabs=[['qr','\u26a1','Quick revision'],['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['pt','\ud83e\uddea','Practice'],['star','\u2b50','Starred'],['rep','\ud83d\udd01','Repeat'],['guide','\ud83d\udcd8','Exam guide'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
 
 function toast(m){
   ui.toast=m;var old=document.querySelector('.toast');if(old)old.remove();
@@ -2913,7 +2913,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.8 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.9 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3151,6 +3151,111 @@ function errCard(P){
   Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a];}).forEach(function(t){h+='<div class="row sp" style="margin-top:8px"><span>'+ETY[t]+'</span><b>'+cnt[t]+'x</b></div><div class="mut" style="font-size:12px">'+esc(Object.keys(ch[t]||{}).slice(0,3).map(function(n){return n.split(' › ').pop();}).join(', '))+'</div>';});
   if(pn)h+='<div style="margin-top:10px">Answer presentation: <b>'+(ps/pn).toFixed(1)+' / 5</b> <span class="mut">(average of '+pn+' answers)</span></div>';
   return h+'</div>';
+}
+/* ===== v1.9: Exam guide tab (pattern, pathway, syllabus changes, materials, budget) ===== */
+var GDV='18 Nov 2026',GDSRC='Public sources (Taxmann, TaxGuru, PW, CA Test Series), checked on '+GDV+'. ICAI rules can change. Always confirm on icai.org and your admit card.';
+var GDPAT={
+  foundation:{n:'CA Foundation',papers:[
+    {p:'Paper 1 Principles and Practices of Accounting',m:100,d:100,o:0,t:'3 hours'},
+    {p:'Paper 2 Business Laws',m:100,d:100,o:0,t:'3 hours'},
+    {p:'Paper 3 Quantitative Aptitude',m:100,d:0,o:100,t:'2 hours'},
+    {p:'Paper 4 Business Economics',m:100,d:0,o:100,t:'2 hours'}],
+    notes:['Papers 1 and 2 are descriptive. Papers 3 and 4 are objective (MCQ).','Negative marking applies to the objective papers only (as reported by PW). Check the marking scheme in your exam instructions.','Pass: at least 40 in every paper and 50% in total (200 of 400).']},
+  inter:{n:'CA Intermediate',papers:[
+    {p:'Paper 1 Advanced Accounting',m:100,d:70,o:30,t:''},
+    {p:'Paper 2 Corporate and Other Laws',m:100,d:70,o:30,t:''},
+    {p:'Paper 3 Taxation',m:100,d:70,o:30,t:''},
+    {p:'Paper 4 Cost and Management Accounting',m:100,d:70,o:30,t:''},
+    {p:'Paper 5 Auditing and Ethics',m:100,d:70,o:30,t:''},
+    {p:'Paper 6 Financial Management and Strategic Management',m:100,d:70,o:30,t:''}],
+    notes:['Each paper: about 70 marks descriptive and 30 marks case-scenario MCQ (Taxmann, TaxGuru).','No negative marking for the MCQ part (two sources).','Pass: at least 40 in every paper and 50% in each group (150 of 300). Group 1 = Papers 1 to 3, Group 2 = Papers 4 to 6.','Scoring 60 or more in a paper can give an exemption for later attempts, with conditions.','Paper duration is not confirmed in my sources. Check your admit card.']},
+  final:{n:'CA Final',papers:[
+    {p:'Paper 1 Financial Reporting',m:100,d:70,o:30,t:''},
+    {p:'Paper 2 Advanced Financial Management',m:100,d:70,o:30,t:''},
+    {p:'Paper 3 Advanced Auditing, Assurance and Professional Ethics',m:100,d:70,o:30,t:''},
+    {p:'Paper 4 Direct Tax Laws and International Taxation',m:100,d:70,o:30,t:''},
+    {p:'Paper 5 Indirect Tax Laws',m:100,d:70,o:30,t:''},
+    {p:'Paper 6 Integrated Business Solutions',m:100,d:70,o:30,t:''}],
+    notes:['Each paper: about 70 marks descriptive and 30 marks objective (Taxmann).','No negative marking (two sources).','Pass: at least 40 in every paper and 50% in each group. Group 1 = Papers 1 to 3, Group 2 = Papers 4 to 6.','Paper duration is not confirmed in my sources. Check your admit card.']}
+};
+var GDSYL=[
+ {l:'Foundation',k:'FD2',t:'removed',x:'Business Correspondence and Reporting chapters (Communication, Sentence Types and Vocabulary, Comprehension and Note-Making, Precis/Article/Report/Letters/Resume/Meetings)'},
+ {l:'Foundation',k:'FD2',t:'added',x:'The Negotiable Instruments Act, 1881'},
+ {l:'Foundation',k:'FD2',t:'added',x:'Indian Regulatory Framework'},
+ {l:'Foundation',k:'FD1',t:'added',x:'Accounts from Incomplete Records'},
+ {l:'Foundation',k:'FD3',t:'removed',x:'Logical Reasoning: Syllogism'},
+ {l:'Intermediate',k:'IN1',t:'added',x:'Revenue based AS, AS for Consolidated Financial Statements, Financial Statements of Companies, Buyback of Securities, Amalgamation, Reconstruction, Branch Accounting (incl. foreign branches). Confirm in the ICAI study material.'}
+];
+var GDMAT=['ICAI study module','Revision Test Papers (RTP)','Mock Test Papers (MTP)','Past exam papers','Your own short notes / chart','Latest amendments material','Test series (if you joined one)'];
+var GDBD=['Registration fee','Exam fee','Books and modules','Coaching or classes','Test series','Travel to centre','Stay near centre','Other'];
+function gdHead(t,sub){return '<div class="card"><h3>'+t+'</h3>'+(sub?'<div class="mut">'+sub+'</div>':'')+'</div>';}
+function gdPattern(P){
+  var lv=ui.gdLv||P.level,D=GDPAT[lv]||GDPAT.foundation;
+  var h='<div class="card"><h3>Exam pattern</h3><div class="mut">Marks and format for each paper.</div><div class="row" style="margin-top:8px"><select data-chg="gdlv">'+Object.keys(GDPAT).map(function(k){return '<option value="'+k+'"'+(k===lv?' selected':'')+'>'+GDPAT[k].n+'</option>';}).join('')+'</select></div>';
+  D.papers.forEach(function(x){
+    h+='<div style="margin-top:10px"><div class="row sp" style="gap:8px"><span>'+esc(x.p)+'</span><span class="mut" style="white-space:nowrap">'+x.m+' marks'+(x.t?' • '+x.t:'')+'</span></div>'+
+      '<div style="display:flex;height:14px;border-radius:7px;overflow:hidden;margin-top:4px;background:var(--bd)">'+(x.d?'<div style="width:'+x.d+'%;background:#4a7bd8" title="Descriptive"></div>':'')+(x.o?'<div style="width:'+x.o+'%;background:#e0a030" title="Objective"></div>':'')+'</div>'+
+      '<div class="mut" style="font-size:12px;margin-top:2px">'+(x.d?'Descriptive '+x.d:'')+(x.d&&x.o?' • ':'')+(x.o?'Objective (MCQ) '+x.o:'')+'</div></div>';
+  });
+  h+='<ul style="margin:12px 0 0 18px;padding:0;line-height:1.5;font-size:13.5px">'+D.notes.map(function(n){return '<li>'+esc(n)+'</li>';}).join('')+'</ul>';
+  h+='<div class="mut" style="margin-top:8px;font-size:12px">'+esc(GDSRC)+'</div></div>';
+  return h;
+}
+function gdPath(P){
+  var st=[['foundation','CA Foundation','After Class 12 (registration with ICAI). Graduates who meet ICAI\'s marks conditions can enter directly at Intermediate.'],
+    ['inter','CA Intermediate','Through Foundation, or direct entry for eligible graduates. A minimum study period applies before the exam.'],
+    ['train','Practical training','Orientation course and IT training first, then articleship under a practising CA (2 years under the new scheme, as reported).'],
+    ['final','CA Final','After Intermediate, with the training conditions set by ICAI.']];
+  var cur=P.level;
+  var h='<div class="card"><h3>Your path</h3><div class="mut">Where you are and what comes next.</div>';
+  st.forEach(function(s,i){var on=s[0]===cur;h+='<div style="display:flex;gap:10px;margin-top:10px;align-items:flex-start"><div style="width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:'+(on?'var(--ac)':'var(--bd)')+';color:'+(on?'#fff':'var(--tx)')+'">'+(i+1)+'</div><div><b>'+s[1]+(on?' (you are here)':'')+'</b><div class="mut" style="font-size:13px">'+s[2]+'</div></div></div>';});
+  h+='<div class="mut" style="margin-top:10px;font-size:12px">Eligibility rules and minimum periods are set by ICAI and change. Confirm on icai.org. '+esc(GDSRC)+'</div></div>';
+  return h;
+}
+function gdSyl(P){
+  var h='<div class="card"><h3>Syllabus changes</h3><div class="mut">Changes added to this app (syllabus version '+esc(SYLVER)+').</div>';
+  var d=null;try{d=sylDiff(P);}catch(e){}
+  if(P.sylVer<SYLVER&&d&&(d.add+d.rem+d.mig))h+='<div class="chip warn" style="margin-top:8px;white-space:normal">Your profile still has the old list: '+d.add+' new, '+d.rem+' removed. Open the Today tab and press Apply.</div>';
+  else h+='<div class="chip ok" style="margin-top:8px">Your profile is up to date.</div>';
+  GDSYL.forEach(function(x){h+='<div style="margin-top:8px;display:flex;gap:8px;align-items:flex-start"><span class="chip '+(x.t==='added'?'ok':'warn')+'" style="flex:none">'+(x.t==='added'?'New':'Removed')+'</span><div style="font-size:13.5px"><b>'+x.l+'</b>: '+esc(x.x)+'</div></div>';});
+  h+='<div class="mut" style="margin-top:10px;font-size:12px">Compiled from public sources on '+GDV+'. Confirm in the official ICAI syllabus.</div></div>';
+  return h;
+}
+function gdMat(P){
+  if(!P.sm)P.sm={};
+  var h='<div class="card"><h3>Study material checklist</h3><div class="mut">Tick what you have collected for each subject.</div>';
+  hwKeys(P).forEach(function(k){
+    var m=P.sm[k]||{},n=GDMAT.filter(function(x,i){return m[i];}).length;
+    h+='<div style="margin-top:12px"><b>'+esc(pfull(k))+'</b> <span class="mut">('+n+'/'+GDMAT.length+')</span>';
+    GDMAT.forEach(function(x,i){h+='<label style="display:flex;gap:8px;align-items:center;margin-top:4px;color:var(--tx);font-size:13.5px"><input type="checkbox" data-chg="gdsm" data-k="'+k+'" data-i="'+i+'"'+(m[i]?' checked':'')+'>'+esc(x)+'</label>';});
+    h+='</div>';
+  });
+  return h+'<div class="mut" style="margin-top:10px;font-size:12px">Official material: <a href="https://www.icai.org" target="_blank" rel="noopener">icai.org</a></div></div>';
+}
+function gdBud(P){
+  if(!P.bgt)P.bgt={items:[]};
+  var B=P.bgt,tot=0,paid=0;B.items.forEach(function(x){tot+=Number(x.a)||0;if(x.p)paid+=Number(x.a)||0;});
+  var rem=tot-paid,mo=1;try{mo=Math.max(1,Math.round((parse(P.examDate)-today())/(864e5*30)));}catch(e){}
+  var h='<div class="card"><h3>Exam budget planner</h3><div class="mut">Your own numbers. This app does not know current ICAI fees, so enter the amounts from the official fee notice.</div>';
+  h+='<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><select id="gd-bl">'+GDBD.map(function(x){return '<option>'+x+'</option>';}).join('')+'</select><input type="number" id="gd-ba" placeholder="Amount (₹)" min="0" style="width:130px"><button class="btn sm" data-act="gdbdadd">Add</button></div>';
+  B.items.forEach(function(x,i){h+='<div class="row sp" style="margin-top:8px;gap:8px"><label style="display:flex;gap:8px;align-items:center;color:var(--tx);flex:1"><input type="checkbox" data-chg="gdbp" data-i="'+i+'"'+(x.p?' checked':'')+'><span'+(x.p?' style="text-decoration:line-through;opacity:.7"':'')+'>'+esc(x.t)+'</span></label><b>₹'+(Number(x.a)||0).toLocaleString('en-IN')+'</b><button class="btn sec sm" data-act="gdbddel" data-i="'+i+'">Remove</button></div>';});
+  if(B.items.length)h+='<div style="margin-top:12px;border-top:1px solid var(--bd);padding-top:8px"><div class="row sp"><span>Total</span><b>₹'+tot.toLocaleString('en-IN')+'</b></div><div class="row sp"><span>Paid</span><b>₹'+paid.toLocaleString('en-IN')+'</b></div><div class="row sp"><span>Still to pay</span><b>₹'+rem.toLocaleString('en-IN')+'</b></div>'+(rem>0?'<div class="mut" style="margin-top:6px">About ₹'+Math.ceil(rem/mo).toLocaleString('en-IN')+' to set aside each month for the next '+mo+' month'+(mo>1?'s':'')+' (until your exam date).</div>':'')+'</div>';
+  return h+'</div>';
+}
+function viewGuide(c){
+  var P=c.P;
+  return gdHead('Exam guide','Exam pattern, your path, syllabus changes, study material and budget in one place.')+gdPattern(P)+gdPath(P)+gdSyl(P)+gdMat(P)+gdBud(P);
+}
+function gdAct(a,d,P){
+  if(!P.bgt)P.bgt={items:[]};
+  if(a==='gdbdadd'){var l=readv('gd-bl'),v=Number(readv('gd-ba'));if(!isFinite(v)||v<=0){toast('Enter an amount');return;}P.bgt.items.push({t:l,a:Math.round(v),p:false});P.dirty=true;commit();return;}
+  if(a==='gdbddel'){P.bgt.items.splice(Number(d.i),1);P.dirty=true;commit();return;}
+}
+function gdChg(k,d,el){
+  var P=cur();
+  if(k==='gdlv'){ui.gdLv=el.value;renderKeep();return;}
+  if(k==='gdsm'){if(!P.sm)P.sm={};if(!P.sm[d.k])P.sm[d.k]={};P.sm[d.k][Number(d.i)]=!!el.checked;P.dirty=true;commit();return;}
+  if(k==='gdbp'){if(!P.bgt)P.bgt={items:[]};var it=P.bgt.items[Number(d.i)];if(it){it.p=!!el.checked;P.dirty=true;commit();}return;}
 }
 function viewQR(c){
   var P=c.P,ks=hwKeys(P),k=ui.qrK&&ks.indexOf(ui.qrK)>=0?ui.qrK:ks[0],R=qrS(P);
@@ -3607,6 +3712,7 @@ function render(){
   else if(ui.tab==='star')body=viewStar(c);
   else if(ui.tab==='rep')body=viewRep(c);
   else if(ui.tab==='qr')body=viewQR(c);
+  else if(ui.tab==='guide')body=viewGuide(c);
   else if(ui.tab==='papers')body=viewPapers(c);
   else if(ui.tab==='results')body=hwPerfCard(P)+insightCards(P)+viewResults(c);
   else if(ui.tab==='plan')body=viewPlan(c);
@@ -3654,6 +3760,7 @@ function act(a,d){
   if(a.indexOf('hw')===0){hwAct(a,d,P);return;}
   if(a.indexOf('rp')===0){rpAct(a,d,P);return;}
   if(a.indexOf('qr')===0){qrAct(a,d,P);return;}
+  if(a.indexOf('gd')===0){gdAct(a,d,P);return;}
   if(a==='xdadd'||a==='xddel'){xdAct(a,d,P);return;}
   if(a==='accstop'){try{speechSynthesis.cancel();}catch(e){}return;}
   if(a.indexOf('pt')===0&&a!=='ptab'){ptAct(a,d,P);return;}
@@ -3740,7 +3847,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.8\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.9\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
@@ -4250,6 +4357,7 @@ function chg(k,d,el){
   if(k.indexOf('hw')===0){hwChg(k,d,el);return;}
   if(k.indexOf('rp')===0){rpChg(k,d,el);return;}
   if(k==='qrk'){ui.qrK=el.value;renderKeep();return;}
+  if(k.indexOf('gd')===0){gdChg(k,d,el);return;}
   if(k.indexOf('pt')===0){ptChg(k,d,el);return;}
   if(k==='pushremind'||k==='pushnudge'||k==='pushtime'){var po=pushPrefs();if(k==='pushremind')po.remind=el.checked;else if(k==='pushnudge')po.nudge=el.checked;else{var tv=timeVal('push-time');if(/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(tv))po.time=tv;}pushSave(po);guard(pushUpdate().then(function(){toast('Saved');}));return;}
   if(k==='allownudge'){guard(rpc('set_allow_nudges',{p_allow:el.checked}).then(function(m){cloud.allowNudges=el.checked;toast(m);}));return;}
