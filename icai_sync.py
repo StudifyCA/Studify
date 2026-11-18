@@ -9,7 +9,13 @@ MAX_FILE = 40 * 1024 * 1024        # skip files bigger than 40 MB
 MAX_TOTAL = 500 * 1024 * 1024      # stop downloading when icai-docs reaches 500 MB (GitHub Pages limit is 1 GB)
 MAX_NEW = 30                       # new downloads per run (backlog is filled run by run)
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb" "Kit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
-DEFAULT_SOURCES = ["https://www.icai.org/", "https://boslive.icai.org/", "https://www.icai.org/post/announcements"]
+DEFAULT_SOURCES = ["https://www.icai.org/"]
+INC = re.compile(r"exam|foundation|inter|final|rtp|mtp|syllabus|study|question|paper|result|schedule|date.?sheet|guide|mcq|amend|\bbos\b|student|scheme|revision|mock|announ|notification|time.?table|admit|registration|revised|suggested|capsule|booklet", re.I)
+EXC = re.compile(r"brochure|campus|advt|advert|enrol|fellow|membership|cfmip|cabf|grant|removal|cancel|nameres|pay_ann|\bfees?\b|contact|benevolent|tender|vacanc|recruit|newsletter|annual.?report|cfp|esb20|\bmss\d|srsb|cg_|\bpqc|coi|\bm_", re.I)
+def relevant(t, u):
+    s = t + " " + urllib.parse.unquote(u.split("?")[0].rsplit("/", 1)[-1])
+    return bool(INC.search(s)) and not EXC.search(s)
+GENERIC = re.compile(r"^(click here|here|download|view|pdf|read more|more|link|details|open)\b", re.I)
 log = []
 def say(*a):
     t = " ".join(str(x) for x in a); print(t); log.append(t)
@@ -48,17 +54,17 @@ def links(page, base):
     return out
 
 def levels(t):
-    t = t.lower(); o = []
-    if re.search(r"foundation|\bcpt\b", t): o.append("foundation")
-    if re.search(r"\binter(mediate)?\b|\bipc", t): o.append("inter")
-    if re.search(r"\bfinals?\b", t): o.append("final")
+    tk = set(re.split(r"[^a-z0-9]+", t.lower())); o = []
+    if tk & {"foundation", "fnd", "cpt"}: o.append("foundation")
+    if tk & {"inter", "intermediate", "int", "ipc", "ipcc"}: o.append("inter")
+    if tk & {"final", "finals", "fin"}: o.append("final")
     return o or ["foundation", "inter", "final"]
 
 def cat(t, u):
     s = (t + " " + u).lower()
     for name, rx in [("RTP", r"\brtp\b|revisionary"), ("MTP", r"\bmtp\b|mock test"), ("Past paper", r"question paper|past paper|exam paper|suggested answer|\bqp\b"),
                      ("Syllabus", r"syllabus"), ("Study material", r"study material|module|\bchapter\b|\bunit\b"), ("Result", r"result"),
-                     ("Announcement", r"announcement|notice|exam form|date sheet|schedule|notification|amendment")]:
+                     ("Announcement", r"announcement|notice|exam form|date sheet|schedule|notification|amendment|\bexam\b|exam-|admit|guide")]:
         if re.search(rx, s): return name
     return "Other"
 
@@ -73,6 +79,14 @@ def main():
         items = old.get("items", [])
     except Exception:
         items = []
+    keep = []
+    for x in items:
+        if x.get("f") and not relevant(x["t"], x["url"]):
+            try: os.remove(x["f"])
+            except Exception: pass
+            say("removed unrelated", x["f"]); continue
+        keep.append(x)
+    items = keep
     have = {x["url"] for x in items}
     total = sum(x.get("s", 0) for x in items)
     src = DEFAULT_SOURCES
@@ -89,10 +103,12 @@ def main():
         for lu, lt in links(pg, u):
             if re.search(r"\.pdf(\?|$)", lu, re.I):
                 found.setdefault(lu, lt)
-            elif re.search(r"/post/|post_id=|announcement|rtp|mtp|study|syllabus|question", lu, re.I) and lu not in deep:
+            elif re.search(r"/post/|post_id=|announcement|rtp|mtp|study|syllabus|question|exam|student|result|bos|schedule", lu + " " + lt, re.I) and not EXC.search(lu + " " + lt) and all(lu != d[0] for d in deep):
                 deep.append((lu, lt))
     say("seed pages ok:", pages_ok, "of", len(src), "| deeper pages:", len(deep))
-    for lu, lt in deep[:60]:
+    for lu, lt in deep[:40]:
+        say("  page:", lt[:50], lu[:110])
+    for lu, lt in deep[:120]:
         try:
             pg = get(lu)
         except Exception:
@@ -107,7 +123,9 @@ def main():
         if u in have: continue
         if new >= MAX_NEW or total >= MAX_TOTAL: break
         name = urllib.parse.unquote(u.split("?")[0].rsplit("/", 1)[-1])
-        title = t if len(t) >= 6 else re.sub(r"[-_+]+", " ", re.sub(r"\.pdf$", "", name, flags=re.I))
+        title = t if (len(t) >= 6 and not GENERIC.match(t)) else re.sub(r"[-_+]+", " ", re.sub(r"\.pdf$", "", name, flags=re.I))
+        if not relevant(title, u):
+            continue
         c = cat(title, u)
         folder = os.path.join(OUT, slug(c).lower())
         os.makedirs(folder, exist_ok=True)
@@ -127,10 +145,10 @@ def main():
     # announcements without a pdf: keep as links
     for u, t in list(deep):
         if u in have or len(t) < 12: continue
-        if cat(t, u) == "Announcement" and not any(x["url"] == u for x in items):
+        if cat(t, u) == "Announcement" and relevant(t, u) and not any(x["url"] == u for x in items):
             items.append({"t": t[:140], "url": u, "f": None, "lv": levels(t), "c": "Announcement", "d": today, "s": 0})
     items.sort(key=lambda x: x.get("d", ""), reverse=True)
-    json.dump({"updated": datetime.datetime.utcnow().isoformat() + "Z", "items": items[:1500]}, open(idx_path, "w", encoding="utf-8"), ensure_ascii=False)
+    json.dump({"updated": datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S') + "Z", "items": items[:1500]}, open(idx_path, "w", encoding="utf-8"), ensure_ascii=False)
     open(os.path.join(OUT, "last_run.txt"), "w").write("\n".join(log[-60:]) + "\n")
     say("new files:", new, "| total size MB:", round(total / 1048576, 1))
     if pages_ok == 0:
