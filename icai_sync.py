@@ -9,9 +9,9 @@ MAX_FILE = 40 * 1024 * 1024        # skip files bigger than 40 MB
 MAX_TOTAL = 500 * 1024 * 1024      # stop downloading when icai-docs reaches 500 MB (GitHub Pages limit is 1 GB)
 MAX_NEW = 30                       # new downloads per run (backlog is filled run by run)
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb" "Kit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
-DEFAULT_SOURCES = ["https://www.icai.org/"]
-INC = re.compile(r"exam|foundation|inter|final|rtp|mtp|syllabus|study|question|paper|result|schedule|date.?sheet|guide|mcq|amend|\bbos\b|student|scheme|revision|mock|announ|notification|time.?table|admit|registration|revised|suggested|capsule|booklet", re.I)
-EXC = re.compile(r"brochure|campus|advt|advert|enrol|fellow|membership|cfmip|cabf|grant|removal|cancel|nameres|pay_ann|\bfees?\b|contact|benevolent|tender|vacanc|recruit|newsletter|annual.?report|cfp|esb20|\bmss\d|srsb|cg_|\bpqc|coi|\bm_", re.I)
+DEFAULT_SOURCES = ["https://www.icai.org/", "https://www.icai.org/category/bos-knowledge-portal", "https://www.icai.org/category/student-examination", "https://www.icai.org/category/examination-services", "https://www.icai.org/category/students-services", "https://www.icai.org/category/announcements", "https://www.icai.org/post/exam", "https://www.icai.org/post/new-scheme-of-education-and-training", "https://boslive.icai.org/"]
+INC = re.compile(r"exam|foundation|inter|final|rtp|mtp|syllabus|study|question|paper|result|schedule|date.?sheet|guide|mcq|amend|bos[-_]|scheme|revision|mock|announ|notification|time.?table|admit|registration|revised|suggested|capsule|booklet", re.I)
+EXC = re.compile(r"brochure|campus|advt|advert|enrol|fellow|membership|cfmip|cabf|grant|removal|cancel|nameres|pay_ann|\bfees?\b|contact|benevolent|tender|vacanc|recruit|newsletter|annual.?report|cfp|esb20|\bmss\d|srsb|cg_|\bpqc|coi|\bm_|elect|council|member|\bbye\b|dialogo|torch|president|annual|journal|\bcpe\b|webinar|branch|region|\bsar\b|\bsabr|manual", re.I)
 def relevant(t, u):
     s = t + " " + urllib.parse.unquote(u.split("?")[0].rsplit("/", 1)[-1])
     return bool(INC.search(s)) and not EXC.search(s)
@@ -28,7 +28,7 @@ def ok_host(u):
         return False
 
 def get(url, binary=False, limit=None):
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*", "Accept-Language": "en-IN,en;q=0.9"})
+    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/html,application/xhtml+xml,application/pdf,*/*;q=0.8", "Accept-Language": "en-IN,en;q=0.9", "Referer": "https://www.icai.org/", "Upgrade-Insecure-Requests": "1", "Sec-Fetch-Dest": "document", "Sec-Fetch-Mode": "navigate", "Sec-Fetch-Site": "same-site"})
     with urllib.request.urlopen(req, timeout=40) as r:
         if limit:
             cl = r.headers.get("Content-Length")
@@ -94,29 +94,27 @@ def main():
         src = [l.strip() for l in open("icai-sources.txt", encoding="utf-8") if l.strip().startswith("https://")] or DEFAULT_SOURCES
     found = {}   # url -> title
     pages_ok = 0
-    deep = []
-    for u in src:
+    PAGE_INC = re.compile(r"student|bos|exam|rtp|mtp|study|syllabus|question|paper|result|announcement|schedule|scheme|foundation|inter|final|material|revision|mock|category/|knowledge|download|publication", re.I)
+    PAGE_EXC = re.compile(r"elect|president|council|annual|torchbearer|media|news|rti|right-to-information|donate|appeal|covid|career|homage|green|hon.?ble|statistics|virtual|leadership|region|branch|member|self.service|bosactivities|vacanc|tender|contact", re.I)
+    seen = set(); queue = [(u, 0) for u in src]; visited = 0
+    while queue and visited < 150:
+        u, depth = queue.pop(0)
+        if u in seen: continue
+        seen.add(u)
         try:
-            pg = get(u); pages_ok += 1
+            pg = get(u); visited += 1; pages_ok += 1
         except Exception as e:
             say("page failed", u, str(e)[:80]); continue
+        time.sleep(0.3)
         for lu, lt in links(pg, u):
             if re.search(r"\.pdf(\?|$)", lu, re.I):
                 found.setdefault(lu, lt)
-            elif re.search(r"/post/|post_id=|announcement|rtp|mtp|study|syllabus|question|exam|student|result|bos|schedule", lu + " " + lt, re.I) and not EXC.search(lu + " " + lt) and all(lu != d[0] for d in deep):
-                deep.append((lu, lt))
-    say("seed pages ok:", pages_ok, "of", len(src), "| deeper pages:", len(deep))
-    for lu, lt in deep[:40]:
-        say("  page:", lt[:50], lu[:110])
-    for lu, lt in deep[:120]:
-        try:
-            pg = get(lu)
-        except Exception:
-            continue
-        for pu, pt in links(pg, lu):
-            if re.search(r"\.pdf(\?|$)", pu, re.I):
-                found.setdefault(pu, pt or lt)
-    say("pdf links found:", len(found))
+            elif depth < 2 and lu not in seen and PAGE_INC.search(lu + " " + lt) and not PAGE_EXC.search(lu + " " + lt):
+                queue.append((lu, depth + 1))
+    deep = []
+    say("pages read:", visited, "| pdf links found:", len(found))
+    for lu in list(seen)[:70]:
+        say("  page:", lu[:120])
     new = 0
     today = datetime.date.today().isoformat()
     for u, t in found.items():
