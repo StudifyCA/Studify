@@ -966,7 +966,7 @@ function fmtTs(s){try{return new Date(s).toLocaleString([],{dateStyle:'medium',t
 
 /* ---------- UI state ---------- */
 var ui={open:{},tab:'today',modal:null,onb:null,res:null,toast:'',showAll:false};
-var tabs=[['qr','\u26a1','Quick revision'],['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['pt','\ud83e\uddea','Practice'],['star','\u2b50','Starred'],['rep','\ud83d\udd01','Repeat'],['guide','\ud83d\udcd8','Exam guide'],['calc','\ud83e\uddee','Calculator'],['yt','\ud83c\udfac','Video notes'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
+var tabs=[['qr','\u26a1','Quick revision'],['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['pt','\ud83e\uddea','Practice'],['star','\u2b50','Starred'],['rep','\ud83d\udd01','Repeat'],['guide','\ud83d\udcd8','Exam guide'],['icai','\ud83d\udcda','ICAI material'],['calc','\ud83e\uddee','Calculator'],['yt','\ud83c\udfac','Video notes'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
 
 function toast(m){
   ui.toast=m;var old=document.querySelector('.toast');if(old)old.remove();
@@ -2099,7 +2099,7 @@ function viewToday(c){
   html+='</div>';
   html+=simBanner(P)+focusCard(c,T);
   if(S.compact&&I.phase!=='over'){html+=announceBanner()+nudgeBanner()+kalBanner(P)+idBanner()+bakBanner()+wkBanner(P)+newsCard(P)+instCard()+dlCard()+cardReview(P)+examCard(P,X,I)+timerCard(P,X)+'<div style="margin:10px 0"><button class="btn sec" data-act="compact">Show the full day</button></div>';return html;}
-  html+=announceBanner()+nudgeBanner()+kalBanner(P)+idBanner()+bakBanner()+wkBanner(P)+newsCard(P)+instCard()+dlCard()+verdictCard(c)+ringCard(P,I)+burnoutCard(P)+cardReview(P)+levelUpCard(P,c.A)+examCard(P,X,I)+replanCard(P,X,I)+retestCard(P)+attemptCard(P,c.A,X,true)+tipsCard()+sylBanner(P)+partnerGlance()+icaiCard(P,X)+timerCard(P,X);
+  html+=announceBanner()+nudgeBanner()+kalBanner(P)+idBanner()+bakBanner()+wkBanner(P)+newsCard(P)+icaiBanner()+instCard()+dlCard()+verdictCard(c)+ringCard(P,I)+burnoutCard(P)+cardReview(P)+levelUpCard(P,c.A)+examCard(P,X,I)+replanCard(P,X,I)+retestCard(P)+attemptCard(P,c.A,X,true)+tipsCard()+sylBanner(P)+partnerGlance()+icaiCard(P,X)+timerCard(P,X);
   if(I.phase!=='over'){
     html+='<h2>Today\u2019s plan</h2><div class="card">';
     if(T.rest)html+='<div>Today is your rest day. Optional: 20 minutes of light revision.</div>';
@@ -2916,7 +2916,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.15 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.16 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3304,25 +3304,25 @@ function gdMeth(){
 
 /* ===== v1.11: official ICAI documents (links only; files stay on icai.org) ===== */
 var DOCS=[],DOCSU='',HDOCS=[],HLOAD=0;
-function hdocLoad(){if(HLOAD)return;HLOAD=1;try{fetch('icai-docs/index.json?'+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&Array.isArray(j.items)){HDOCS=j.items.filter(function(x){return docOk(x)&&(!x.f||/^icai-docs\/[A-Za-z0-9._\/-]+\.pdf$/.test(x.f));}).slice(0,4000);if(j.updated&&!DOCSU)DOCSU=String(j.updated).slice(0,40);renderKeep();}}).catch(function(){});}catch(e){}}
+function hdocLoad(){if(HLOAD)return;HLOAD=1;try{fetch('icai-docs/index.json?'+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&Array.isArray(j.items)){HDOCS=j.items.filter(function(x){return docOk(x)&&(!x.f||/^icai-docs\/[A-Za-z0-9._\/-]+\.pdf$/.test(x.f)||/^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/releases\/download\/icai-files\/[A-Za-z0-9._-]+$/.test(x.f));}).slice(0,4000);if(j.updated&&!DOCSU)DOCSU=String(j.updated).slice(0,40);renderKeep();}}).catch(function(){});}catch(e){}}
 function allDocs(){var u={};HDOCS.forEach(function(x){u[x.url]=1;});return HDOCS.concat(DOCS.filter(function(x){return !u[x.url];})).sort(function(a,b){return (b.f?1:0)-(a.f?1:0);});}
 function docOk(x){return x&&typeof x.t==='string'&&x.t.length>0&&x.t.length<=140&&typeof x.url==='string'&&/^https:\/\/([a-z0-9-]+\.)*icai\.org\/[^\s"'<>]{0,470}$/i.test(x.url)&&Array.isArray(x.lv);}
 var DOCCATS=['All','Announcement','Study material','RTP','MTP','Past paper','Syllabus','Result','Other'];
 var ICAIL=[['ICAI website','https://www.icai.org/'],['Study material, RTP, MTP (BoS Knowledge Portal)','https://boslive.icai.org/'],['Exam results and admit cards','https://icaiexam.icai.org/'],['Student services','https://eservices.icai.org/'],['RTP Foundation','https://boslive.icai.org/education_content_rtp.php?c=Foundation'],['RTP Intermediate','https://boslive.icai.org/education_content_rtp.php?c=Intermediate'],['RTP Final','https://boslive.icai.org/education_content_rtp.php?c=Final'],['Model test papers','https://boslive.icai.org/education_content_modelTestPapers.php']];
 function gdDocs(P){
   var f=ui.docC||'All',q=(ui.docQ||'').toLowerCase(),lv=ui.docL||P.level;
-  var h='<div class="card"><h3>Official ICAI documents</h3><div class="mut">Links open the original file on icai.org, so you always get the latest version. Nothing is copied into this app.</div>';
+  var h='<div class="card"><h3>ICAI study material, MTP, RTP and past papers</h3><div class="mut">Files marked <b>Saved</b> are copied into Studify and download directly. Others open the original file on icai.org.</div>';
   h+='<div style="margin-top:8px">'+ICAIL.map(function(x){return '<a class="btn sec sm" style="margin:0 6px 6px 0;display:inline-block" href="'+x[1]+'" target="_blank" rel="noopener noreferrer">'+esc(x[0])+'</a>';}).join('')+'</div>';
-  hdocLoad();var L=allDocs().filter(function(x){return (f==='All'||x.c===f)&&x.lv.indexOf(lv)>=0&&(!q||x.t.toLowerCase().indexOf(q)>=0);});
-  h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><select data-chg="gddl">'+LVORD.map(function(v){return '<option value="'+v+'"'+(v===lv?' selected':'')+'>'+esc(LVNAME[v])+'</option>';}).join('')+'</select><select data-chg="gddc">'+DOCCATS.map(function(v){return '<option'+(v===f?' selected':'')+'>'+v+'</option>';}).join('')+'</select><input id="gd-dq" placeholder="Search" value="'+esc(ui.docQ||'')+'" data-chg="gddq" style="flex:1;min-width:120px"></div>';
+  hdocLoad();var L=allDocs().filter(function(x){return (f==='All'||x.c===f)&&(lv==='all'||x.lv.indexOf(lv)>=0)&&(!q||x.t.toLowerCase().indexOf(q)>=0);});var nSaved=allDocs().filter(function(x){return x.f;}).length;
+  h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><select data-chg="gddl"><option value="all"'+(lv==='all'?' selected':'')+'>All levels</option>'+LVORD.map(function(v){return '<option value="'+v+'"'+(v===lv?' selected':'')+'>'+esc(LVNAME[v])+'</option>';}).join('')+'</select><select data-chg="gddc">'+DOCCATS.map(function(v){return '<option'+(v===f?' selected':'')+'>'+v+'</option>';}).join('')+'</select><input id="gd-dq" placeholder="Search" value="'+esc(ui.docQ||'')+'" data-chg="gddq" style="flex:1;min-width:120px"></div>';
   if(!allDocs().length)h+='<div class="mut" style="margin-top:10px">No documents synced yet. Use the buttons above to open ICAI directly'+(cloud.isAdmin?', or press Sync now.':'.')+'</div>';
   else if(!L.length)h+='<div class="mut" style="margin-top:10px">Nothing matches this filter.</div>';
   var td=iso(today());
-  L.slice(0,40).forEach(function(x){
+  L.slice(0,ui.docN||40).forEach(function(x){
     var age=0;try{age=Math.round((parse(td)-parse(x.d))/864e5);}catch(e){}
-    h+='<div class="blk" style="margin-top:8px"><div><a href="'+esc(x.f||x.url)+'" target="_blank" rel="noopener noreferrer"><b>'+esc(x.t)+'</b></a><div class="mut">'+esc(x.c||'Other')+(x.f?' • PDF saved in app':(x.pdf?' • PDF on icai.org':''))+(x.s?' • '+(x.s/1048576).toFixed(1)+' MB':'')+' • found '+esc(x.d||'')+(x.f?' • <a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">original</a>':'')+'</div></div>'+(age<=14?'<span class="chip ok">New</span>':'')+'</div>';
+    h+='<div class="blk" style="margin-top:8px"><div><a href="'+esc(x.f||x.url)+'" target="_blank" rel="noopener noreferrer"><b>'+esc(x.t)+'</b></a><div class="mut">'+esc(x.c||'Other')+(x.f?' • Saved, tap to download':(x.pdf?' • Opens on icai.org':''))+(x.s?' • '+(x.s/1048576).toFixed(1)+' MB':'')+' • found '+esc(x.d||'')+(x.f?' • <a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">original</a>':'')+'</div></div>'+(age<=14?'<span class="chip ok">New</span>':'')+'</div>';
   });
-  if(L.length>40)h+='<div class="mut" style="margin-top:6px">Showing 40 of '+L.length+'. Use search to narrow down.</div>';
+  h+='<div class="mut" style="margin-top:6px">'+L.length+' files match ('+nSaved+' saved in the app in total).</div>';if(L.length>(ui.docN||40))h+='<button class="btn sec sm" style="margin-top:6px" data-act="gddocmore">Show more</button>';
   if(DOCSU)h+='<div class="mut" style="margin-top:8px">Last checked: '+esc(fmtTs(DOCSU))+'. Titles are read automatically from icai.org, so confirm details in the file.</div>';
   if(cloud.isAdmin){
     h+='<div style="border-top:1px solid var(--bd);margin-top:12px;padding-top:10px"><b>Admin</b><div class="row" style="gap:8px;margin-top:6px"><button class="btn sec sm" data-act="gddocsync">Sync now</button></div>'+
@@ -3473,11 +3473,32 @@ async function aiMcqRun(P,k,want){
   }
   var er=ui.mcqBusy.err;ui.mcqBusy=null;AIMLOAD=0;aimLoad(true);toast(er?('Stopped: '+er):'Done. MCQs are ready for everyone');renderKeep();
 }
+
+/* ===== v1.16: ICAI material tab + official announcements ===== */
+var ANNL=null,ANNLOAD=0,ANNU='';
+function annLoad(){if(ANNLOAD)return;ANNLOAD=1;try{fetch('icai-docs/announcements.json?'+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&Array.isArray(j.items)){ANNL=j.items.filter(function(x){return x&&typeof x.t==='string'&&/^https:\/\/([a-z0-9-]+\.)*icai\.org\//i.test(x.url||'');}).slice(0,150);ANNU=String(j.updated||'').slice(0,40);renderKeep();}}).catch(function(){});}catch(e){}}
+function annNew(){if(!ANNL)return 0;var t=iso(today()),n=0;ANNL.forEach(function(x){if(x.d){var a=0;try{a=Math.round((parse(t)-parse(x.d))/864e5);}catch(e){}if(a>=0&&a<=7)n++;}});return n;}
+function icaiBanner(){annLoad();var n=annNew();if(!n)return '';return '<div class="card" style="border-color:var(--ac)"><b>📣 '+n+' new official ICAI announcement'+(n>1?'s':'')+'</b><div class="mut" style="margin-top:4px">Read them in the ICAI material tab.</div><button class="btn sec sm" style="margin-top:6px" data-act="tab" data-t="icai">Open ICAI material</button></div>';}
+function viewIcai(c){
+  var P=c.P;annLoad();
+  var h='<div class="card"><h3>Official ICAI announcements</h3><div class="mut">Titles and links are copied from icai.org (Board of Studies and Examination pages). ICAI does not show dates on these lists, so the date below is when Studify first saw the item.</div>';
+  if(!ANNL)h+='<div class="mut" style="margin-top:8px">Not loaded yet. The sync runs every 6 hours.</div>';
+  else{
+    var td=iso(today());
+    ANNL.slice(0,ui.annN||12).forEach(function(x){var a=999;if(x.d){try{a=Math.round((parse(td)-parse(x.d))/864e5);}catch(e){}}
+      h+='<div class="blk" style="margin-top:8px"><div><a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer"><b>'+esc(x.t)+'</b></a><div class="mut">'+(x.pdf?'PDF • ':'Notice page • ')+(x.d?'first seen '+esc(x.d):'earlier notice')+'</div></div>'+(a<=7?'<span class="chip ok">New</span>':'')+'</div>';});
+    if(ANNL.length>(ui.annN||12))h+='<button class="btn sec sm" style="margin-top:8px" data-act="icmore">Show more</button>';
+    if(ANNU)h+='<div class="mut" style="margin-top:8px">Last checked: '+esc(fmtTs(ANNU))+'</div>';
+  }
+  h+='</div>';
+  return h+gdDocs(P);
+}
 function viewGuide(c){
   var P=c.P;
-  return gdHead('Exam guide','Exam pattern, your path, syllabus changes, study material and budget in one place.')+gdPattern(P)+gdPath(P)+gdSyl(P)+gdDocs(P)+gdMat(P)+gdMeth()+gdBud(P);
+  return gdHead('Exam guide','Exam pattern, your path, syllabus changes, study material and budget in one place.')+gdPattern(P)+gdPath(P)+gdSyl(P)+gdMat(P)+gdMeth()+gdBud(P);
 }
 function gdAct(a,d,P){
+  if(a==='gddocmore'){ui.docN=(ui.docN||40)+40;renderKeep();return;}
   if(a==='gddocsync'){gdDocRun({});return;}
   if(a==='gddocadd'){gdDocRun({add:{title:readv('gd-dt'),url:readv('gd-du')}});return;}
   if(!P.bgt)P.bgt={items:[]};
@@ -3955,6 +3976,7 @@ function render(){
   else if(ui.tab==='qr')body=viewQR(c);
   else if(ui.tab==='guide')body=viewGuide(c);
   else if(ui.tab==='calc')body=viewCalc(c);
+  else if(ui.tab==='icai')body=viewIcai(c);
   else if(ui.tab==='yt')body=viewYT(c);
   else if(ui.tab==='papers')body=viewPapers(c);
   else if(ui.tab==='results')body=hwPerfCard(P)+insightCards(P)+viewResults(c);
@@ -4003,6 +4025,7 @@ function act(a,d){
   if(a.indexOf('hw')===0){hwAct(a,d,P);return;}
   if(a.indexOf('rp')===0){rpAct(a,d,P);return;}
   if(a.indexOf('qr')===0){qrAct(a,d,P);return;}
+  if(a==='icmore'){ui.annN=(ui.annN||12)+12;renderKeep();return;}
   if(a.indexOf('gd')===0){gdAct(a,d,P);return;}
   if(a.indexOf('clc')===0){clcAct(a);return;}
   if(a.indexOf('yt')===0){ytAct(a,d);return;}
@@ -4092,7 +4115,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.15\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.16\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
