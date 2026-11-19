@@ -17,3 +17,5 @@ https://boslive.icai.org/education_content_rtp.php
 https://boslive.icai.org/education_content_rtp.php?c=Foundation
 https://boslive.icai.org/education_content_rtp.php?c=Intermediate
 https://boslive.icai.org/education_content_rtp.php?c=Final
+https://nextca.in/rtp/
+https://nextca.in/mtp/
