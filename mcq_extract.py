@@ -129,7 +129,7 @@ def base_key(t):
     return re.sub(r"[^a-z0-9]+", "", s)[:60]
 
 def prio(x):
-    t = (x.get("t", "") + " " + x.get("f", "")).lower()
+    t = ((x.get("t") or "") + " " + (x.get("f") or "")).lower()
     if "mcq" in t: return 0
     if re.search(r"rtp|mtp|revision|mock|model|test", t): return 1
     if re.search(r"question|paper|exam", t) and "guid" not in t: return 2
@@ -143,7 +143,7 @@ def main():
     def shard(lv):
         if lv not in shards: shards[lv] = jload(os.path.join(MQ, lv + ".json"), {"items": []})
         return shards[lv]
-    cand = [x for x in idx if x.get("f", "").startswith("http") and (x["f"] not in done or (done[x["f"]].get("n") == -1 and done[x["f"]].get("fail", 0) < 3))]
+    cand = [x for x in idx if (x.get("f") or "").startswith("http") and (x["f"] not in done or (done[x["f"]].get("n") == -1 and done[x["f"]].get("fail", 0) < 3))]
     cand.sort(key=prio)
     say("pdfs to scan:", len(cand), "| already scanned:", len(done))
     nf = 0; tot = 0
@@ -159,9 +159,9 @@ def main():
         except Exception: pass
         qs, km = extract(text)
         lv = x["lv"][0] if isinstance(x.get("lv"), list) and len(x["lv"]) == 1 else "misc"
-        bk = base_key(x.get("t", ""))
+        bk = base_key(x.get("t") or "")
         if len(qs) < 3:
-            if len(km) >= 10 and re.search(r"(?i)key|answer", x.get("t", "") + x.get("f", "")):
+            if len(km) >= 10 and re.search(r"(?i)key|answer", (x.get("t") or "") + (x.get("f") or "")):
                 keys[bk] = km; say("  key file", x["t"][:60], len(km))
             done[x["f"]] = {"n": 0, "d": str(datetime.date.today())}
             continue
