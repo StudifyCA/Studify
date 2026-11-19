@@ -32,6 +32,11 @@ jobs:
           git config user.name "studify-bot"
           git config user.email "bot@users.noreply.github.com"
           git add -A icai-docs
-          git diff --cached --quiet || git commit -m "ICAI documents update"
-          git pull --rebase -q || true
-          git push
+          git diff --cached --quiet && exit 0
+          git commit -m "ICAI documents update"
+          for i in 1 2 3 4; do
+            git pull --rebase -X theirs -q || { git rebase --abort 2>/dev/null; git reset -q --hard; }
+            git push && exit 0
+            sleep 5
+          done
+          exit 1
