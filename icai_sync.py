@@ -7,15 +7,15 @@ import json, os, re, sys, time, hashlib, urllib.request, urllib.parse, html, dat
 OUT = "icai-docs"
 MAX_FILE = 60 * 1024 * 1024        # skip files bigger than 60 MB
 MAX_TOTAL = 500 * 1024 * 1024      # stop downloading when icai-docs reaches 500 MB (GitHub Pages limit is 1 GB)
-MAX_NEW = 40                       # new downloads per run (backlog is filled run by run)
+MAX_NEW = 60                       # new downloads per run (backlog is filled run by run)
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb" "Kit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
-DEFAULT_SOURCES = ["https://www.icai.org/post/study-material-nset", "https://boslive.icai.org/education_content_modelTestPapers.php", "https://boslive.icai.org/education_content_rtp.php", "https://www.icai.org/", "https://www.icai.org/category/bos-knowledge-portal", "https://www.icai.org/category/student-examination", "https://www.icai.org/category/examination-services", "https://www.icai.org/category/students-services", "https://www.icai.org/category/announcements", "https://www.icai.org/post/exam", "https://www.icai.org/post/new-scheme-of-education-and-training", "https://boslive.icai.org/"]
+DEFAULT_SOURCES = ["https://www.icai.org/post/study-material-nset", "https://www.icai.org/post/e-resources-study-material-nset", "https://www.icai.org/post/question-papers-new-scheme-of-education-and-training", "https://www.icai.org/category/bos-knowledge-portal", "https://www.icai.org/category/student-examination", "https://www.icai.org/post/exam"]
 INC = re.compile(r"exam|foundation|inter|final|rtp|mtp|syllabus|study|question|paper|result|schedule|date.?sheet|guide|mcq|amend|bos[-_]|scheme|revision|mock|announ|notification|time.?table|admit|registration|revised|suggested|capsule|booklet", re.I)
 EXC = re.compile(r"brochure|campus|advt|advert|enrol|fellow|membership|cfmip|cabf|grant|removal|cancel|nameres|pay_ann|\bfees?\b|contact|benevolent|tender|vacanc|recruit|newsletter|annual.?report|cfp|esb20|\bmss\d|srsb|cg_|\bpqc|coi|\bm_|elect|council|member|\bbye\b|dialogo|torch|president|annual|journal|\bcpe\b|webinar|branch|region|\bsar\b|\bsabr|manual", re.I)
 def relevant(t, u):
     s = t + " " + urllib.parse.unquote(u.split("?")[0].rsplit("/", 1)[-1])
     return bool(INC.search(s)) and not EXC.search(s)
-CTX = re.compile(r"study-material|material|rtp|mtp|model.?test|question|past.?paper|syllabus|revision", re.I)
+CTXP = re.compile(r"/post/(sm-|[a-z]+-nset|study-material|e-resources|self-paced|question-papers|rtp|mtp|mock|model|revision)|post_id=19872|rtp|mtp|capsule", re.I)
 GENERIC = re.compile(r"^(click here|here|download|view|pdf|read more|more|link|details|open)\b", re.I)
 log = []
 def say(*a):
@@ -62,9 +62,9 @@ def levels(t):
     return o or ["foundation", "inter", "final"]
 
 def cat(t, u):
-    s = (t + " " + u).lower()
-    for name, rx in [("RTP", r"\brtp\b|revisionary"), ("MTP", r"\bmtp\b|mock test"), ("Past paper", r"question paper|past paper|exam paper|suggested answer|\bqp\b"),
-                     ("Syllabus", r"syllabus"), ("Study material", r"study material|module|\bchapter\b|\bunit\b"), ("Result", r"result"),
+    s = re.sub(r"[-_/]+", " ", (t + " " + u).lower())
+    for name, rx in [("RTP", r"\brtp\b|revisionary"), ("MTP", r"\bmtp\b|mock test|model test"), ("Past paper", r"question paper|past paper|exam paper|suggested answer|\bqp\b"),
+                     ("Syllabus", r"syllabus"), ("Study material", r"study material|\bsm\b|nset|module|\bchapter\b|\bunit\b|capsule|glossary"), ("Result", r"result"),
                      ("Announcement", r"announcement|notice|exam form|date sheet|schedule|notification|amendment|\bexam\b|exam-|admit|guide")]:
         if re.search(rx, s): return name
     return "Other"
@@ -82,7 +82,13 @@ def main():
         items = []
     keep = []
     for x in items:
-        if x.get("f") and not x.get("k") and not relevant(x["t"], x["url"]):
+        drop = False
+        if x.get("f"):
+            if x.get("k"):
+                drop = not x.get("p") or not CTXP.search(x.get("p", ""))
+            else:
+                drop = not relevant(x["t"], x["url"])
+        if drop:
             try: os.remove(x["f"])
             except Exception: pass
             say("removed unrelated", x["f"]); continue
@@ -93,42 +99,54 @@ def main():
     src = DEFAULT_SOURCES
     if os.path.exists("icai-sources.txt"):
         src = [l.strip() for l in open("icai-sources.txt", encoding="utf-8") if l.strip().startswith("https://")] or DEFAULT_SOURCES
-    found = {}   # url -> title
-    ctx = {}     # url -> page it was found on
+    found = {}   # pdf url -> link text
+    ctx = {}     # pdf url -> page it was found on
+    ptl = {}     # page url -> page title
     pages_ok = 0
-    PAGE_INC = re.compile(r"student|bos|exam|rtp|mtp|study|syllabus|question|paper|result|announcement|schedule|scheme|foundation|inter|final|material|revision|mock|category/|knowledge|download|publication", re.I)
-    PAGE_EXC = re.compile(r"elect|president|council|annual|torchbearer|media|news|rti|right-to-information|donate|appeal|covid|career|homage|green|hon.?ble|statistics|virtual|leadership|region|branch|member|self.service|bosactivities|vacanc|tender|contact", re.I)
-    seen = set(); queue = [(u, 0) for u in src]; visited = 0
-    while queue and visited < 150:
-        u, depth = queue.pop(0)
+    FOLLOW = re.compile(r"/post/(sm-|foundation-nset|intermediate-nset|final-nset|study-material|e-resources|self-paced|question-papers|rtp|mtp|mock|model|revision|exam-|bos-|suggested)|/category/(bos-knowledge-portal|student-examination|board-of-studies-announcements|examination-students|announcements)|post_id=19872|rtp|mtp|model-test|revision-test|capsule", re.I)
+    PAGE_EXC = re.compile(r"elect|president|council|annual|torchbearer|news-and-media|in-news|/media|/rti|right-to-information|donate|appeal|covid|career|homage|green|hon.?ble|statistics|virtual|leadership|region|branch|member|self.service|bosactivities|vacanc|tender|contact|publication\.icai", re.I)
+    HIGH = re.compile(r"sm-|-nset|question-papers|rtp|mtp|model|revision|capsule|study-material", re.I)
+    import heapq
+    seen = set(); heap = []; n = 0
+    for u in src:
+        heapq.heappush(heap, (0, n, u, 0)); n += 1
+    visited = 0
+    while heap and visited < 220:
+        pr, _, u, depth = heapq.heappop(heap)
         if u in seen: continue
         seen.add(u)
         try:
             pg = get(u); visited += 1; pages_ok += 1
         except Exception as e:
             say("page failed", u, str(e)[:80]); continue
+        tm = re.search(r"<title[^>]*>(.*?)</title>", pg, re.I | re.S)
+        ptl[u] = clean(tm.group(1)).split("|")[0].strip()[:80] if tm else ""
         time.sleep(0.3)
+        npdf = 0
         for lu, lt in links(pg, u):
             if re.search(r"\.pdf(\?|$)", lu, re.I):
-                found.setdefault(lu, lt); ctx.setdefault(lu, u)
-            elif depth < 2 and lu not in seen and PAGE_INC.search(lu + " " + lt) and not PAGE_EXC.search(lu + " " + lt):
-                queue.append((lu, depth + 1))
+                if (urllib.parse.urlparse(lu).hostname or "").startswith("publication."): continue
+                found.setdefault(lu, lt); ctx.setdefault(lu, u); npdf += 1
+            elif depth < 4 and lu not in seen and FOLLOW.search(lu) and not PAGE_EXC.search(lu + " " + lt):
+                heapq.heappush(heap, (0 if HIGH.search(lu) else 1, n, lu, depth + 1)); n += 1
+        if npdf: say("  pdfs on", u[:90], ":", npdf)
     deep = []
     say("pages read:", visited, "| pdf links found:", len(found))
-    for lu in list(seen)[:70]:
-        say("  page:", lu[:120])
     new = 0
     today = datetime.date.today().isoformat()
     for u, t in found.items():
         if u in have: continue
         if new >= MAX_NEW or total >= MAX_TOTAL: break
         name = urllib.parse.unquote(u.split("?")[0].rsplit("/", 1)[-1])
-        title = t if (len(t) >= 6 and not GENERIC.match(t)) else re.sub(r"[-_+]+", " ", re.sub(r"\.pdf$", "", name, flags=re.I))
-        okctx = bool(CTX.search(ctx.get(u, ""))) and not EXC.search(title + " " + u)
+        page = ctx.get(u, "")
+        base = t if (len(t) >= 6 and not GENERIC.match(t)) else re.sub(r"[-_+]+", " ", re.sub(r"\.pdf$", "", name, flags=re.I))
+        pt = ptl.get(page, "")
+        title = base if (not pt or pt.lower() in base.lower()) else base + " | " + pt
+        okctx = bool(CTXP.search(page)) and not EXC.search(title + " " + u)
         if not relevant(title, u) and not okctx:
             continue
         c = cat(title, u)
-        if c == "Other": c = cat(title, ctx.get(u, ""))
+        if c == "Other": c = cat(title, page)
         folder = os.path.join(OUT, slug(c).lower())
         os.makedirs(folder, exist_ok=True)
         fn = slug(re.sub(r"\.pdf$", "", name, flags=re.I)) + "-" + hashlib.md5(u.encode()).hexdigest()[:6] + ".pdf"
@@ -141,14 +159,9 @@ def main():
             say("not a pdf", u); continue
         open(path, "wb").write(data)
         total += len(data); new += 1
-        items.append({"t": title[:140], "url": u, "f": path.replace(os.sep, "/"), "lv": levels(title + " " + u + " " + ctx.get(u, "")), "c": c, "d": today, "s": len(data), "k": 1 if okctx else 0})
+        items.append({"t": title[:140], "url": u, "f": path.replace(os.sep, "/"), "lv": levels(title + " " + u + " " + page), "c": c, "d": today, "s": len(data), "k": 1 if okctx else 0, "p": page if okctx else ""})
         say("saved", path, len(data))
         time.sleep(1)
-    # announcements without a pdf: keep as links
-    for u, t in list(deep):
-        if u in have or len(t) < 12: continue
-        if cat(t, u) == "Announcement" and relevant(t, u) and not any(x["url"] == u for x in items):
-            items.append({"t": t[:140], "url": u, "f": None, "lv": levels(t), "c": "Announcement", "d": today, "s": 0})
     items.sort(key=lambda x: x.get("d", ""), reverse=True)
     json.dump({"updated": datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S') + "Z", "items": items[:1500]}, open(idx_path, "w", encoding="utf-8"), ensure_ascii=False)
     open(os.path.join(OUT, "last_run.txt"), "w").write("\n".join(log[-60:]) + "\n")
