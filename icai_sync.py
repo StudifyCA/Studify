@@ -79,18 +79,42 @@ def slug(s):
 def gh(*a):
     return subprocess.run(["gh"] + list(a), capture_output=True, text=True)
 
+CUR = {"tag": TAG, "n": 0}
+LIMIT = 900   # GitHub allows max 1000 files per release, so we roll over to icai-files-2, -3 ...
+
+def tag_of(i):
+    return TAG if i == 1 else "%s-%d" % (TAG, i)
+
 def ensure_release():
     if not REPO: return False
-    if gh("release", "view", TAG).returncode == 0: return True
-    r = gh("release", "create", TAG, "--title", "ICAI files", "--notes", "PDF files copied from icai.org by the Studify sync. Do not delete.")
-    if r.returncode != 0: say("release create failed:", (r.stderr or "")[:150])
-    return r.returncode == 0
+    i = 1
+    while i < 50:
+        t = tag_of(i)
+        r = gh("release", "view", t, "--json", "assets", "-q", ".assets|length")
+        if r.returncode != 0:
+            c = gh("release", "create", t, "--title", "ICAI files %d" % i, "--notes", "PDF files copied from icai.org by the Studify sync. Do not delete.")
+            if c.returncode != 0:
+                say("release create failed:", (c.stderr or "")[:150]); return False
+            CUR["tag"], CUR["n"] = t, 0; say("using release", t); return True
+        try: n = int((r.stdout or "0").strip() or 0)
+        except Exception: n = 0
+        if n < LIMIT:
+            CUR["tag"], CUR["n"] = t, n; say("using release", t, "files:", n); return True
+        i += 1
+    return False
 
 def upload(path):
-    r = gh("release", "upload", TAG, path, "--clobber")
+    if CUR["n"] >= LIMIT:
+        i = int(CUR["tag"].rsplit("-", 1)[1]) + 1 if CUR["tag"] != TAG else 2
+        t = tag_of(i)
+        if gh("release", "view", t).returncode != 0:
+            gh("release", "create", t, "--title", "ICAI files %d" % i, "--notes", "PDF files copied from icai.org by the Studify sync. Do not delete.")
+        CUR["tag"], CUR["n"] = t, 0; say("rolled over to release", t)
+    r = gh("release", "upload", CUR["tag"], path, "--clobber")
     if r.returncode != 0:
         say("upload failed", os.path.basename(path), (r.stderr or "")[:120]); return None
-    return "https://github.com/%s/releases/download/%s/%s" % (REPO, TAG, os.path.basename(path))
+    CUR["n"] += 1
+    return "https://github.com/%s/releases/download/%s/%s" % (REPO, CUR["tag"], os.path.basename(path))
 
 def main():
     os.makedirs(OUT, exist_ok=True)
