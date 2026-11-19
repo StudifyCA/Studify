@@ -1,34 +1,60 @@
-page failed https://boslive.icai.org/ HTTP Error 403: Forbidden
-page failed https://www.icai.org/post/announcements HTTP Error 404: Not Found
-seed pages ok: 1 of 3 | deeper pages: 49
-pdf links found: 315
-saved icai-docs/other/86965cmib-62nd-campus-brochure-783aca.pdf 2305740
-saved icai-docs/other/84397cacaf68004-32b604.pdf 3312384
-saved icai-docs/other/79764mss63758-f56481.pdf 302119
-saved icai-docs/other/93219cg_advt2008-f7cd2f.pdf 276372
-saved icai-docs/other/93220guidelines_cfp-b3c43f.pdf 355925
-saved icai-docs/other/93221ges_esb2026-6e3dc3.pdf 265218
-saved icai-docs/other/64061mss51444-dee4ab.pdf 532192
-saved icai-docs/other/24889announ14695-b0b9b7.pdf 44140
-saved icai-docs/other/8891PQC_19Sep05-3fbd40.pdf 64078
-saved icai-docs/other/62804srsb50814-ea2d59.pdf 110201
-saved icai-docs/other/84821cfmip070325a-be398f.pdf 600698
-saved icai-docs/other/84823cfmip070325c-c546c3.pdf 1002791
-saved icai-docs/other/87429cfmip-aps1868-c78682.pdf 215386
-saved icai-docs/other/90017cfmip-aps3656-6df53d.pdf 423853
-saved icai-docs/other/91275examdept_contact-details2025new-99283e.pdf 533308
-saved icai-docs/other/94875exam-sep2026-int-verify-f0751a.pdf 11265
-saved icai-docs/other/93419exam-may2026-guide-fnd-75768d.pdf 8280
-saved icai-docs/other/93386exam-may2026-guide-mcq-int-final-8bd170.pdf 49497
-saved icai-docs/other/89244exam-aps2999-86190e.pdf 11795
-saved icai-docs/other/86798exam-certified-copies-discrepancy-report-format-fdd35a.pdf 15070
-saved icai-docs/other/45418cabf3551820-2015-2016-1ffb4c.pdf 175074
-saved icai-docs/other/45417cabf3551820-2014-2015-62f2ec.pdf 150692
-saved icai-docs/other/45416cabf3551820-2013-2014-36d5fc.pdf 139681
-saved icai-docs/other/14455m_enrolment-7b273d.pdf 68953
-saved icai-docs/other/14456m_grant-710ea1.pdf 25115
-saved icai-docs/other/14459m_fellow-62cfb9.pdf 31694
-saved icai-docs/other/14465pay_ann_fee-bbb5d2.pdf 46487
-saved icai-docs/other/14463m_removal-8471a6.pdf 103648
-saved icai-docs/other/14462m_nameres-747011.pdf 22297
-saved icai-docs/other/14458m_cancel-e58996.pdf 180296
+  page: BoS Knowledge Portal https://www.icai.org/category/bos-knowledge-portal
+  page: Examination https://www.icai.org/category/student-examination
+  page: Students - FAQs https://www.icai.org/category/students-frequently-asked-questions
+  page: Students Services https://www.icai.org/category/students-services
+  page: Examination Services https://www.icai.org/category/examination-services
+  page: Members / Students Statistics https://www.icai.org/post/members-students-statistics
+  page: Bye-Election 2022 https://www.icai.org/post/bye-election-2022
+  page: Institute's Program https://www.icai.org/post/institute-program
+  page: New Scheme of Edu. & Training https://www.icai.org/post/new-scheme-of-education-and-training
+  page: Career in ICAI https://www.icai.org/post/career-in-icai
+  page: Self Service Portal - for existing Members and Stu https://www.icai.org/new_post.html?post_id=5509
+  page: Homage to Our Brave Soldiers https://www.icai.org/new_post.html?post_id=15480&c_id=240
+  page: ICAI Live Virtual Classes https://www.icai.org/new_post.html?post_id=14781
+  page: Message from Hon’ble Prime Minister of India to th https://www.icai.org/new_post.html?post_id=14875
+  page: I GO-GREEN with ICAI https://www.icai.org/new_post.html?post_id=12763&c_id=240
+  page:  https://icai.org/post/icai-elects-new-leadership-for-the-year-2026-27
+  page:  https://www.icai.org/post/annualday2026
+  page:  https://www.icai.org/post/icai-elects-new-torchbearers-for-the-year-2025-26
+  page:  https://www.icai.org/post/ca-run-for-viksit-bharat
+  page:  https://bosactivities.icai.org/
+  page:  https://www.icai.org/post/icai-elects-new-torchbearers-for-the-year-2024-25
+  page:  https://www.icai.org/new_post.html?post_id=2167
+  page:  https://www.icai.org/post/icai-elects-new-torchbearers-for-the-year-2023-24
+  page:  https://www.icai.org/post/icai-bos-mobile-app
+  page:  https://www.icai.org/post/73rd-annual-function
+  page:  https://www.icai.org/post/icai-elects-new-torchbearers-for-the-year-2022-23
+  page: CA. Nihar N Jambusaria elected as President, ICAI https://www.icai.org/post/president
+  page: CA. (Dr.) Debashis Mitra elected as Vice President https://www.icai.org/post/vice-president
+  page: Please Donate https://www.icai.org/post/appeal-to-contribute-in-icai-covid-19-relief-fund
+  page: Click here for Details https://www.icai.org/post/covid19-resource-page
+  page: Examination https://www.icai.org/post/exam
+  page: Read message https://www.icai.org/post/president-message
+  page:  https://www.icai.org/category/announcements
+  page:  https://www.icai.org/post/icai-in-news-and-media
+  page: Other Important Websites https://www.icai.org/post/11657
+  page: Right to Information Act https://www.icai.org/post/information-under-section-4-1-b-of-the-right-to-information-act-2005
+pdf links found: 104
+saved icai-docs/other/14508member_manual_15-1d3801.pdf 180450
+saved icai-docs/other/82287bos66363-867f2d.pdf 755603
+saved icai-docs/announcement/71652election2022-notification-6a6ed7.pdf 744067
+saved icai-docs/announcement/70918bye-election2022-56906-943662.pdf 1458657
+saved icai-docs/announcement/70888bye-election2022-56860cee-fd0a58.pdf 79574
+saved icai-docs/announcement/70722bye-election2022-56686-2edb9f.pdf 70745
+saved icai-docs/announcement/70720bye-election2022-notification-6-ae4b0d.pdf 35268
+saved icai-docs/announcement/70719bye-election2022-notification-5-f180b0.pdf 37291
+saved icai-docs/announcement/70717bye-election2022-notification-3-d18337.pdf 51321
+saved icai-docs/announcement/70716bye-election2022-notification-2-05e26f.pdf 50827
+saved icai-docs/other/45773bos22394-e7d967.pdf 893484
+saved icai-docs/other/37715council27288a-sar-f31f8e.pdf 617947
+saved icai-docs/other/37716council27288a-sabr-1af09b.pdf 429974
+saved icai-docs/other/79872bos63950-268546.pdf 810803
+saved icai-docs/other/95117exam141126-3ab4d5.pdf 473893
+saved icai-docs/mtp/94674bos-aps6572-a6fe56.pdf 126412
+saved icai-docs/mtp/94616bos-sp6524-mtp-jan2027-27bfca.pdf 113553
+saved icai-docs/announcement/94538exam-aps6491-4b8d10.pdf 297210
+saved icai-docs/rtp/94364bos-aps6376-lvrc-jan2027-98ad4f.pdf 213867
+saved icai-docs/announcement/94358exam-aps6372-isa-at-nov2026-3a8a04.pdf 245308
+saved icai-docs/announcement/94359exam-aps6372-stu-iff-jan2027-4fc949.pdf 280492
+saved icai-docs/announcement/77406prc62226-caindialogo-356ec4.pdf 1488644
+saved icai-docs/announcement/9061announ1040-43a56d.pdf 375723
