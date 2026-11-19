@@ -2916,7 +2916,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.13 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.14 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -2956,7 +2956,7 @@ function hwKeys(P){var pf=LVPFX[P.level];return Object.keys(P.papers).filter(fun
 function hwS(P){if(!P.hw)P.hw={strict:false,dl:0,days:{},seen:{}};if(!P.hw.days)P.hw.days={};if(!P.hw.seen)P.hw.seen={};return P.hw;}
 function hwLoad(k){
   if(HWQ[k])return Promise.resolve(HWQ[k]);
-  return fetch(SBASE+'qbank/qb-'+k+'.json',{cache:'no-cache'}).then(function(r){return r.ok?r:fetch(SBASE+'qb-'+k+'.json',{cache:'no-cache'});}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){j.map={};(j.q||[]).forEach(function(x){j.map[x.i]=x;});HWQ[k]=j;return j;}).catch(function(){HWQ[k]={q:[],rep:[],map:{},bad:1};return HWQ[k];});
+  return fetch(SBASE+'qbank/qb-'+k+'.json',{cache:'no-cache'}).then(function(r){return r.ok?r:fetch(SBASE+'qb-'+k+'.json',{cache:'no-cache'});}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){j.map={};(j.q||[]).forEach(function(x){j.map[x.i]=x;});HWQ[k]=j;aiMerge(k);return j;}).catch(function(){HWQ[k]={q:[],rep:[],map:{},bad:1};return HWQ[k];});
 }
 function hwLoadAll(P,cb){var ks=hwKeys(P),need=ks.filter(function(k){return !HWQ[k];});if(!need.length)return;Promise.all(need.map(hwLoad)).then(function(){try{renderKeep();}catch(e){}});}
 function hRand(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0)/4294967296;}
@@ -3054,6 +3054,8 @@ function viewHW(c){
   return h;
 }
 function repCnt(B){var rc={};(B.rep||[]).forEach(function(r){rc[r.c]=(rc[r.c]||0)+1;});return rc;}
+function rcOf(rc,name){if(rc[name])return rc[name];var i=String(name).indexOf(' \u203a ');return i>0?(rc[name.slice(0,i)]||0):0;}
+function cMatch(c,name){return c===name||String(name).indexOf(c+' \u203a ')===0;}
 /* ===== v1.4: quick revision tab ===== */
 var QRB={};
 function qrS(P){if(!P.rv)P.rv={};return P.rv;}
@@ -3438,6 +3440,39 @@ function ytAct(a,d){
     var h='<html><head><meta charset="utf-8"><title>'+esc(v.title||'Lecture notes')+'</title><style>@page{size:A4;margin:12mm}body{font-family:Arial,sans-serif;color:#111;line-height:1.5}h1{font-size:20px}h2{font-size:15px;margin:14px 0 4px;break-after:avoid}.n{break-inside:avoid;margin-bottom:8px}pre{background:#f1f3f7;padding:6px;white-space:pre-wrap}.hint{background:#fff7d6;padding:8px;font-size:13px}@media print{.hint{display:none}}</style></head><body><div class="hint">Choose <b>Save as PDF</b> in the print window.</div><h1>'+esc(v.title||'')+'</h1><p>'+esc(v.summary||'')+'</p><h2>Chapters</h2>'+v.chapters.map(function(x){return '<div>'+esc(x.at||'')+' – '+esc(x.title||'')+'</div>';}).join('')+'<h2>Notes</h2>'+v.notes.map(function(n){return '<div class="n"><b>'+esc(n.h||'')+'</b><div style="white-space:pre-wrap">'+esc(n.b||'')+'</div>'+((n.f&&n.f.length)?'<pre>'+n.f.map(esc).join('\n')+'</pre>':'')+'</div>';}).join('')+'<h2>Questions</h2>'+v.questions.map(function(x,i){return '<div class="n"><b>Q'+(i+1)+'. '+esc(x.q||'')+'</b><div>Ans: '+esc(x.a||'')+'</div></div>';}).join('')+'<script>window.onload=function(){setTimeout(function(){window.print()},400)}<\/script></body></html>';
     var w=window.open('','_blank');if(!w){toast('Allow pop-ups, then try again');return;}w.document.write(h);w.document.close();return;}
 }
+
+/* ===== v1.14: AI-made MCQ bank (shared) ===== */
+var AIM=null,AIMLOAD=0;
+function aiMerge(k){var B=HWQ[k];if(!B||B.bad||B.aim||!AIM||!AIM[k])return;B.aim=1;Object.keys(AIM[k]).forEach(function(ch){(AIM[k][ch]||[]).forEach(function(x){if(!x||!Array.isArray(x.o)||x.o.length!==4)return;var id='AI-'+k+'-'+Math.floor(hRand(ch+x.q)*1e9);if(B.map&&B.map[id])return;var o={c:ch,t:'m',q:x.q,o:x.o,a:x.a,mk:'1',s:'AI-made practice question (check in your book)',i:id,e:x.e||''};B.q.push(o);if(B.map)B.map[id]=o;});});}
+function aimLoad(force){
+  if((AIMLOAD&&!force)||!cloud.client||!cloud.user)return;AIMLOAD=1;
+  cloud.client.from('ai_mcq').select('key,chapter,items').then(function(r){
+    if(r.error||!r.data){AIMLOAD=0;return;}
+    AIM={};r.data.forEach(function(x){if(!AIM[x.key])AIM[x.key]={};AIM[x.key][x.chapter]=Array.isArray(x.items)?x.items:[];});
+    Object.keys(HWQ).forEach(function(k){if(HWQ[k])HWQ[k].aim=0;aiMerge(k);});try{renderKeep();}catch(e){}
+  },function(){AIMLOAD=0;});
+}
+function aiCount(k,ch){return (AIM&&AIM[k]&&AIM[k][ch])?AIM[k][ch].length:0;}
+async function aiMcqCall(k,ch){
+  var lvl={FD:'Foundation',IN:'Intermediate',FN:'Final'}[k.slice(0,2)];
+  var r=await cloud.client.functions.invoke('ai-tutor',{body:{mode:'mcqgen',key:k,chapter:ch,question:'Subject: '+pfull(k)+' (ICAI CA '+lvl+', new scheme)\nChapter: '+ch+'\nWrite 8 new MCQs for this chapter.',lang:'en'}});
+  if(r.error){var m='Function error';try{var tx=await r.error.context.text();var j=null;try{j=JSON.parse(tx)}catch(e){}m=(j&&j.error)||tx||r.error.message;}catch(e){m=r.error.message||m;}throw new Error(String(m).slice(0,200));}
+  if(r.data&&r.data.error)throw new Error(r.data.error);
+  return r.data;
+}
+async function aiMcqRun(P,k,want){
+  var B=HWQ[k]&&!HWQ[k].bad?HWQ[k]:null,real={};
+  if(B)B.q.forEach(function(x){if(x.t==='m'&&String(x.i).indexOf('AI-')!==0)real[x.c]=(real[x.c]||0)+1;});
+  var chs=(P.papers[k]?P.papers[k].ch:[]).filter(function(x){return !x.removed;}).map(function(x){return x.name;});
+  var todo=chs.filter(function(n){var have=aiCount(k,n)+(real[n]||0)+(function(){var g=n.indexOf(' › ');return g>0?0:0;})();return have<want;});
+  if(!todo.length){toast('This subject already has enough MCQs');return;}
+  ui.mcqBusy={k:k,i:0,n:todo.length,err:''};renderKeep();
+  for(var i=0;i<todo.length;i++){
+    ui.mcqBusy.i=i+1;ui.mcqBusy.cur=todo[i];renderKeep();
+    try{await aiMcqCall(k,todo[i]);}catch(e){ui.mcqBusy.err=(e&&e.message)||'Error';break;}
+  }
+  var er=ui.mcqBusy.err;ui.mcqBusy=null;AIMLOAD=0;aimLoad(true);toast(er?('Stopped: '+er):'Done. MCQs are ready for everyone');renderKeep();
+}
 function viewGuide(c){
   var P=c.P;
   return gdHead('Exam guide','Exam pattern, your path, syllabus changes, study material and budget in one place.')+gdPattern(P)+gdPath(P)+gdSyl(P)+gdDocs(P)+gdMat(P)+gdMeth()+gdBud(P);
@@ -3542,7 +3577,8 @@ function viewStar(c){
   var h='<div class="card"><h3>Starred chapters</h3><div class="mut">Starred chapters give the most marks in past papers. Below them are chapters without a star whose questions came again in different papers, so they are important too.</div>';
   h+='<div class="row" style="margin-top:8px;gap:8px"><select data-chg="hwrepk">'+ks.map(function(x){return '<option value="'+x+'"'+(x===k?' selected':'')+'>'+esc(pfull(x))+'</option>';}).join('')+'</select></div></div>';
   var B=HWQ[k];if(!B){hwLoad(k).then(function(){try{renderKeep();}catch(e){}});return h+'<div class="card mut">Loading...</div>';}
-  var chs=(P.papers[k]?P.papers[k].ch:[]).filter(function(x){return !x.removed;}),pa=pwAll(P,k),hy=hyIds(P,k),tot=0,rc=repCnt(B);
+  var chs=(P.papers[k]?P.papers[k].ch:[]).filter(function(x){return !x.removed;}),pa=pwAll(P,k),hy=hyIds(P,k),tot=0,rc0=repCnt(B),rc={};
+  chs.forEach(function(x){var v=rcOf(rc0,x.name);if(v)rc[x.name]=v;});
   chs.forEach(function(x){tot+=Number(pa[x.id])||0;});
   var st=chs.filter(function(x){return hy[x.id];}).sort(function(a,b){return (pa[b.id]||0)-(pa[a.id]||0);}),fb=false;
   if(!st.length){var rk=chs.filter(function(x){return rc[x.name];}).sort(function(a,b){return rc[b.name]-rc[a.name];});if(rk.length){st=rk.slice(0,Math.max(1,Math.ceil(rk.length*0.3)));fb=true;var sid={};st.forEach(function(x){sid[x.id]=1;});hy=sid;}}
@@ -3625,7 +3661,7 @@ function viewRep(c){
   var B=HWQ[k];if(!B){hwLoad(k).then(function(){try{renderKeep();}catch(e){}});return h+'<div class="card mut">Loading...</div>';}
   if(!B.rep||!B.rep.length)return h+'<div class="card mut">No repeated questions found yet for this subject.</div>';
   var chs=(P.papers[k]?P.papers[k].ch:[]).filter(function(x){return !x.removed;}),hy=hyIds(P,k),isS={};
-  chs.forEach(function(x){if(hy[x.id])isS[x.name]=1;});
+  chs.forEach(function(x){if(hy[x.id]){isS[x.name]=1;var gi=x.name.indexOf(' \u203a ');if(gi>0)isS[x.name.slice(0,gi)]=1;}});
   var R=rpS(P),reps=B.rep.slice().sort(function(a,b){var da=(R[a.id]&&R[a.id].done)?1:0,db=(R[b.id]&&R[b.id].done)?1:0;return da-db||(isS[b.c]?1:0)-(isS[a.c]?1:0)||b.n-a.n;});
   var dn=reps.filter(function(r){return R[r.id]&&R[r.id].done;}).length,tot=reps.length,solves=0;
   reps.forEach(function(r){solves+=(R[r.id]&&R[r.id].n)||0;});
@@ -3668,7 +3704,7 @@ function ptS(P){if(!P.pt)P.pt=[];if(!P.pq)P.pq={};return P;}
 function ptQs(P,k,ch,n){
   var B=HWQ[k];if(!B)return [];
   var pool=B.q.filter(function(x){return x.t==='m';});
-  if(ch==='#'){var dn={};(P.papers[k]?P.papers[k].ch:[]).forEach(function(x){if(x.status==='done')dn[x.name]=1;});pool=pool.filter(function(x){return dn[x.c];});}
+  if(ch==='#'){var dn={};(P.papers[k]?P.papers[k].ch:[]).forEach(function(x){if(x.status==='done')dn[x.name]=1;});var dg={};Object.keys(dn).forEach(function(n){var gi=n.indexOf(' \u203a ');if(gi>0)dg[n.slice(0,gi)]=1;});pool=pool.filter(function(x){return dn[x.c]||dg[x.c];});}
   else if(ch==='MIX'){
     var st0=P.pq||{},by={};pool.forEach(function(x){(by[x.c]=by[x.c]||[]).push(x);});
     var cs=Object.keys(by);if(cs.length<2)return [];
@@ -3680,7 +3716,7 @@ function ptQs(P,k,ch,n){
     }
     return out;
   }
-  else if(ch&&ch!=='*')pool=pool.filter(function(x){return x.c===ch;});
+  else if(ch&&ch!=='*')pool=pool.filter(function(x){return cMatch(x.c,ch);});
   var st=P.pq||{};
   var w=pool.map(function(x){var s=st[x.i];return {x:x,w:(Math.random()+0.1)*(!s?3:(s.c<s.a?4:1))};}).sort(function(a,b){return b.w-a.w;});
   return w.slice(0,n).map(function(z){return z.x;});
@@ -3723,16 +3759,16 @@ function viewPT(c){
     }else{
       var pc=r.res.tot?Math.round(r.res.sc/r.res.tot*100):0;
       h+='<div class="card" style="border-color:var(--ac)"><h3>Result: '+r.res.sc+' / '+r.res.tot+' ('+pc+'%)</h3><div class="mut">'+esc(pfull(r.k))+' • '+fdt(Date.now())+'</div><div style="margin-top:8px"><button class="btn" data-act="ptagain">Another test</button> <button class="btn sec" data-act="ptquit">Back</button></div></div>'+(r.ch==='MIX'?ptMixNote(r):'');
-      r.qs.forEach(function(q,i){var a=r.ans[i],ok=a!==undefined&&['a','b','c','d'][a]===q.a,ci=['a','b','c','d'].indexOf(q.a);h+='<div class="card"><div class="row sp"><span class="chip '+(ok?'ok':'warn')+'">'+(ok?'Correct':(a===undefined?'Not answered':'Wrong'))+'</span><span class="mut">Q'+(i+1)+' • '+esc(q.c.split(' › ').pop())+'</span></div><div style="white-space:pre-wrap;line-height:1.5;margin-top:6px">'+esc(q.q)+'</div><div style="margin-top:6px">Correct: ('+q.a+') '+esc(q.o[ci]||'')+'</div>'+(a!==undefined&&!ok?'<div class="mut">You chose: ('+['a','b','c','d'][a]+') '+esc(q.o[a])+'</div>':'')+'<div class="mut" style="margin-top:4px">'+esc(q.s)+(q.r?' • <a href="'+esc(sUrl(q.r))+'" target="_blank" rel="noopener">Answers PDF</a>':'')+'</div></div>';});
+      r.qs.forEach(function(q,i){var a=r.ans[i],ok=a!==undefined&&['a','b','c','d'][a]===q.a,ci=['a','b','c','d'].indexOf(q.a);h+='<div class="card"><div class="row sp"><span class="chip '+(ok?'ok':'warn')+'">'+(ok?'Correct':(a===undefined?'Not answered':'Wrong'))+'</span><span class="mut">Q'+(i+1)+' • '+esc(q.c.split(' › ').pop())+'</span></div><div style="white-space:pre-wrap;line-height:1.5;margin-top:6px">'+esc(q.q)+'</div><div style="margin-top:6px">Correct: ('+q.a+') '+esc(q.o[ci]||'')+'</div>'+(a!==undefined&&!ok?'<div class="mut">You chose: ('+['a','b','c','d'][a]+') '+esc(q.o[a])+'</div>':'')+(q.e?'<div class="mut" style="margin-top:4px">Why: '+esc(q.e)+'</div>':'')+'<div class="mut" style="margin-top:4px">'+esc(q.s)+(q.r?' • <a href="'+esc(sUrl(q.r))+'" target="_blank" rel="noopener">Answers PDF</a>':'')+'</div></div>';});
     }
     return h;
   }
-  var B=HWQ[pt.k],mc={},tot=0;
+  aimLoad();var B=HWQ[pt.k],mc={},tot=0;
   if(B){B.q.forEach(function(x){if(x.t==='m'){mc[x.c]=(mc[x.c]||0)+1;tot++;}});}
   h+='<div class="card"><h3>Practice test</h3><div class="mut">Chapter-wise MCQ tests from past papers and MTPs. You get your score, the correct answers and the source of every question.</div>';
   h+='<div style="margin-top:10px"><label class="mut">Subject</label><select data-chg="ptk">'+ks.map(function(x){return '<option value="'+x+'"'+(x===pt.k?' selected':'')+'>'+esc(pfull(x))+'</option>';}).join('')+'</select></div>';
   if(!B)h+='<div class="mut" style="margin-top:8px">Loading questions...</div>';
-  else if(!tot)h+='<div class="mut" style="margin-top:8px">No MCQ questions are available for this subject yet. Use the Repeat tab and Daily homework for it.</div>';
+  else if(!tot)h+='<div class="mut" style="margin-top:8px">No MCQ questions are available for this subject yet'+(cloud.isAdmin?'. Use the Admin box below to make them with AI.':'. They are being added. Use the Repeat tab and Daily homework for now.')+'</div>';
   else{
     h+='<div style="margin-top:8px"><label class="mut">Chapter</label><select data-chg="ptch"><option value="*"'+(pt.ch==='*'?' selected':'')+'>All chapters ('+tot+')</option><option value="#"'+(pt.ch==='#'?' selected':'')+'>Only chapters I ticked as done</option><option value="MIX"'+(pt.ch==='MIX'?' selected':'')+'>Mixed practice (chapter names hidden)</option>'+Object.keys(mc).sort().map(function(n){return '<option value="'+esc(n)+'"'+(pt.ch===n?' selected':'')+'>'+esc(n)+' ('+mc[n]+')</option>';}).join('')+'</select></div>';
     h+='<div style="margin-top:8px"><label class="mut">Questions</label><select data-chg="ptn">'+[10,20,30].map(function(n){return '<option value="'+n+'"'+(pt.n===n?' selected':'')+'>'+n+'</option>';}).join('')+'</select></div>';
@@ -3740,12 +3776,15 @@ function viewPT(c){
     h+='<div style="margin-top:10px"><button class="btn" data-act="ptstart">Start test</button></div>';
   }
   h+='</div>';
+  if(cloud.isAdmin){var mb=ui.mcqBusy;h+='<div class="card"><b>Admin: make MCQs with AI</b><div class="mut" style="margin-top:4px">Makes 8 MCQs for each chapter of the selected subject that has fewer than the number below. Saved once, shown to everyone. Uses AI limit: about one call per chapter, so do 3 or 4 subjects a day.</div>'+
+    (mb?'<div style="margin-top:8px">Working: '+mb.i+' / '+mb.n+' &bull; '+esc(String(mb.cur||'').split(' › ').pop())+'</div>':'<div class="row" style="gap:8px;margin-top:8px"><select id="mcq-want"><option value="8">fewer than 8</option><option value="16">fewer than 16</option><option value="30">fewer than 30</option></select><button class="btn sm" data-act="ptaigen">Make MCQs for '+esc(plab(pt.k))+'</button></div>')+'</div>';}
   var hist=P.pt.slice(0,10);
   if(hist.length){h+='<div class="card"><b>My recent tests</b><div class="scroll" style="margin-top:8px"><table><tr><th>When</th><th>Subject</th><th>Score</th><th>Time</th></tr>'+hist.map(function(x){return '<tr><td>'+esc(fdt(x.t))+'</td><td>'+esc(plab(x.k))+'</td><td>'+x.sc+'/'+x.tot+' ('+(x.tot?Math.round(x.sc/x.tot*100):0)+'%)</td><td>'+Math.round(x.secs/60)+' min</td></tr>';}).join('')+'</table></div></div>';}
   return h;
 }
 function ptAct(a,d,P){
   var pt=ui.pt||(ui.pt={k:hwKeys(P)[0],ch:'*',n:10,timed:true,run:null});
+  if(a==='ptaigen'){var w=Number(readv('mcq-want'))||8;guard(aiMcqRun(P,pt.k,w));return;}
   if(a==='ptstart'){var qs=ptQs(P,pt.k,pt.ch,pt.n);if(!qs.length){toast('No questions for this choice. Pick another chapter.');return;}pt.run={k:pt.k,ch:pt.ch,qs:qs,ans:{},t0:Date.now(),limit:pt.timed?Math.round(qs.length*90):0,res:null};render();window.scrollTo(0,0);return;}
   if(a==='ptsub'){ptSubmit(P);render();window.scrollTo(0,0);return;}
   if(a==='ptquit'||a==='ptagain'){clearInterval(PTTM);PTTM=null;pt.run=null;render();window.scrollTo(0,0);if(a==='ptagain')ptAct('ptstart',d,P);return;}
@@ -4053,7 +4092,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.13\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.14\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
