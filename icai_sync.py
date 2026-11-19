@@ -134,9 +134,11 @@ def main():
     say("pages read:", visited, "| pdf links found:", len(found))
     new = 0
     today = datetime.date.today().isoformat()
+    PRIO = {"MTP": 0, "RTP": 0, "Past paper": 1, "Syllabus": 1, "Announcement": 2, "Result": 2, "Other": 3, "Study material": 4}
+    SM_BUDGET = 200 * 1024 * 1024   # study-material downloads stop at 200 MB; the rest stay as links to icai.org
+    sm_total = sum(x.get("s", 0) for x in items if x.get("c") == "Study material")
+    cands = []
     for u, t in found.items():
-        if u in have: continue
-        if new >= MAX_NEW or total >= MAX_TOTAL: break
         name = urllib.parse.unquote(u.split("?")[0].rsplit("/", 1)[-1])
         page = ctx.get(u, "")
         base = t if (len(t) >= 6 and not GENERIC.match(t)) else re.sub(r"[-_+]+", " ", re.sub(r"\.pdf$", "", name, flags=re.I))
@@ -147,23 +149,42 @@ def main():
             continue
         c = cat(title, u)
         if c == "Other": c = cat(title, page)
-        folder = os.path.join(OUT, slug(c).lower())
-        os.makedirs(folder, exist_ok=True)
-        fn = slug(re.sub(r"\.pdf$", "", name, flags=re.I)) + "-" + hashlib.md5(u.encode()).hexdigest()[:6] + ".pdf"
-        path = os.path.join(folder, fn)
-        try:
-            data = get(u, binary=True, limit=MAX_FILE)
-        except Exception as e:
-            say("skip", u, str(e)[:60]); continue
-        if not data.startswith(b"%PDF"):
-            say("not a pdf", u); continue
-        open(path, "wb").write(data)
-        total += len(data); new += 1
-        items.append({"t": title[:140], "url": u, "f": path.replace(os.sep, "/"), "lv": levels(title + " " + u + " " + page), "c": c, "d": today, "s": len(data), "k": 1 if okctx else 0, "p": page if okctx else ""})
-        say("saved", path, len(data))
-        time.sleep(1)
+        hindi = bool(re.search(r"hindi", title + " " + u + " " + page, re.I))
+        cands.append((PRIO.get(c, 3) + (0.5 if hindi else 0), u, name, page, title, okctx, c, hindi))
+    cands.sort(key=lambda z: z[0])
+    byurl = {x["url"]: x for x in items}
+    for pr, u, name, page, title, okctx, c, hindi in cands:
+        ex = byurl.get(u)
+        if ex and ex.get("f"): continue
+        can = new < MAX_NEW and total < MAX_TOTAL and not hindi and not (c == "Study material" and sm_total >= SM_BUDGET)
+        if can:
+            folder = os.path.join(OUT, slug(c).lower())
+            os.makedirs(folder, exist_ok=True)
+            fn = slug(re.sub(r"\.pdf$", "", name, flags=re.I)) + "-" + hashlib.md5(u.encode()).hexdigest()[:6] + ".pdf"
+            path = os.path.join(folder, fn)
+            try:
+                data = get(u, binary=True, limit=MAX_FILE)
+                if not data.startswith(b"%PDF"):
+                    say("not a pdf", u); can = False
+            except Exception as e:
+                say("skip", u, str(e)[:60]); can = False
+            if can:
+                open(path, "wb").write(data)
+                total += len(data); new += 1
+                if c == "Study material": sm_total += len(data)
+                if ex: items.remove(ex)
+                it = {"t": title[:140], "url": u, "f": path.replace(os.sep, "/"), "lv": levels(title + " " + u + " " + page), "c": c, "d": today, "s": len(data), "k": 1 if okctx else 0, "p": page if okctx else ""}
+                items.append(it); byurl[u] = it
+                say("saved", path, len(data))
+                time.sleep(1)
+                continue
+        if not ex:
+            it = {"t": title[:140], "url": u, "f": None, "lv": levels(title + " " + u + " " + page), "c": c, "d": today, "s": 0, "pdf": 1}
+            items.append(it); byurl[u] = it
+    say("link-only items:", sum(1 for x in items if not x.get("f")))
     items.sort(key=lambda x: x.get("d", ""), reverse=True)
-    json.dump({"updated": datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S') + "Z", "items": items[:1500]}, open(idx_path, "w", encoding="utf-8"), ensure_ascii=False)
+    items.sort(key=lambda x: 0 if x.get("f") else 1)
+    json.dump({"updated": datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S') + "Z", "items": items[:4000]}, open(idx_path, "w", encoding="utf-8"), ensure_ascii=False)
     open(os.path.join(OUT, "last_run.txt"), "w").write("\n".join(log[-60:]) + "\n")
     say("new files:", new, "| total size MB:", round(total / 1048576, 1))
     if pages_ok == 0:
