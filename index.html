@@ -2916,7 +2916,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.14 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.15 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3304,11 +3304,11 @@ function gdMeth(){
 
 /* ===== v1.11: official ICAI documents (links only; files stay on icai.org) ===== */
 var DOCS=[],DOCSU='',HDOCS=[],HLOAD=0;
-function hdocLoad(){if(HLOAD)return;HLOAD=1;try{fetch('icai-docs/index.json?'+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&Array.isArray(j.items)){HDOCS=j.items.filter(function(x){return docOk(x)&&(!x.f||/^icai-docs\/[A-Za-z0-9._\/-]+\.pdf$/.test(x.f));}).slice(0,1500);if(j.updated&&!DOCSU)DOCSU=String(j.updated).slice(0,40);renderKeep();}}).catch(function(){});}catch(e){}}
-function allDocs(){var u={};HDOCS.forEach(function(x){u[x.url]=1;});return HDOCS.concat(DOCS.filter(function(x){return !u[x.url];}));}
+function hdocLoad(){if(HLOAD)return;HLOAD=1;try{fetch('icai-docs/index.json?'+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&Array.isArray(j.items)){HDOCS=j.items.filter(function(x){return docOk(x)&&(!x.f||/^icai-docs\/[A-Za-z0-9._\/-]+\.pdf$/.test(x.f));}).slice(0,4000);if(j.updated&&!DOCSU)DOCSU=String(j.updated).slice(0,40);renderKeep();}}).catch(function(){});}catch(e){}}
+function allDocs(){var u={};HDOCS.forEach(function(x){u[x.url]=1;});return HDOCS.concat(DOCS.filter(function(x){return !u[x.url];})).sort(function(a,b){return (b.f?1:0)-(a.f?1:0);});}
 function docOk(x){return x&&typeof x.t==='string'&&x.t.length>0&&x.t.length<=140&&typeof x.url==='string'&&/^https:\/\/([a-z0-9-]+\.)*icai\.org\/[^\s"'<>]{0,470}$/i.test(x.url)&&Array.isArray(x.lv);}
 var DOCCATS=['All','Announcement','Study material','RTP','MTP','Past paper','Syllabus','Result','Other'];
-var ICAIL=[['ICAI website','https://www.icai.org/'],['Study material, RTP, MTP (BoS Knowledge Portal)','https://boslive.icai.org/'],['Exam results and admit cards','https://icaiexam.icai.org/'],['Student services','https://eservices.icai.org/']];
+var ICAIL=[['ICAI website','https://www.icai.org/'],['Study material, RTP, MTP (BoS Knowledge Portal)','https://boslive.icai.org/'],['Exam results and admit cards','https://icaiexam.icai.org/'],['Student services','https://eservices.icai.org/'],['RTP Foundation','https://boslive.icai.org/education_content_rtp.php?c=Foundation'],['RTP Intermediate','https://boslive.icai.org/education_content_rtp.php?c=Intermediate'],['RTP Final','https://boslive.icai.org/education_content_rtp.php?c=Final'],['Model test papers','https://boslive.icai.org/education_content_modelTestPapers.php']];
 function gdDocs(P){
   var f=ui.docC||'All',q=(ui.docQ||'').toLowerCase(),lv=ui.docL||P.level;
   var h='<div class="card"><h3>Official ICAI documents</h3><div class="mut">Links open the original file on icai.org, so you always get the latest version. Nothing is copied into this app.</div>';
@@ -4092,7 +4092,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.14\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.15\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
