@@ -5,9 +5,15 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: icai-sync
+  cancel-in-progress: false
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -15,11 +21,12 @@ jobs:
           python-version: "3.12"
       - name: Download new ICAI files
         run: python icai_sync.py
-      - name: Save changes
+      - name: Save index
         if: always()
         run: |
           git config user.name "studify-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add icai-docs
+          git add -A icai-docs
           git diff --cached --quiet || git commit -m "ICAI documents update"
+          git pull --rebase -q || true
           git push
