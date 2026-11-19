@@ -14,3 +14,6 @@ https://www.icai.org/category/examination-students
 https://www.icai.org/post/exam
 https://boslive.icai.org/education_content_modelTestPapers.php
 https://boslive.icai.org/education_content_rtp.php
+https://boslive.icai.org/education_content_rtp.php?c=Foundation
+https://boslive.icai.org/education_content_rtp.php?c=Intermediate
+https://boslive.icai.org/education_content_rtp.php?c=Final
