@@ -15,7 +15,7 @@ EXC = re.compile(r"brochure|campus|advt|advert|enrol|fellow|membership|cfmip|cab
 def relevant(t, u):
     s = t + " " + urllib.parse.unquote(u.split("?")[0].rsplit("/", 1)[-1])
     return bool(INC.search(s)) and not EXC.search(s)
-CTXP = re.compile(r"/post/(sm-|[a-z]+-nset|study-material|e-resources|self-paced|question-papers|rtp|mtp|mock|model|revision)|post_id=19872|rtp|mtp|capsule", re.I)
+CTXP = re.compile(r"nextca\.in/(rtp|mtp)|/post/(sm-|[a-z]+-nset|study-material|e-resources|self-paced|question-papers|rtp|mtp|mock|model|revision)|post_id=19872|rtp|mtp|capsule", re.I)
 GENERIC = re.compile(r"^(click here|here|download|view|pdf|read more|more|link|details|open)\b", re.I)
 log = []
 def say(*a):
@@ -50,7 +50,7 @@ def links(page, base):
             u = urllib.parse.urljoin(base, html.unescape(m.group(1).strip()))
         except Exception:
             continue
-        if ok_host(u) and len(u) < 480:
+        if (ok_host(u) or (urllib.parse.urlparse(u).hostname or "").endswith("nextca.in")) and len(u) < 480:
             out.append((u, clean(m.group(2))))
     return out
 
@@ -103,9 +103,9 @@ def main():
     ctx = {}     # pdf url -> page it was found on
     ptl = {}     # page url -> page title
     pages_ok = 0
-    FOLLOW = re.compile(r"/post/(sm-|foundation-nset|intermediate-nset|final-nset|study-material|e-resources|self-paced|question-papers|rtp|mtp|mock|model|revision|exam-|bos-|suggested)|/category/(bos-knowledge-portal|student-examination|board-of-studies-announcements|examination-students|announcements)|post_id=19872|rtp|mtp|model-test|revision-test|capsule", re.I)
+    FOLLOW = re.compile(r"nextca\.in/(rtp|mtp)[a-z0-9/_-]*|/post/(sm-|foundation-nset|intermediate-nset|final-nset|study-material|e-resources|self-paced|question-papers|rtp|mtp|mock|model|revision|exam-|bos-|suggested)|/category/(bos-knowledge-portal|student-examination|board-of-studies-announcements|examination-students|announcements)|post_id=19872|rtp|mtp|model-test|revision-test|capsule", re.I)
     PAGE_EXC = re.compile(r"elect|president|council|annual|torchbearer|news-and-media|in-news|/media|/rti|right-to-information|donate|appeal|covid|career|homage|green|hon.?ble|statistics|virtual|leadership|region|branch|member|self.service|bosactivities|vacanc|tender|contact|publication\.icai", re.I)
-    HIGH = re.compile(r"sm-|-nset|question-papers|rtp|mtp|model|revision|capsule|study-material", re.I)
+    HIGH = re.compile(r"nextca|sm-|-nset|question-papers|rtp|mtp|model|revision|capsule|study-material", re.I)
     import heapq
     seen = set(); heap = []; n = 0
     for u in src:
@@ -125,7 +125,7 @@ def main():
         npdf = 0
         for lu, lt in links(pg, u):
             if re.search(r"\.pdf(\?|$)", lu, re.I):
-                if (urllib.parse.urlparse(lu).hostname or "").startswith("publication."): continue
+                if not ok_host(lu) or (urllib.parse.urlparse(lu).hostname or "").startswith("publication."): continue
                 found.setdefault(lu, lt); ctx.setdefault(lu, u); npdf += 1
             elif depth < 4 and lu not in seen and FOLLOW.search(lu) and not PAGE_EXC.search(lu + " " + lt):
                 heapq.heappush(heap, (0 if HIGH.search(lu) else 1, n, lu, depth + 1)); n += 1
