@@ -3304,7 +3304,7 @@ function gdMeth(){
 
 /* ===== v1.11: official ICAI documents (links only; files stay on icai.org) ===== */
 var DOCS=[],DOCSU='',HDOCS=[],HLOAD=0;
-function hdocLoad(){if(HLOAD)return;HLOAD=1;try{fetch('icai-docs/index.json?'+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&Array.isArray(j.items)){HDOCS=j.items.filter(function(x){return docOk(x)&&(!x.f||/^icai-docs\/[A-Za-z0-9._\/-]+\.pdf$/.test(x.f)||/^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/releases\/download\/icai-files\/[A-Za-z0-9._-]+$/.test(x.f));}).slice(0,4000);if(j.updated&&!DOCSU)DOCSU=String(j.updated).slice(0,40);renderKeep();}}).catch(function(){});}catch(e){}}
+function hdocLoad(){if(HLOAD)return;HLOAD=1;try{fetch('icai-docs/index.json?'+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&Array.isArray(j.items)){HDOCS=j.items.filter(function(x){return docOk(x)&&(!x.f||/^icai-docs\/[A-Za-z0-9._\/-]+\.pdf$/.test(x.f)||/^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/releases\/download\/icai-files(?:-[0-9]+)?\/[A-Za-z0-9._-]+$/.test(x.f));}).slice(0,4000);if(j.updated&&!DOCSU)DOCSU=String(j.updated).slice(0,40);renderKeep();}}).catch(function(){});}catch(e){}}
 function allDocs(){var u={};HDOCS.forEach(function(x){u[x.url]=1;});return HDOCS.concat(DOCS.filter(function(x){return !u[x.url];})).sort(function(a,b){return (b.f?1:0)-(a.f?1:0);});}
 function docOk(x){return x&&typeof x.t==='string'&&x.t.length>0&&x.t.length<=140&&typeof x.url==='string'&&/^https:\/\/([a-z0-9-]+\.)*icai\.org\/[^\s"'<>]{0,470}$/i.test(x.url)&&Array.isArray(x.lv);}
 var DOCCATS=['All','Announcement','Study material','RTP','MTP','Past paper','Syllabus','Result','Other'];
