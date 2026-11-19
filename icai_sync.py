@@ -5,16 +5,17 @@ Only files hosted on icai.org (and its sub-domains) are downloaded. Edit icai-so
 import json, os, re, sys, time, hashlib, urllib.request, urllib.parse, html, datetime
 
 OUT = "icai-docs"
-MAX_FILE = 40 * 1024 * 1024        # skip files bigger than 40 MB
+MAX_FILE = 60 * 1024 * 1024        # skip files bigger than 60 MB
 MAX_TOTAL = 500 * 1024 * 1024      # stop downloading when icai-docs reaches 500 MB (GitHub Pages limit is 1 GB)
-MAX_NEW = 30                       # new downloads per run (backlog is filled run by run)
+MAX_NEW = 40                       # new downloads per run (backlog is filled run by run)
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb" "Kit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
-DEFAULT_SOURCES = ["https://www.icai.org/", "https://www.icai.org/category/bos-knowledge-portal", "https://www.icai.org/category/student-examination", "https://www.icai.org/category/examination-services", "https://www.icai.org/category/students-services", "https://www.icai.org/category/announcements", "https://www.icai.org/post/exam", "https://www.icai.org/post/new-scheme-of-education-and-training", "https://boslive.icai.org/"]
+DEFAULT_SOURCES = ["https://www.icai.org/post/study-material-nset", "https://boslive.icai.org/education_content_modelTestPapers.php", "https://boslive.icai.org/education_content_rtp.php", "https://www.icai.org/", "https://www.icai.org/category/bos-knowledge-portal", "https://www.icai.org/category/student-examination", "https://www.icai.org/category/examination-services", "https://www.icai.org/category/students-services", "https://www.icai.org/category/announcements", "https://www.icai.org/post/exam", "https://www.icai.org/post/new-scheme-of-education-and-training", "https://boslive.icai.org/"]
 INC = re.compile(r"exam|foundation|inter|final|rtp|mtp|syllabus|study|question|paper|result|schedule|date.?sheet|guide|mcq|amend|bos[-_]|scheme|revision|mock|announ|notification|time.?table|admit|registration|revised|suggested|capsule|booklet", re.I)
 EXC = re.compile(r"brochure|campus|advt|advert|enrol|fellow|membership|cfmip|cabf|grant|removal|cancel|nameres|pay_ann|\bfees?\b|contact|benevolent|tender|vacanc|recruit|newsletter|annual.?report|cfp|esb20|\bmss\d|srsb|cg_|\bpqc|coi|\bm_|elect|council|member|\bbye\b|dialogo|torch|president|annual|journal|\bcpe\b|webinar|branch|region|\bsar\b|\bsabr|manual", re.I)
 def relevant(t, u):
     s = t + " " + urllib.parse.unquote(u.split("?")[0].rsplit("/", 1)[-1])
     return bool(INC.search(s)) and not EXC.search(s)
+CTX = re.compile(r"study-material|material|rtp|mtp|model.?test|question|past.?paper|syllabus|revision", re.I)
 GENERIC = re.compile(r"^(click here|here|download|view|pdf|read more|more|link|details|open)\b", re.I)
 log = []
 def say(*a):
@@ -81,7 +82,7 @@ def main():
         items = []
     keep = []
     for x in items:
-        if x.get("f") and not relevant(x["t"], x["url"]):
+        if x.get("f") and not x.get("k") and not relevant(x["t"], x["url"]):
             try: os.remove(x["f"])
             except Exception: pass
             say("removed unrelated", x["f"]); continue
@@ -93,6 +94,7 @@ def main():
     if os.path.exists("icai-sources.txt"):
         src = [l.strip() for l in open("icai-sources.txt", encoding="utf-8") if l.strip().startswith("https://")] or DEFAULT_SOURCES
     found = {}   # url -> title
+    ctx = {}     # url -> page it was found on
     pages_ok = 0
     PAGE_INC = re.compile(r"student|bos|exam|rtp|mtp|study|syllabus|question|paper|result|announcement|schedule|scheme|foundation|inter|final|material|revision|mock|category/|knowledge|download|publication", re.I)
     PAGE_EXC = re.compile(r"elect|president|council|annual|torchbearer|media|news|rti|right-to-information|donate|appeal|covid|career|homage|green|hon.?ble|statistics|virtual|leadership|region|branch|member|self.service|bosactivities|vacanc|tender|contact", re.I)
@@ -108,7 +110,7 @@ def main():
         time.sleep(0.3)
         for lu, lt in links(pg, u):
             if re.search(r"\.pdf(\?|$)", lu, re.I):
-                found.setdefault(lu, lt)
+                found.setdefault(lu, lt); ctx.setdefault(lu, u)
             elif depth < 2 and lu not in seen and PAGE_INC.search(lu + " " + lt) and not PAGE_EXC.search(lu + " " + lt):
                 queue.append((lu, depth + 1))
     deep = []
@@ -122,9 +124,11 @@ def main():
         if new >= MAX_NEW or total >= MAX_TOTAL: break
         name = urllib.parse.unquote(u.split("?")[0].rsplit("/", 1)[-1])
         title = t if (len(t) >= 6 and not GENERIC.match(t)) else re.sub(r"[-_+]+", " ", re.sub(r"\.pdf$", "", name, flags=re.I))
-        if not relevant(title, u):
+        okctx = bool(CTX.search(ctx.get(u, ""))) and not EXC.search(title + " " + u)
+        if not relevant(title, u) and not okctx:
             continue
         c = cat(title, u)
+        if c == "Other": c = cat(title, ctx.get(u, ""))
         folder = os.path.join(OUT, slug(c).lower())
         os.makedirs(folder, exist_ok=True)
         fn = slug(re.sub(r"\.pdf$", "", name, flags=re.I)) + "-" + hashlib.md5(u.encode()).hexdigest()[:6] + ".pdf"
@@ -137,7 +141,7 @@ def main():
             say("not a pdf", u); continue
         open(path, "wb").write(data)
         total += len(data); new += 1
-        items.append({"t": title[:140], "url": u, "f": path.replace(os.sep, "/"), "lv": levels(title + " " + u), "c": c, "d": today, "s": len(data)})
+        items.append({"t": title[:140], "url": u, "f": path.replace(os.sep, "/"), "lv": levels(title + " " + u + " " + ctx.get(u, "")), "c": c, "d": today, "s": len(data), "k": 1 if okctx else 0})
         say("saved", path, len(data))
         time.sleep(1)
     # announcements without a pdf: keep as links
