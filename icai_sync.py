@@ -72,6 +72,26 @@ def cat(t, u):
         if re.search(rx, s): return name
     return "Other"
 
+def pdf_id(u):
+    m = re.match(r"(\d{4,6})", urllib.parse.unquote(u.split("?")[0].rsplit("/", 1)[-1]))
+    return int(m.group(1)) if m else 0
+
+def stale(c, title, u, page=""):
+    """True for old material that is of no use for Jan 2027 and later attempts."""
+    if c in ("Past paper", "Syllabus"): return False
+    s = (title + " " + urllib.parse.unquote(u)).lower()
+    if "mcq" in s: return False
+    ys = re.findall(r"(?<!\d)(20[12]\d)(?!\d)", s) or re.findall(r"(?<!\d)(20[12]\d)(?!\d)", page.lower())
+    ymax = max(int(y) for y in ys) if ys else 0
+    i = pdf_id(u)
+    if ymax >= 2027 or re.search(r"(nov|dec)[a-z]*[-_ ]?(20)?26", s): return False
+    if c in ("Announcement", "Result", "Other"):
+        return i < 94000
+    if i >= 93000: return False
+    if ymax == 2026: return c in ("RTP", "MTP")
+    if ymax and ymax <= 2025: return True
+    return bool(i) and i < 91000
+
 def slug(s):
     return re.sub(r"[^A-Za-z0-9._-]+", "-", s).strip("-")[:70] or "file"
 
@@ -138,7 +158,23 @@ def main():
             say("removed unrelated", x["f"]); continue
         keep.append(x)
     items = keep
+    # drop old material (not useful for Jan 2027 and later): remove from index and delete the stored file
+    old_items = [x for x in items if stale(x.get("c", ""), x.get("t", ""), x.get("url", ""), x.get("p", ""))]
+    if old_items:
+        gone = set(id(x) for x in old_items)
+        items = [x for x in items if id(x) not in gone]
+        inuse = set(x.get("f") for x in items if x.get("f"))
+        nd = 0
+        for x in old_items:
+            f = x.get("f") or ""
+            m = re.match(r"https://github\.com/[^/]+/[^/]+/releases/download/([^/]+)/([^/]+)$", f)
+            if m and f not in inuse and nd < 400:
+                r = gh("release", "delete-asset", m.group(1), urllib.parse.unquote(m.group(2)), "-y")
+                nd += 1
+                if r.returncode != 0: say("delete failed", m.group(2), (r.stderr or "")[:80])
+        say("old items removed:", len(old_items), "| files deleted:", nd)
     have = {x["url"] for x in items}
+    shaf = {x["h"]: x["f"] for x in items if x.get("h") and x.get("f")}
     total = sum(x.get("s", 0) for x in items)
     rel_ok = ensure_release()
     if rel_ok:
@@ -204,6 +240,7 @@ def main():
             continue
         c = cat(title, u)
         if c == "Other": c = cat(title, page)
+        if stale(c, title, u, page): continue
         hindi = bool(re.search(r"hindi", title + " " + u + " " + page, re.I))
         cands.append((PRIO.get(c, 3) + (0.5 if hindi else 0), u, name, page, title, okctx, c, hindi))
     cands.sort(key=lambda z: z[0])
@@ -223,18 +260,25 @@ def main():
                     say("not a pdf", u); can = False
             except Exception as e:
                 say("skip", u, str(e)[:60]); can = False
+            h = ""
             if can:
-                open(path, "wb").write(data)
-                url2 = upload(path)
-                try: os.remove(path)
-                except Exception: pass
-                if not url2:
-                    can = False
+                h = hashlib.sha1(data).hexdigest()[:16]
+                if h in shaf:
+                    url2 = shaf[h]; say("duplicate content, reusing", os.path.basename(path))
+                else:
+                    open(path, "wb").write(data)
+                    url2 = upload(path)
+                    try: os.remove(path)
+                    except Exception: pass
+                    if not url2:
+                        can = False
+                    else:
+                        shaf[h] = url2
             if can:
                 total += len(data); new += 1
                 if c == "Study material": sm_total += len(data)
                 if ex: items.remove(ex)
-                it = {"t": title[:140], "url": u, "f": url2, "lv": levels(title + " " + u + " " + page), "c": c, "d": today, "s": len(data), "k": 1 if okctx else 0, "p": page if okctx else ""}
+                it = {"t": title[:140], "url": u, "f": url2, "lv": levels(title + " " + u + " " + page), "c": c, "d": today, "s": len(data), "h": h, "k": 1 if okctx else 0, "p": page if okctx else ""}
                 items.append(it); byurl[u] = it
                 say("saved", os.path.basename(path), len(data))
                 time.sleep(1)
