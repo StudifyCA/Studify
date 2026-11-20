@@ -2916,7 +2916,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.17 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.18 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3091,7 +3091,7 @@ function qrChart(ch,P,k){
   ch.content.topics.forEach(function(t,ti){
     t.chapter=String(t.chapter||'').split(' | ')[0].replace(/\s*\(?\d+ repeated.*$/i,'').trim();
     var pr=qrPri(t.priority),c=QRPR[pr][0],e=R[t.chapter]||null;
-    h+='<div class="qt" style="border:2px solid '+c+';border-radius:12px;margin-bottom:12px;overflow:hidden">'+
+    h+='<div class="qt" id="qt-'+ti+'" style="border:2px solid '+c+';border-radius:12px;margin-bottom:12px;overflow:hidden">'+
       '<div style="background:'+c+';color:#fff;padding:8px 10px;display:flex;justify-content:space-between;gap:8px"><b>'+esc(t.chapter||'')+'</b><span style="font-size:12px;white-space:nowrap">'+QRPR[pr][1]+'</span></div><div style="padding:10px">';
     if(t.explain)h+='<div style="font-size:14px;line-height:1.6;margin-bottom:8px">'+esc(t.explain)+'</div>';
     if(Array.isArray(t.terms)&&t.terms.length)h+='<div style="margin:8px 0;border:1px solid #d9dde5;border-radius:8px;overflow:hidden">'+t.terms.map(function(x,n){return '<div style="padding:6px 8px;font-size:13px;line-height:1.45;background:'+(n%2?'#f6f7fa':'#fff')+'"><b>'+esc(x&&x.t||'')+'</b>: '+esc(x&&x.d||'')+'</div>';}).join('')+'</div>';
@@ -3307,20 +3307,28 @@ var DOCS=[],DOCSU='',HDOCS=[],HLOAD=0;
 function hdocLoad(){if(HLOAD)return;HLOAD=1;try{fetch('icai-docs/index.json?'+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&Array.isArray(j.items)){HDOCS=j.items.filter(function(x){return docOk(x)&&(!x.f||/^icai-docs\/[A-Za-z0-9._\/-]+\.pdf$/.test(x.f)||/^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/releases\/download\/icai-files(?:-[0-9]+)?\/[A-Za-z0-9._-]+$/.test(x.f));}).slice(0,4000);if(j.updated&&!DOCSU)DOCSU=String(j.updated).slice(0,40);renderKeep();}}).catch(function(){});}catch(e){}}
 function allDocs(){var u={};HDOCS.forEach(function(x){u[x.url]=1;});return HDOCS.concat(DOCS.filter(function(x){return !u[x.url];})).sort(function(a,b){return (b.f?1:0)-(a.f?1:0);});}
 function docOk(x){return x&&typeof x.t==='string'&&x.t.length>0&&x.t.length<=140&&typeof x.url==='string'&&/^https:\/\/([a-z0-9-]+\.)*icai\.org\/[^\s"'<>]{0,470}$/i.test(x.url)&&Array.isArray(x.lv);}
-var DOCCATS=['All','Announcement','Study material','RTP','MTP','Past paper','Syllabus','Result','Other'];
+var DOCCATS=['Useful','All','Announcement','Study material','RTP','MTP','Past paper','Syllabus','Result','Other'];
 var ICAIL=[['ICAI website','https://www.icai.org/'],['Study material, RTP, MTP (BoS Knowledge Portal)','https://boslive.icai.org/'],['Exam results and admit cards','https://icaiexam.icai.org/'],['Student services','https://eservices.icai.org/'],['RTP Foundation','https://boslive.icai.org/education_content_rtp.php?c=Foundation'],['RTP Intermediate','https://boslive.icai.org/education_content_rtp.php?c=Intermediate'],['RTP Final','https://boslive.icai.org/education_content_rtp.php?c=Final'],['Model test papers','https://boslive.icai.org/education_content_modelTestPapers.php']];
 function gdDocs(P){
-  var f=ui.docC||'All',q=(ui.docQ||'').toLowerCase(),lv=ui.docL||P.level;
+  var f=ui.docC||'Useful',q=(ui.docQ||'').toLowerCase(),lv=ui.docL||P.level;
   var h='<div class="card"><h3>ICAI study material, MTP, RTP and past papers</h3><div class="mut">Files marked <b>Saved</b> are copied into Studify and download directly. Others open the original file on icai.org.</div>';
   h+='<div style="margin-top:8px">'+ICAIL.map(function(x){return '<a class="btn sec sm" style="margin:0 6px 6px 0;display:inline-block" href="'+x[1]+'" target="_blank" rel="noopener noreferrer">'+esc(x[0])+'</a>';}).join('')+'</div>';
-  hdocLoad();var L=allDocs().filter(function(x){return (f==='All'||x.c===f)&&(lv==='all'||x.lv.indexOf(lv)>=0)&&(!q||x.t.toLowerCase().indexOf(q)>=0);});var nSaved=allDocs().filter(function(x){return x.f;}).length;
-  h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><select data-chg="gddl"><option value="all"'+(lv==='all'?' selected':'')+'>All levels</option>'+LVORD.map(function(v){return '<option value="'+v+'"'+(v===lv?' selected':'')+'>'+esc(LVNAME[v])+'</option>';}).join('')+'</select><select data-chg="gddc">'+DOCCATS.map(function(v){return '<option'+(v===f?' selected':'')+'>'+v+'</option>';}).join('')+'</select><input id="gd-dq" placeholder="Search" value="'+esc(ui.docQ||'')+'" data-chg="gddq" style="flex:1;min-width:120px"></div>';
+  hdocLoad();var L=allDocs().filter(function(x){return (f==='All'||(f==='Useful'?USEFULC[x.c]:x.c===f))&&(lv==='all'||x.lv.indexOf(lv)>=0)&&(!q||x.t.toLowerCase().indexOf(q)>=0);});var nSaved=allDocs().filter(function(x){return x.f;}).length;
+  var seenT={};L=L.filter(function(x){var kk=String(x.t).toLowerCase().replace(/[^a-z0-9]+/g,'');if(seenT[kk])return false;seenT[kk]=1;return true;});
+  var pps={};L.forEach(function(x){pps[docPaper(x)]=(pps[docPaper(x)]||0)+1;});
+  var pk=Object.keys(pps).sort(function(a,b){if(a==='General')return 1;if(b==='General')return -1;return a<b?-1:1;});
+  var pf=ui.docP&&pps[ui.docP]?ui.docP:'all';
+  if(pf!=='all')L=L.filter(function(x){return docPaper(x)===pf;});
+  L.sort(function(a,b){var pa=docPaper(a),pb=docPaper(b);if(pa!==pb){if(pa==='General')return 1;if(pb==='General')return -1;return pa<pb?-1:1;}return (b.f?1:0)-(a.f?1:0)||(a.t<b.t?-1:a.t>b.t?1:0);});
+  h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><select data-chg="gddl"><option value="all"'+(lv==='all'?' selected':'')+'>All levels</option>'+LVORD.map(function(v){return '<option value="'+v+'"'+(v===lv?' selected':'')+'>'+esc(LVNAME[v])+'</option>';}).join('')+'</select><select data-chg="gddp"><option value="all"'+(pf==='all'?' selected':'')+'>All papers</option>'+pk.map(function(v){return '<option value="'+esc(v)+'"'+(v===pf?' selected':'')+'>'+esc(v)+' ('+pps[v]+')</option>';}).join('')+'</select><select data-chg="gddc">'+DOCCATS.map(function(v){return '<option'+(v===f?' selected':'')+'>'+v+'</option>';}).join('')+'</select><input id="gd-dq" placeholder="Search" value="'+esc(ui.docQ||'')+'" data-chg="gddq" style="flex:1;min-width:120px"></div>';
   if(!allDocs().length)h+='<div class="mut" style="margin-top:10px">No documents synced yet. Use the buttons above to open ICAI directly'+(cloud.isAdmin?', or press Sync now.':'.')+'</div>';
   else if(!L.length)h+='<div class="mut" style="margin-top:10px">Nothing matches this filter.</div>';
   var td=iso(today());
+  var lastP='';
   L.slice(0,ui.docN||40).forEach(function(x){
     var age=0;try{age=Math.round((parse(td)-parse(x.d))/864e5);}catch(e){}
-    h+='<div class="blk" style="margin-top:8px"><div><a href="'+esc(x.f||x.url)+'" target="_blank" rel="noopener noreferrer"><b>'+esc(x.t)+'</b></a><div class="mut">'+esc(x.c||'Other')+(x.f?' • Saved, tap to download':(x.pdf?' • Opens on icai.org':''))+(x.s?' • '+(x.s/1048576).toFixed(1)+' MB':'')+' • found '+esc(x.d||'')+(x.f?' • <a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">original</a>':'')+'</div></div>'+(age<=14?'<span class="chip ok">New</span>':'')+'</div>';
+    var pp=docPaper(x);if(pf==='all'&&pp!==lastP){lastP=pp;h+='<div style="margin-top:12px"><b>'+esc(pp)+'</b></div>';}
+    h+='<div class="blk" style="margin-top:8px"><div style="min-width:0"><b>'+esc(x.t)+'</b><div class="mut">'+esc(x.c||'Other')+(x.s?' \u2022 '+(x.s/1048576).toFixed(1)+' MB':'')+' \u2022 found '+esc(x.d||'')+'</div><div style="margin-top:6px">'+(x.f?'<button class="btn sm" data-act="gdview" data-u="'+esc(x.f)+'" data-t="'+esc(x.t)+'">View in app</button> <a class="btn sec sm" href="'+esc(x.f)+'" target="_blank" rel="noopener noreferrer">Download</a>':'<a class="btn sec sm" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+(x.pdf?'Open PDF on icai.org':'Open on icai.org')+'</a>')+'</div></div>'+(age<=14?'<span class="chip ok">New</span>':'')+'</div>';
   });
   h+='<div class="mut" style="margin-top:6px">'+L.length+' files match ('+nSaved+' saved in the app in total).</div>';if(L.length>(ui.docN||40))h+='<button class="btn sec sm" style="margin-top:6px" data-act="gddocmore">Show more</button>';
   if(DOCSU)h+='<div class="mut" style="margin-top:8px">Last checked: '+esc(fmtTs(DOCSU))+'. Titles are read automatically from icai.org, so confirm details in the file.</div>';
@@ -3522,6 +3530,68 @@ function icqChg(k,el){
   else if(k==='icqans'){ui.mqAns=!!el.checked;}
   renderKeep();
 }
+
+/* ===== v1.18: in-app PDF viewer, paper filter, revision-notes search ===== */
+var PVBASE=BUILTIN_CFG.url+'/functions/v1/icai-pdf?u=';
+function pvClose(){var o=document.getElementById('pv');if(o)o.remove();document.removeEventListener('keydown',pvKey);}
+function pvKey(e){if(e.key==='Escape')pvClose();}
+function pvOpen(u,t){
+  pvClose();u=String(u||'');
+  var viaProxy=/^https:\/\/github\.com\/[^\/]+\/[^\/]+\/releases\/download\//.test(u);
+  var src=viaProxy?PVBASE+encodeURIComponent(u):u;
+  var o=document.createElement('div');o.id='pv';
+  o.style.cssText='position:fixed;inset:0;z-index:9999;background:var(--bg);color:var(--fg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)';
+  o.innerHTML='<div style="display:flex;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bd)"><b id="pv-t" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></b><span id="pv-n" class="mut"></span><a class="btn sec sm" id="pv-d" target="_blank" rel="noopener noreferrer">Download</a><button class="btn sm" id="pv-x">Close</button></div><div id="pv-b" style="flex:1;overflow:auto;padding:8px;text-align:center;-webkit-overflow-scrolling:touch"><div class="mut" style="margin-top:20px">Loading PDF…</div></div>';
+  document.body.appendChild(o);
+  document.getElementById('pv-t').textContent=String(t||'PDF');
+  var dl=document.getElementById('pv-d');dl.href=u;
+  document.getElementById('pv-x').onclick=pvClose;document.addEventListener('keydown',pvKey);
+  var box=document.getElementById('pv-b');
+  function fail(m){box.innerHTML='<div class="card" style="margin:16px auto;max-width:420px">Could not show this PDF here'+(m?' ('+esc(m)+')':'')+'.<br><a class="btn sm" style="margin-top:8px;display:inline-block" href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">Open or download the file</a></div>';}
+  fetch(src).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer();}).then(function(buf){
+    return shLoadPdfJs().then(function(L){return L.getDocument({data:buf}).promise;});
+  }).then(function(doc){
+    if(!document.getElementById('pv'))return;
+    box.innerHTML='';var n=doc.numPages,pages=[],done={};
+    var w0=Math.max(240,box.clientWidth-16);
+    for(var i=1;i<=n;i++){var d=document.createElement('div');d.dataset.p=i;d.style.cssText='margin:0 auto 10px;max-width:100%;width:'+w0+'px;min-height:'+Math.round(w0*1.35)+'px;background:#fff;border:1px solid var(--bd);border-radius:4px;overflow:hidden';box.appendChild(d);pages.push(d);}
+    document.getElementById('pv-n').textContent='1 / '+n;
+    function draw(el){var i=Number(el.dataset.p);if(done[i])return;done[i]=1;
+      doc.getPage(i).then(function(pg){
+        var v0=pg.getViewport({scale:1}),sc=w0/v0.width,dpr=Math.min(window.devicePixelRatio||1,2.5),vp=pg.getViewport({scale:sc*dpr});
+        var cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;cv.style.cssText='width:100%;display:block';
+        return pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise.then(function(){el.style.minHeight='';el.innerHTML='';el.appendChild(cv);});
+      }).catch(function(){done[i]=0;});}
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){draw(e.target);if(e.intersectionRatio>0.2)document.getElementById('pv-n').textContent=e.target.dataset.p+' / '+n;}});},{root:box,rootMargin:'700px 0px',threshold:[0,0.2]});
+      pages.forEach(function(el){io.observe(el);});
+    }else pages.slice(0,5).forEach(draw);
+  }).catch(function(e){if(document.getElementById('pv'))fail(e&&e.message?e.message:'');});
+}
+var USEFULC={'Study material':1,'RTP':1,'MTP':1,'Past paper':1,'Syllabus':1};
+function docPaper(x){var m=/(?:^|[^a-z0-9])(?:k?p|paper)[-_ ]?([1-6])\s?([ab])?(?![0-9a-z])/.exec((String(x.t||'')+' '+String(x.url||'')).toLowerCase());return m?'Paper '+m[1]+(m[2]?m[2].toUpperCase():''):'General';}
+function qrSearchCard(P,ks){
+  var q=(ui.qrQ||'').trim().toLowerCase();
+  var h='<div class="card"><b>Search revision notes</b><div class="mut">Find a topic, term or formula across the AI quick-revision notes of all your subjects.</div><div class="row" style="gap:8px;margin-top:8px"><input id="qr-sq" placeholder="e.g. deferred tax, ITC, AS 2" value="'+esc(ui.qrQ||'')+'" data-chg="qrsq" style="flex:1;min-width:0"></div>';
+  if(q.length>=2){
+    if(!cloud.rc||!Object.keys(cloud.rc).length){h+='<div class="mut" style="margin-top:8px">'+(cloud.user?'Notes are still loading…':'Sign in to search the notes.')+'</div>';return h+'</div>';}
+    var ws=q.split(/\s+/).filter(Boolean),res=[];
+    ks.forEach(function(k){var c=cloud.rc[k]&&cloud.rc[k].content;if(!c||!Array.isArray(c.topics))return;
+      c.topics.forEach(function(t,ti){
+        var txt=[t.chapter,t.explain,(t.terms||[]).map(function(x){return (x&&x.t||'')+' '+(x&&x.d||'');}).join(' '),(t.points||[]).join(' '),t.example,(t.formulas||[]).join(' '),t.trap,(t.flow||[]).join(' ')].filter(Boolean).join(' ');
+        var lo=txt.toLowerCase(),sc=0;
+        for(var i=0;i<ws.length;i++){if(lo.indexOf(ws[i])<0)return;sc++;}
+        if(String(t.chapter||'').toLowerCase().indexOf(ws[0])>=0)sc+=3;
+        var i0=lo.indexOf(ws[0]);res.push({k:k,ti:ti,t:t,sc:sc,sn:(i0>50?'…':'')+txt.slice(Math.max(0,i0-50),i0+120)+'…'});
+      });});
+    res.sort(function(a,b){return b.sc-a.sc;});
+    h+='<div class="mut" style="margin-top:8px">'+res.length+' match'+(res.length===1?'':'es')+'</div>';
+    res.slice(0,12).forEach(function(r){
+      var nm=r.k;try{nm=pfull(r.k);}catch(e){}
+      h+='<div class="row sp" style="border-top:1px solid var(--bd);margin-top:8px;padding-top:8px;gap:8px"><div style="min-width:0"><b>'+esc(r.t.chapter||'')+'</b><div class="mut">'+esc(nm)+'</div><div style="font-size:13px;margin-top:2px">'+esc(r.sn)+'</div></div><button class="btn sm" data-act="qropen" data-k="'+esc(r.k)+'" data-i="'+r.ti+'">Open</button></div>';});
+  }
+  return h+'</div>';
+}
 function viewIcai(c){
   var P=c.P;annLoad();
   var h='<div class="card"><h3>Official ICAI announcements</h3><div class="mut">Titles and links are copied from icai.org (Board of Studies and Examination pages). ICAI does not show dates on these lists, so the date below is when Studify first saw the item.</div>';
@@ -3541,6 +3611,7 @@ function viewGuide(c){
   return gdHead('Exam guide','Exam pattern, your path, syllabus changes, study material and budget in one place.')+gdPattern(P)+gdPath(P)+gdSyl(P)+gdMat(P)+gdMeth()+gdBud(P);
 }
 function gdAct(a,d,P){
+  if(a==='gdview'){pvOpen(d.u,d.t);return;}
   if(a==='gddocmore'){ui.docN=(ui.docN||40)+40;renderKeep();return;}
   if(a==='gddocsync'){gdDocRun({});return;}
   if(a==='gddocadd'){gdDocRun({add:{title:readv('gd-dt'),url:readv('gd-du')}});return;}
@@ -3550,8 +3621,9 @@ function gdAct(a,d,P){
 }
 function gdChg(k,d,el){
   var P=cur();
-  if(k==='gddl'){ui.docL=el.value;renderKeep();return;}
-  if(k==='gddc'){ui.docC=el.value;renderKeep();return;}
+  if(k==='gddl'){ui.docL=el.value;ui.docP='all';ui.docN=0;renderKeep();return;}
+  if(k==='gddp'){ui.docP=el.value;ui.docN=0;renderKeep();return;}
+  if(k==='gddc'){ui.docC=el.value;ui.docP='all';ui.docN=0;renderKeep();return;}
   if(k==='gddq'){ui.docQ=el.value;renderKeep();return;}
   if(k==='gdlv'){ui.gdLv=el.value;renderKeep();return;}
   if(k==='gdsm'){if(!P.sm)P.sm={};if(!P.sm[d.k])P.sm[d.k]={};P.sm[d.k][Number(d.i)]=!!el.checked;P.dirty=true;commit();return;}
@@ -3562,6 +3634,7 @@ function viewQR(c){
   hwLoadAll(P);qrLoad();
   var dl='';try{var dd=Math.round((parse(P.examDate)-today())/864e5);if(dd>=0)dl=' • '+dd+' days to your exam';}catch(e){}
   var h='<div class="card"><h3>Quick revision</h3><div class="mut">Revise what gives the most marks, and track how many times you revised each chapter'+dl+'.</div></div>';
+  h+=qrSearchCard(P,ks);
   var rk=qrRank(P);
   if(!rk.length)h+='<div class="card mut">Loading important topics... (needs the qbank files)</div>';
   else{
@@ -3615,6 +3688,7 @@ async function qrGen(k,onPart){
   return true;
 }
 function qrAct(a,d,P){
+  if(a==='qropen'){ui.qrK=d.k;var ti=Number(d.i);renderKeep();setTimeout(function(){var e=document.getElementById('qt-'+ti);if(e)e.scrollIntoView({behavior:'smooth',block:'start'});},80);return;}
   if(a==='qrimg'){qrSavePdf();return;}
   if(a==='qrspeak'){var ch0=cloud.rc&&cloud.rc[ui.qrK||hwKeys(P)[0]],t0=ch0&&ch0.content&&ch0.content.topics&&ch0.content.topics[Number(d.i)];if(t0)accSpeak([t0.chapter,t0.explain].concat((t0.terms||[]).map(function(x){return x.t+'. '+x.d;})).concat(t0.points||[]).concat([t0.example?'Example. '+t0.example:'',t0.trap?'Common mistake. '+t0.trap:'']).filter(Boolean).join('. '));return;}
   if(a==='accstop'){try{speechSynthesis.cancel();}catch(e){}return;}
@@ -4159,7 +4233,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.17\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.18\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
@@ -4669,6 +4743,7 @@ function chg(k,d,el){
   if(k.indexOf('hw')===0){hwChg(k,d,el);return;}
   if(k.indexOf('rp')===0){rpChg(k,d,el);return;}
   if(k==='qrk'){ui.qrK=el.value;renderKeep();return;}
+  if(k==='qrsq'){ui.qrQ=el.value;renderKeep();return;}
   if(k.indexOf('icq')===0){icqChg(k,el);return;}
   if(k.indexOf('gd')===0){gdChg(k,d,el);return;}
   if(k.indexOf('pt')===0){ptChg(k,d,el);return;}
