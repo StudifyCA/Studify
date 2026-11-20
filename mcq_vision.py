@@ -44,7 +44,7 @@ Rules: copy numbers, amounts and section/standard names exactly; use the rupee s
 
 def say(*a): print(*a, flush=True)
 
-FATAL = {"v": False}
+FATAL = {"v": False, "ok": False}
 
 def call(pdf_b64):
     last = ""
@@ -60,7 +60,7 @@ def call(pdf_b64):
                         j = json.loads(r.read().decode())
                     parts = ((j.get("candidates") or [{}])[0].get("content") or {}).get("parts") or []
                     txt = "".join(p.get("text", "") for p in parts)
-                    if txt.strip(): return txt
+                    if txt.strip(): FATAL["ok"] = True; return txt
                     last = "empty answer"; break
                 except urllib.error.HTTPError as e:
                     msg = re.sub(r"\s+", " ", e.read().decode("utf-8", "ignore"))[:300]
@@ -73,7 +73,7 @@ def call(pdf_b64):
                 except Exception as e:
                     last = str(e)[:120]; soft = True; time.sleep(5)
     say("  AI failed:", last)
-    if not soft: FATAL["v"] = True      # every model refused (bad key / no model): stop instead of burning retries
+    if not soft and not FATAL["ok"]: FATAL["v"] = True      # every model refused (bad key / no model): stop instead of burning retries
     return None
 
 def parse(txt):
