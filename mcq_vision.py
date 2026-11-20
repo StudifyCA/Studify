@@ -25,7 +25,7 @@ def pick_models():
     def k(n):
         v = re.search(r"(\d+(?:\.\d+)?)", n)
         return (-(float(v.group(1)) if v else 0), "lite" in n, "preview" in n or "exp" in n, n)
-    out = [os.environ.get("AI_MODEL", "").strip(), "gemini-flash-latest"] + sorted(set(names), key=k)[:4] + ["gemini-2.5-flash"]
+    out = [os.environ.get("AI_MODEL", "").strip(), "gemini-flash-latest"] + sorted(set(names), key=k)[:4] + ["gemini-3.8-flash"]
     seen = []
     for m in out:
         if m and m not in seen: seen.append(m)
@@ -45,6 +45,7 @@ Rules: copy numbers, amounts and section/standard names exactly; use the rupee s
 def say(*a): print(*a, flush=True)
 
 FATAL = {"v": False, "ok": False}
+QUOTA = {"v": False}
 
 def call(pdf_b64):
     last = ""
@@ -68,8 +69,9 @@ def call(pdf_b64):
                     say("   try", m, "->", last[-160:])
                     if e.code not in (401, 403, 404): soft = True
                     if e.code == 429:
-                        if attempt == 2: break
-                        time.sleep(20 * (attempt + 1)); continue
+                        if re.search(r"per ?day|PerDay", msg, re.I) or attempt == 2:
+                            QUOTA["v"] = True; say("  quota hit - stopping this run, schedule will continue later"); return None
+                        time.sleep(45 * (attempt + 1)); continue
                     if e.code in (400,) and mt == 30000: break      # retry with smaller output
                     if e.code in (404, 403): break                   # try next model
                     time.sleep(5)
@@ -134,6 +136,7 @@ def main():
         if len(raw) > MAX_PDF: say("  too big for AI:", f.rsplit("/", 1)[-1]); vdone[f] = {"n": 0, "fail": 3}; continue
         txt = call(base64.b64encode(raw).decode())
         if txt is None:
+            if QUOTA["v"]: break
             if FATAL["v"]:
                 say("stopping: no usable Gemini model for this key"); break
             vdone[f] = {"n": -1, "fail": vdone.get(f, {}).get("fail", 0) + 1}
@@ -156,7 +159,7 @@ def main():
         tot += add
         say("  AI read", add, "/", len(qs), "answers:", sum(1 for q in qs if q["a"] >= 0), "|", lab, "|", f.rsplit("/", 1)[-1][:50])
         say("   elapsed %ds" % (time.time() - T0))
-        time.sleep(8)
+        time.sleep(15)
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     for lv, sh in shards.items():
         sh["updated"] = now
