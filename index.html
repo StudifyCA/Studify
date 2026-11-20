@@ -2916,7 +2916,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.20 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.21 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3491,8 +3491,10 @@ function icaiBanner(){annLoad();var n=annNew();if(!n)return '';return '<div clas
 /* ===== v1.17: ICAI MCQ practice (questions extracted from ICAI PDFs) ===== */
 var MQC={},MQST=null,MQLOAD={};
 function mqLoad(lv){if(MQLOAD[lv])return;MQLOAD[lv]=1;try{fetch('icai-docs/mcq/'+lv+'.json?'+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){MQC[lv]=(j&&Array.isArray(j.items))?j.items.filter(function(x){return x&&typeof x.q==='string'&&Array.isArray(x.o)&&x.o.length===4;}):[];renderKeep();}).catch(function(){MQC[lv]=[];renderKeep();});}catch(e){MQC[lv]=[];}}
-function mqPool(){var lv=ui.mqLv||'inter';mqLoad(lv);mqLoad('misc');var a=(MQC[lv]||[]).concat(MQC.misc||[]);var f=ui.mqSrc||'';var wa=!!ui.mqAns;return a.filter(function(x){return (!wa||x.a>=0)&&(!f||x.s===f);});}
+function mqPool(){var lv=ui.mqLv||'inter';mqLoad(lv);mqLoad('misc');var a=(MQC[lv]||[]).concat(MQC.misc||[]);var f=ui.mqSrc||'';var wa=!!ui.mqAns;var P0=cur(),tg=(P0&&P0.mqt)||{},wl=!!ui.mqLrn;return a.filter(function(x){return (!wa||x.a>=0)&&(!f||x.s===f)&&(!wl||tg[x.i]==='L');});}
 function mqShuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function mqTagRow(x){var P=cur(),t=(P&&P.mqt&&P.mqt[x.i])||'';
+  return '<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn sec sm" data-act="icqtag" data-t="L"'+(t==='L'?' style="border-color:var(--ac)"':'')+'>'+(t==='L'?'\u2713 ':'')+'Still learning</button><button class="btn sec sm" data-act="icqtag" data-t="G"'+(t==='G'?' style="border-color:var(--ok)"':'')+'>'+(t==='G'?'\u2713 ':'')+'Got it</button></div>';}
 function mqCard(){
   var lv=ui.mqLv||'inter',pool=mqPool(),ld=MQC[lv]!==undefined&&MQC.misc!==undefined;
   var h='<div class="card"><h3>ICAI MCQ practice</h3><div class="mut">Questions are read automatically from ICAI PDFs (MCQ papers, RTP, MTP, study material). Answers are shown only where the PDF has them. Questions from scanned PDFs are read by AI, so check important numbers in the original paper.</div>';
@@ -3503,7 +3505,7 @@ function mqCard(){
     x.o.forEach(function(o,k){var st='',m='';
       if(q.done){if(x.a===k){st=' style="border-color:var(--ok)"';m=' ✓';}else if(q.sel===k&&x.a>=0){st=' style="border-color:var(--bad,#c0392b)"';m=' ✗';}else if(q.sel===k){m=' (your pick)';}}
       h+='<button class="btn sec" data-act="icqpick" data-k="'+k+'"'+(q.done?' disabled':'')+st+' style="display:block;width:100%;text-align:left;margin-top:6px">'+'abcd'.charAt(k)+') '+esc(o)+m+'</button>';});
-    if(q.done){h+='<div class="mut" style="margin-top:8px">'+(x.a>=0?(q.sel===x.a?'Correct.':'Correct answer: '+'abcd'.charAt(x.a)+')'):'Answer is not available in the PDF.')+'<br>Source: '+esc(x.s)+'</div><button class="btn" style="margin-top:8px" data-act="icqnext">Next</button>';}
+    if(q.done){h+='<div class="mut" style="margin-top:8px">'+(x.a>=0?(q.sel===x.a?'Correct.':'Correct answer: '+'abcd'.charAt(x.a)+')'):'Answer is not available in the PDF.')+'<br>Source: '+esc(x.s)+'</div>'+mqTagRow(x)+'<button class="btn" style="margin-top:8px" data-act="icqnext">Next</button>';}
     h+='<button class="btn sec sm" style="margin-top:8px" data-act="icqstop">Stop</button></div>';return h;
   }
   if(q&&q.list&&q.i>=q.list.length){h+='<div style="margin-top:8px"><b>Done: '+q.sc+' / '+q.n+' correct</b> (only questions with answers are scored)</div><button class="btn" style="margin-top:8px" data-act="icqstop">Back</button></div>';return h;}
@@ -3511,6 +3513,8 @@ function mqCard(){
   var sk=Object.keys(srcs).sort();
   h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><select data-chg="icqlv">'+LVORD.map(function(v){return '<option value="'+v+'"'+(v===lv?' selected':'')+'>'+esc(LVNAME[v])+'</option>';}).join('')+'</select><select data-chg="icqsrc"><option value="">All sources</option>'+sk.map(function(k){return '<option value="'+esc(k)+'"'+(k===(ui.mqSrc||'')?' selected':'')+'>'+esc(k)+' ('+srcs[k]+')</option>';}).join('')+'</select></div>';
   h+='<label style="display:block;margin-top:8px"><input type="checkbox" data-chg="icqans"'+(ui.mqAns?' checked':'')+'> Only questions with answers</label>';
+  var P1=cur(),nl=0;if(P1&&P1.mqt)Object.keys(P1.mqt).forEach(function(k){if(P1.mqt[k]==='L')nl++;});
+  h+='<label style="display:block;margin-top:8px"><input type="checkbox" data-chg="icqlrn"'+(ui.mqLrn?' checked':'')+'> Only my "Still learning" questions ('+nl+')</label>';
   h+='<div class="mut" style="margin-top:8px">'+(ld?pool.length+' questions available':'Loading…')+'</div>';
   if(ld&&pool.length)h+='<button class="btn" style="margin-top:8px" data-act="icqstart">Start 20 random questions</button>';
   else if(ld)h+='<div class="mut" style="margin-top:6px">Nothing yet for this level. The sync adds more after each run.</div>';
@@ -3521,6 +3525,7 @@ function icqAct(a,d){
   if(a==='icqstart'){var p=mqShuf(mqPool()).slice(0,20);if(!p.length)return;ui.mq={list:p,i:0,sc:0,n:p.filter(function(x){return x.a>=0;}).length,done:false,sel:-1};renderKeep();return;}
   if(!q)return;
   if(a==='icqpick'&&!q.done){var k=Number(d.k),x=q.list[q.i];q.sel=k;q.done=true;if(x.a>=0&&k===x.a)q.sc++;renderKeep();return;}
+  if(a==='icqtag'){var x2=q.list[q.i],P2=cur();if(!x2||!P2)return;P2.mqt=P2.mqt||{};if(P2.mqt[x2.i]===d.t)delete P2.mqt[x2.i];else P2.mqt[x2.i]=d.t;P2.dirty=true;save();schedSync();renderKeep();return;}
   if(a==='icqnext'){q.i++;q.done=false;q.sel=-1;renderKeep();return;}
   if(a==='icqstop'){ui.mq=null;renderKeep();return;}
 }
@@ -3528,6 +3533,7 @@ function icqChg(k,el){
   if(k==='icqlv'){ui.mqLv=el.value;ui.mqSrc='';}
   else if(k==='icqsrc'){ui.mqSrc=el.value;}
   else if(k==='icqans'){ui.mqAns=!!el.checked;}
+  else if(k==='icqlrn'){ui.mqLrn=!!el.checked;}
   renderKeep();
 }
 
@@ -4249,7 +4255,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.20\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.21\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
