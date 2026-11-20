@@ -26,6 +26,11 @@ jobs:
         run: |
           pip install pypdf -q || true
           python mcq_extract.py
+      - name: Read scanned MCQ PDFs with AI
+        if: always()
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python mcq_vision.py
       - name: Save index
         if: always()
         run: |
