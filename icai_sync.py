@@ -32,6 +32,7 @@ def ok_host(u):
         return False
 
 def get(url, binary=False, limit=None):
+    url = urllib.parse.quote(url, safe=":/?&=%#+,;@!$'()*~-._")   # file names with spaces
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/html,application/xhtml+xml,application/pdf,*/*;q=0.8", "Accept-Language": "en-IN,en;q=0.9", "Referer": "https://www.icai.org/", "Upgrade-Insecure-Requests": "1", "Sec-Fetch-Dest": "document", "Sec-Fetch-Mode": "navigate", "Sec-Fetch-Site": "same-site"})
     with urllib.request.urlopen(req, timeout=40) as r:
         if limit:
