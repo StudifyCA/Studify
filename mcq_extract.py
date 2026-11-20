@@ -128,6 +128,18 @@ def base_key(t):
     s = re.sub(r"\b(answers?|keys?|solutions?|ans)\b", " ", s)
     return re.sub(r"[^a-z0-9]+", "", s)[:60]
 
+
+def label_of(x):
+    """Readable source name, e.g. 'Paper 1 - May 2025 (MCQ paper)'."""
+    n = ((x.get("f") or "").rsplit("/", 1)[-1] + " " + (x.get("t") or "")).lower()
+    pm = re.search(r"(?:^|[^a-z0-9])(?:k?p|paper)[-_ ]?([1-6])\s?([ab])?(?![0-9a-z])", n)
+    sm = re.search(r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[-_ ]?(20\d\d)", n)
+    parts = []
+    if pm: parts.append("Paper " + pm.group(1) + (pm.group(2) or "").upper())
+    if sm: parts.append(sm.group(1).capitalize() + " " + sm.group(2))
+    if not parts: return (x.get("t") or "")[:70]
+    return " - ".join(parts) + (" (MCQ)" if "mcq" in n else "")
+
 def prio(x):
     t = ((x.get("t") or "") + " " + (x.get("f") or "")).lower()
     if "mcq" in t: return 0
@@ -172,7 +184,7 @@ def main():
             h = hashlib.md5(q["q"].lower().encode()).hexdigest()[:12]
             if h in have: continue
             have.add(h)
-            sh["items"].append({"i": h, "q": q["q"], "o": q["o"], "a": q["a"], "s": x.get("t", "")[:70], "c": x.get("c", ""), "b": bk, "n": q["n"]})
+            sh["items"].append({"i": h, "q": q["q"], "o": q["o"], "a": q["a"], "s": label_of(x), "c": x.get("c", ""), "b": bk, "n": q["n"]})
             add += 1
         sh["items"] = sh["items"][-MAX_PER_SHARD:]
         done[x["f"]] = {"n": add, "d": str(datetime.date.today())}
@@ -197,4 +209,5 @@ def main():
     jsave(os.path.join(MQ, "stats.json"), {"levels": stat, "updated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")})
     say("scanned", nf, "files | new MCQs:", tot, "|", stat)
 
-main()
+if __name__ == "__main__":
+    main()
