@@ -32,7 +32,7 @@ def pick_models():
     return seen
 MODELS = []
 MAX_FILES = 12
-MAX_SECONDS = 30 * 60
+MAX_SECONDS = 50 * 60
 MAX_PDF = 14 * 1024 * 1024
 T0 = time.time()
 OUT = ME.OUT
@@ -65,8 +65,11 @@ def call(pdf_b64):
                 except urllib.error.HTTPError as e:
                     msg = re.sub(r"\s+", " ", e.read().decode("utf-8", "ignore"))[:300]
                     last = "[%s] HTTP %s %s" % (m, e.code, msg)
+                    say("   try", m, "->", last[-160:])
                     if e.code not in (401, 403, 404): soft = True
-                    if e.code == 429: time.sleep(30 * (attempt + 1)); continue
+                    if e.code == 429:
+                        if attempt == 2: break
+                        time.sleep(20 * (attempt + 1)); continue
                     if e.code in (400,) and mt == 30000: break      # retry with smaller output
                     if e.code in (404, 403): break                   # try next model
                     time.sleep(5)
@@ -136,6 +139,7 @@ def main():
             vdone[f] = {"n": -1, "fail": vdone.get(f, {}).get("fail", 0) + 1}
             continue
         qs = parse(txt)
+        if not qs: say("   0 parsed; reply starts:", re.sub(r"\s+", " ", txt)[:240])
         lv = x["lv"][0] if isinstance(x.get("lv"), list) and len(x["lv"]) == 1 else "misc"
         sh = shard(lv); bk = ME.base_key(x.get("t") or ""); lab = ME.label_of(x)
         have = {hashlib.md5(q["q"].lower().encode()).hexdigest()[:12] for q in sh["items"]}
@@ -151,6 +155,7 @@ def main():
         vdone[f] = {"n": add, "d": str(datetime.date.today())}
         tot += add
         say("  AI read", add, "/", len(qs), "answers:", sum(1 for q in qs if q["a"] >= 0), "|", lab, "|", f.rsplit("/", 1)[-1][:50])
+        say("   elapsed %ds" % (time.time() - T0))
         time.sleep(8)
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     for lv, sh in shards.items():
