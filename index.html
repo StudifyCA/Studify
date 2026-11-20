@@ -2916,7 +2916,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.19 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.20 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3495,11 +3495,11 @@ function mqPool(){var lv=ui.mqLv||'inter';mqLoad(lv);mqLoad('misc');var a=(MQC[l
 function mqShuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function mqCard(){
   var lv=ui.mqLv||'inter',pool=mqPool(),ld=MQC[lv]!==undefined&&MQC.misc!==undefined;
-  var h='<div class="card"><h3>ICAI MCQ practice</h3><div class="mut">Questions are read automatically from ICAI PDFs (MCQ papers, RTP, MTP, study material). Answers are shown only where the PDF has them.</div>';
+  var h='<div class="card"><h3>ICAI MCQ practice</h3><div class="mut">Questions are read automatically from ICAI PDFs (MCQ papers, RTP, MTP, study material). Answers are shown only where the PDF has them. Questions from scanned PDFs are read by AI, so check important numbers in the original paper.</div>';
   var q=ui.mq;
   if(q&&q.list&&q.i<q.list.length){
     var x=q.list[q.i];
-    h+='<div class="mut" style="margin-top:8px">Question '+(q.i+1)+' of '+q.list.length+' • Score '+q.sc+'</div><div style="margin-top:6px"><b>'+esc(x.q)+'</b></div>';
+    h+='<div class="mut" style="margin-top:8px">Question '+(q.i+1)+' of '+q.list.length+' • Score '+q.sc+'</div>'+(x.x?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(x.x)+'</div>':'')+'<div style="margin-top:6px"><b>'+esc(x.q)+'</b></div>';
     x.o.forEach(function(o,k){var st='',m='';
       if(q.done){if(x.a===k){st=' style="border-color:var(--ok)"';m=' ✓';}else if(q.sel===k&&x.a>=0){st=' style="border-color:var(--bad,#c0392b)"';m=' ✗';}else if(q.sel===k){m=' (your pick)';}}
       h+='<button class="btn sec" data-act="icqpick" data-k="'+k+'"'+(q.done?' disabled':'')+st+' style="display:block;width:100%;text-align:left;margin-top:6px">'+'abcd'.charAt(k)+') '+esc(o)+m+'</button>';});
@@ -4249,7 +4249,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.19\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.20\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
