@@ -9,7 +9,28 @@ ME = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(ME)
 
 KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 BASE = os.environ.get("GEMINI_BASE", "https://generativelanguage.googleapis.com")
-MODELS = [m for m in [os.environ.get("AI_MODEL", "").strip(), "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash"] if m]
+def pick_models():
+    """Ask Google which flash models this key can use (model names change over time)."""
+    names = []
+    try:
+        with urllib.request.urlopen("%s/v1beta/models?key=%s&pageSize=200" % (BASE, KEY), timeout=60) as r:
+            j = json.loads(r.read().decode())
+        for m in j.get("models", []):
+            n = (m.get("name") or "").replace("models/", "")
+            if "generateContent" not in (m.get("supportedGenerationMethods") or []): continue
+            if "flash" not in n or any(b in n for b in ("image", "tts", "live", "audio", "embed", "robotics", "computer", "-8b", "thinking")): continue
+            names.append(n)
+    except Exception as e:
+        print("model list failed:", str(e)[:120], flush=True)
+    def k(n):
+        v = re.search(r"(\d+(?:\.\d+)?)", n)
+        return (-(float(v.group(1)) if v else 0), "lite" in n, "preview" in n or "exp" in n, n)
+    out = [os.environ.get("AI_MODEL", "").strip(), "gemini-flash-latest"] + sorted(set(names), key=k)[:4] + ["gemini-2.5-flash"]
+    seen = []
+    for m in out:
+        if m and m not in seen: seen.append(m)
+    return seen
+MODELS = []
 MAX_FILES = 12
 MAX_SECONDS = 30 * 60
 MAX_PDF = 14 * 1024 * 1024
@@ -23,8 +44,11 @@ Rules: copy numbers, amounts and section/standard names exactly; use the rupee s
 
 def say(*a): print(*a, flush=True)
 
+FATAL = {"v": False}
+
 def call(pdf_b64):
     last = ""
+    soft = False
     for m in MODELS:
         for mt in (30000, 12000):
             body = {"contents": [{"role": "user", "parts": [{"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}}, {"text": PROMPT}]}],
@@ -39,15 +63,17 @@ def call(pdf_b64):
                     if txt.strip(): return txt
                     last = "empty answer"; break
                 except urllib.error.HTTPError as e:
-                    msg = e.read().decode("utf-8", "ignore")[:160]
-                    last = "HTTP %s %s" % (e.code, msg)
+                    msg = re.sub(r"\s+", " ", e.read().decode("utf-8", "ignore"))[:300]
+                    last = "[%s] HTTP %s %s" % (m, e.code, msg)
+                    if e.code not in (401, 403, 404): soft = True
                     if e.code == 429: time.sleep(30 * (attempt + 1)); continue
                     if e.code in (400,) and mt == 30000: break      # retry with smaller output
                     if e.code in (404, 403): break                   # try next model
                     time.sleep(5)
                 except Exception as e:
-                    last = str(e)[:120]; time.sleep(5)
+                    last = str(e)[:120]; soft = True; time.sleep(5)
     say("  AI failed:", last)
+    if not soft: FATAL["v"] = True      # every model refused (bad key / no model): stop instead of burning retries
     return None
 
 def parse(txt):
@@ -76,6 +102,8 @@ def parse(txt):
 def main():
     if not KEY:
         say("GEMINI_API_KEY not set - skipping scanned MCQ PDFs"); return
+    MODELS[:] = pick_models()
+    say("models to try:", ", ".join(MODELS))
     idx = ME.jload(os.path.join(OUT, "index.json"), {}).get("items", [])
     done = ME.jload(os.path.join(MQ, "done.json"), {})
     vdone = ME.jload(os.path.join(MQ, "vdone.json"), {})
@@ -103,6 +131,8 @@ def main():
         if len(raw) > MAX_PDF: say("  too big for AI:", f.rsplit("/", 1)[-1]); vdone[f] = {"n": 0, "fail": 3}; continue
         txt = call(base64.b64encode(raw).decode())
         if txt is None:
+            if FATAL["v"]:
+                say("stopping: no usable Gemini model for this key"); break
             vdone[f] = {"n": -1, "fail": vdone.get(f, {}).get("fail", 0) + 1}
             continue
         qs = parse(txt)
