@@ -2074,7 +2074,7 @@ function weekCard(P){
   var w=weekReport(P);
   return '<div class="card"><h3>This week</h3><div class="row sp"><span>Study time</span><b>'+w.th+' h <span class="mut">/ goal '+w.goal+' h</span></b></div>'+bar(w.goal?w.th/w.goal*100:0)+
     '<div class="row sp mut" style="margin-top:6px"><span>Last week</span><span>'+w.lh+' h</span></div><div class="row sp mut"><span>Chapters / units finished</span><span>'+w.ch+'</span></div><div class="row sp mut"><span>Mock tests</span><span>'+w.mocks+'</span></div>'+(w.top?'<div class="row sp mut"><span>Most time</span><span>'+esc(w.top)+' ('+w.topH+' h)</span></div>':'')+'<div class="row sp mut"><span>Streak</span><span>'+w.streak+' day(s)</span></div>'+
-    weekPlus(P)+'<div style="margin-top:8px"><button class="btn sec sm" data-act="wkshare">Share this report</button></div></div>';
+    weekPlus(P)+'<div style="margin-top:8px"><button class="btn sec sm" data-act="wkshare">Share this report</button> <button class="btn sec sm" data-act="wkproof">Proof card (image)</button></div></div>';
 }
 function tipsCard(){
   if(S.tipsOff)return '';
@@ -2916,7 +2916,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.18 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.19 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3592,6 +3592,21 @@ function qrSearchCard(P,ks){
   }
   return h+'</div>';
 }
+
+/* ===== v1.19: proof card (image of this week's work, built from existing data) ===== */
+function proofSave(P){
+  var w=weekReport(P),mis=(P.mis||[]),fixed=mis.filter(function(m){return m.done;}).length;
+  var d=document.createElement('div');
+  d.style.cssText='position:fixed;left:-9999px;top:0;width:360px;padding:20px;background:#ffffff;color:#1b1f27;font-family:system-ui,sans-serif;border:3px solid #4f46e5;border-radius:16px';
+  function row(n,l){return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #e3e6ee"><span>'+esc(l)+'</span><b style="font-size:18px">'+esc(n)+'</b></div>';}
+  d.innerHTML='<div style="font-weight:800;font-size:18px">'+esc(P.name||'My')+' – weekly proof of work</div><div style="color:#5b6472;font-size:12px;margin:2px 0 8px">Made with Studify CA • '+esc(new Date().toLocaleDateString())+'</div>'+
+    row(w.th+' h','Studied this week')+row(w.ch,'Chapters / units finished')+row(mis.length,'Mistakes noted')+row(fixed,'Mistakes fixed for good')+row(w.mocks,'Mock tests')+row(w.streak+' days','Study streak')+
+    '<div style="color:#5b6472;font-size:11px;margin-top:10px">Numbers come from the student’s own Studify log.</div>';
+  document.body.appendChild(d);
+  function go(){window.html2canvas(d,{backgroundColor:'#ffffff',scale:2}).then(function(cv){d.remove();var a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='studify-proof-card.png';document.body.appendChild(a);a.click();a.remove();toast('Proof card saved');}).catch(function(){d.remove();toast('Could not make the image');});}
+  if(window.html2canvas){go();return;}
+  toast('Making image...');var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';sc.onload=go;sc.onerror=function(){d.remove();toast('Could not load the image tool. Check internet.');};document.head.appendChild(sc);
+}
 function viewIcai(c){
   var P=c.P;annLoad();
   var h='<div class="card"><h3>Official ICAI announcements</h3><div class="mut">Titles and links are copied from icai.org (Board of Studies and Examination pages). ICAI does not show dates on these lists, so the date below is when Studify first saw the item.</div>';
@@ -4173,6 +4188,7 @@ function act(a,d){
     try{var bl=new Blob([txt],{type:'text/calendar'}),u=URL.createObjectURL(bl),lk=document.createElement('a');lk.href=u;lk.download='studyos-reminder.ics';document.body.appendChild(lk);lk.click();lk.remove();setTimeout(function(){URL.revokeObjectURL(u);},2000);toast('Reminder file downloaded. Open it to add to your calendar.');}catch(e){toast('Could not create the file');}
     return;
   }
+  if(a==='wkproof'){proofSave(P);return;}
   if(a==='wkshare'||a==='shareapp'){
     var tx=a==='wkshare'?weekText(P):'Studify CA: free study planner for CA Foundation, Intermediate and Final. '+location.href.split('#')[0].replace(/index\.html$/,'');
     if(navigator.share){navigator.share({title:'Studify CA',text:tx}).catch(function(){});}
@@ -4233,7 +4249,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.18\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.19\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
