@@ -78,7 +78,7 @@ def pdf_id(u):
 
 def stale(c, title, u, page=""):
     """True for old material that is of no use for Jan 2027 and later attempts."""
-    if c in ("Past paper", "Syllabus"): return False
+    if c in ("Past paper", "Syllabus", "RTP", "MTP"): return False   # old RTP/MTP/past papers stay: MCQs are extracted from them
     s = (title + " " + urllib.parse.unquote(u)).lower()
     if "mcq" in s: return False
     ys = re.findall(r"(?<!\d)(20[12]\d)(?!\d)", s) or re.findall(r"(?<!\d)(20[12]\d)(?!\d)", page.lower())
@@ -88,7 +88,7 @@ def stale(c, title, u, page=""):
     if c in ("Announcement", "Result", "Other"):
         return i < 94000
     if i >= 93000: return False
-    if ymax == 2026: return c in ("RTP", "MTP")
+    if ymax == 2026: return False
     if ymax and ymax <= 2025: return True
     return bool(i) and i < 91000
 
