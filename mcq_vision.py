@@ -50,8 +50,11 @@ QUOTA = {"v": False}
 def call(pdf_b64):
     last = ""
     soft = False
+    got429 = [False]
     for m in MODELS:
+        m429 = False
         for mt in (30000, 12000):
+            if m429: break
             body = {"contents": [{"role": "user", "parts": [{"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}}, {"text": PROMPT}]}],
                     "generationConfig": {"temperature": 0.1, "maxOutputTokens": mt, "responseMimeType": "application/json"}}
             for attempt in range(3):
@@ -69,15 +72,16 @@ def call(pdf_b64):
                     say("   try", m, "->", last[-160:])
                     if e.code not in (401, 403, 404): soft = True
                     if e.code == 429:
-                        if re.search(r"per ?day|PerDay", msg, re.I) or attempt == 2:
-                            QUOTA["v"] = True; say("  quota hit - stopping this run, schedule will continue later"); return None
-                        time.sleep(45 * (attempt + 1)); continue
+                        got429[0] = True; m429 = True
+                        if attempt == 0: time.sleep(25); continue
+                        break                                       # this model's quota is used up: try the next model
                     if e.code in (400,) and mt == 30000: break      # retry with smaller output
                     if e.code in (404, 403): break                   # try next model
                     time.sleep(5)
                 except Exception as e:
                     last = str(e)[:120]; soft = True; time.sleep(5)
     say("  AI failed:", last)
+    if got429[0]: QUOTA["v"] = True; say("  quota used up on all models - stopping this run, schedule continues later")
     if not soft and not FATAL["ok"]: FATAL["v"] = True      # every model refused (bad key / no model): stop instead of burning retries
     return None
 
