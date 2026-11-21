@@ -2917,7 +2917,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.23 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.24 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -2963,7 +2963,8 @@ function hwLoadAll(P,cb){var ks=hwKeys(P),need=ks.filter(function(k){return !HWQ
 function hRand(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0)/4294967296;}
 function hwNorm(t){return String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'');}
 function hwTick(P,k){var o={},ns=(hwS(P).ns||{})[k]||{};(P.papers[k].ch||[]).forEach(function(c){if(c.removed)return;if(c.status==='done'||c.status==='learning'){var n=c.name||((c.grp?c.grp+' › ':'')+c.unit);if(!ns[n])o[n]=1;}});return o;}
-function hwCands(P,k,B){
+function hwCands(P,k,B0){
+  var B={q:(B0.q||[]).filter(hwOk)};
   var tk=hwTick(P,k),names=Object.keys(tk);if(!names.length)return [];
   var c=B.q.filter(function(x){return tk[x.c];});if(c.length)return c;
   var nn=names.map(hwNorm);
@@ -2975,7 +2976,7 @@ function hwGen(P){
   var par=Math.floor(today().getTime()/86400000)%2,ch=false;
   hwKeys(P).forEach(function(k){
     var B=HWQ[k];if(!B||B.bad)return;
-    var it=day.items[k];if(it&&it.id)return;
+    var it=day.items[k];if(it&&it.id){var qq0=B.map&&B.map[it.id];if(!(qq0&&!it.done&&!it.ans&&!it.img&&!hwOk(qq0)))return;delete day.items[k];}
     var cands=hwCands(P,k,B);
     if(!cands.length)return;
     var m=cands.filter(function(x){return x.t==='m';}),d=cands.filter(function(x){return x.t==='d';});
@@ -3010,11 +3011,36 @@ function hwPerfCard(P){
   if(!n)return '';
   return '<div class="card"><div class="row sp"><b>Daily homework (last 30 days)</b><button class="btn sec sm" data-act="tab" data-t="hw">Open</button></div><div class="mut" style="margin-top:6px">Done '+dn+' of '+n+(mx?' \u2022 Score '+Math.round(sc/mx*100)+'% ('+(Math.round(sc*2)/2)+' / '+mx+' marks)':'')+'</div></div>';
 }
+/* ===== v1.24: clean question text ===== */
+function hwOk(q){return !(q&&q.t==='d'&&/^[a-z]/.test(String(q.q||'').trim()));}
+function hwFmt(t){
+  t=String(t||'').replace(/[ \t\r\f]+/g,' ').replace(/\n{3,}/g,'\n\n').trim();
+  t=t.replace(/([.?:;)])\s\d{1,2}\s(?=\((?:i|ii|iii|iv|v|vi|vii|viii|ix|x|xi|xii)\)\s)/g,'$1 ');
+  var rn=/\s(?=\((?:i|ii|iii|iv|v|vi|vii|viii|ix|x|xi|xii)\)\s)/g,an=/\s(?=\([A-D]\)\s)/g;
+  if((t.match(rn)||[]).length>=2)t=t.replace(rn,'\n');
+  if((t.match(an)||[]).length>=2)t=t.replace(an,'\n');
+  t=t.replace(/\s(?=(?:You are required to|Required:|Case Scenario|Case scenario)\b)/g,'\n\n');
+  return t;
+}
+function hwSplit(q){
+  var t=String((q&&q.q)||''),ctx='',main=t;
+  if(q&&q.t==='m'){
+    var re=/(?:^|\s)(\d{1,2})\.\s+(?=[A-Z])/g,m,idx=-1;
+    while((m=re.exec(t)))idx=m.index+(m[0].charAt(0)===' '?1:0);
+    if(idx>0){var pre=t.slice(0,idx);if(/\([A-D]\)/.test(pre)||/case scenario|following question/i.test(pre)){ctx=pre.trim();main=t.slice(idx).trim();}}
+  }
+  return {ctx:ctx,main:main};
+}
+function hwQHtml(q,sty){
+  var p=hwSplit(q),h='';
+  if(p.ctx)h+='<details style="margin-top:8px"><summary class="mut">Case scenario and earlier questions</summary><div class="mut" style="white-space:pre-wrap;line-height:1.5;margin-top:6px">'+esc(hwFmt(p.ctx))+'</div></details>';
+  return h+'<div style="white-space:pre-wrap;line-height:1.5;'+(sty||'margin-top:8px')+'">'+esc(hwFmt(p.main))+'</div>';
+}
 function hwItemHtml(P,k,it,day,dd){
   var dq=dd?' data-d="'+dd+'"':'',sx=dd?'-'+dd:'',hk=k+(dd||'');
   var B=HWQ[k],q=B&&B.map&&B.map[it.id];if(!q)return '';
   var h='<div class="card"><div class="row sp"><b>'+esc(pfull(k))+'</b><span class="chip">'+(q.t==='m'?'MCQ':'Written')+' • '+q.mk+' mark'+(q.mk>1?'s':'')+'</span></div><div class="mut">'+esc(q.c)+' • from '+esc(q.s)+'</div>';
-  h+='<div style="white-space:pre-wrap;line-height:1.5;margin-top:8px">'+esc(q.q)+'</div>';
+  h+=hwQHtml(q);
   var ref=q.r?'<a class="btn sec sm" href="'+esc(sUrl(q.r))+'" target="_blank" rel="noopener">Open answers</a>':'';
   if(q.t==='m'){
     var L=['a','b','c','d'];
@@ -3423,9 +3449,9 @@ function ytSave(){try{localStorage.setItem('studify-yt',JSON.stringify(YTL.slice
 function ytSecs(t){var p=String(t||'').split(':').map(Number);if(p.some(isNaN))return 0;return p.length===3?p[0]*3600+p[1]*60+p[2]:(p.length===2?p[0]*60+p[1]:0);}
 function ytLink(id,t){return 'https://www.youtube.com/watch?v='+encodeURIComponent(id)+'&t='+ytSecs(t)+'s';}
 function viewYT(c){
-  var h='<div class="card"><h3>Video notes</h3><div class="mut">Paste a link of a public YouTube lecture. The AI watches it and makes chapters, notes and practice questions. Works best for videos up to about 40 minutes. It uses one of your daily AI questions.</div>';
+  var h='<div class="card"><h3>Video notes</h3><div class="mut">Paste a link of a public YouTube lecture and choose its length. The AI watches it and makes chapters, notes and practice questions. Long lectures (up to 12 hours) are read in parts of 25 minutes, one after another. Every 2 hours of video uses about 1 of your daily AI questions.</div>';
   if(!cloud.user)return h+'<div class="warnbox" style="margin-top:8px">Sign in first (Settings > Account).</div></div>';
-  h+='<div class="row" style="gap:8px;margin-top:8px"><input id="yt-u" placeholder="https://youtu.be/..." style="flex:1" value="'+esc(ui.ytU||'')+'"><button class="btn" data-act="ytmake"'+(ui.ytBusy?' disabled':'')+'>'+(ui.ytBusy?'Working...':'Make notes')+'</button></div>'+(ui.ytBusy?'<div class="mut" style="margin-top:6px">This can take 1 to 2 minutes. Keep this screen open.</div>':'')+'</div>';
+  h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><input id="yt-u" placeholder="https://youtu.be/..." style="flex:1;min-width:180px" value="'+esc(ui.ytU||'')+'"><select id="yt-len" data-chg="ytlen">'+[[40,'Up to 40 min'],[60,'About 1 hour'],[120,'About 2 hours'],[180,'About 3 hours'],[240,'About 4 hours'],[360,'About 6 hours'],[480,'About 8 hours'],[720,'About 12 hours']].map(function(x){return '<option value="'+x[0]+'"'+((ui.ytLen||40)===x[0]?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select><button class="btn" data-act="ytmake"'+(ui.ytBusy?' disabled':'')+'>'+(ui.ytBusy?'Working...':'Make notes')+'</button></div>'+(ui.ytBusy?'<div class="mut" style="margin-top:6px">'+(ui.ytProg?'Reading part '+ui.ytProg.i+' of '+ui.ytProg.n+' (about 1 minute each). Keep this screen open. Finished parts are saved below as they come.':'This can take 1 to 2 minutes. Keep this screen open.')+'</div>'+(ui.ytProg?'<div style="margin-top:6px"><button class="btn sec sm" data-act="ytstop">Stop and keep what is ready</button></div>':''):'')+(ui.ytNote?'<div class="warnbox" style="margin-top:8px">'+esc(ui.ytNote)+'</div>':'')+'</div>';
   if(YTL.length){
     h+='<div class="card"><b>Saved on this device</b>'+YTL.map(function(x,i){return '<div class="row sp" style="margin-top:6px;gap:8px"><a href="#" data-act="ytopen" data-i="'+i+'">'+esc(x.title||x.id)+'</a><button class="btn sec sm" data-act="ytdel" data-i="'+i+'">Delete</button></div>';}).join('')+'</div>';
   }
@@ -3439,16 +3465,42 @@ function viewYT(c){
   h+='<div class="mut" style="margin:8px 0">Made by AI from the video. It can make mistakes: check important points in your book.</div>';
   return h;
 }
-async function ytCall(u){
-  var r=await cloud.client.functions.invoke('ai-tutor',{body:{mode:'yt',url:u}});
+async function ytCall(u,from,to,part){
+  var bd={mode:'yt',url:u};if(to>from){bd.from=from;bd.to=to;bd.part=part||0;}
+  var r=await cloud.client.functions.invoke('ai-tutor',{body:bd});
   if(r.error){var m='Function error';try{var tx=await r.error.context.text();var j=null;try{j=JSON.parse(tx)}catch(e){}m=(j&&j.error)||tx||r.error.message;}catch(e){m=r.error.message||m;}throw new Error(String(m).slice(0,240));}
   if(r.data&&r.data.error)throw new Error(r.data.error);
   if(!r.data||!r.data.yt)throw new Error('No notes came back');
   return r.data.yt;
 }
+async function ytRun(u,mins){
+  if(mins<=40)return ytCall(u);
+  var CH=1500,n=Math.ceil(mins*60/CH),out=null,lastErr=null,got=0;
+  try{if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(function(){});}catch(e){}
+  for(var i=0;i<n;i++){
+    if(ui.ytStop)break;
+    ui.ytProg={i:i+1,n:n};renderKeep();
+    var o=null;
+    for(var tr=0;tr<2&&!o;tr++){try{o=await ytCall(u,i*CH,(i+1)*CH,i);}catch(e){lastErr=e;if(tr===0)await new Promise(function(r){setTimeout(r,5000);});}}
+    if(!o){if(i===0)throw lastErr;ui.ytNote='Stopped after part '+i+' of '+n+(lastErr&&lastErr.message?' ('+String(lastErr.message).slice(0,80)+')':'')+'. The video may have ended, or the AI limit was reached.';break;}
+    got++;
+    if(!out){out=o;}
+    else{
+      out.summary=String((out.summary||'')+' '+(o.summary||'')).slice(0,2000);
+      out.chapters=(out.chapters||[]).concat(o.chapters||[]).slice(0,600);
+      out.notes=(out.notes||[]).concat(o.notes||[]).slice(0,600);
+      out.questions=(out.questions||[]).concat(o.questions||[]).slice(0,400);
+      var tp=(out.tips||[]).concat(o.tips||[]);out.tips=tp.filter(function(x,j){return tp.indexOf(x)===j;}).slice(0,60);
+    }
+    YTL=YTL.filter(function(x){return x.id!==out.id;});YTL.unshift(out);YTL=YTL.slice(0,8);ytSave();ui.ytI=0;ui.ytT='ch';
+  }
+  if(!out)throw lastErr||new Error('Could not make notes');
+  return out;
+}
 function ytAct(a,d){
-  if(a==='ytmake'){var u=readv('yt-u').trim();ui.ytU=u;if(!/^https:\/\//.test(u)){toast('Paste the full https link');return;}ui.ytBusy=true;renderKeep();
-    ytCall(u).then(function(o){YTL=YTL.filter(function(x){return x.id!==o.id;});YTL.unshift(o);YTL=YTL.slice(0,8);ytSave();ui.ytI=0;ui.ytT='ch';ui.ytBusy=false;renderKeep();toast('Notes ready');}).catch(function(e){ui.ytBusy=false;renderKeep();toast(e.message||'Could not make notes');});return;}
+  if(a==='ytstop'){ui.ytStop=true;renderKeep();return;}
+  if(a==='ytmake'){var u=readv('yt-u').trim();ui.ytU=u;if(!/^https:\/\//.test(u)){toast('Paste the full https link');return;}var mn=Number(readv('yt-len'))||40;ui.ytLen=mn;ui.ytStop=false;ui.ytProg=null;ui.ytNote='';ui.ytBusy=true;renderKeep();
+    ytRun(u,mn).then(function(o){YTL=YTL.filter(function(x){return x.id!==o.id;});YTL.unshift(o);YTL=YTL.slice(0,8);ytSave();ui.ytI=0;ui.ytT='ch';ui.ytBusy=false;ui.ytProg=null;renderKeep();toast(ui.ytNote?'Notes made for the part that was read':'Notes ready');}).catch(function(e){ui.ytBusy=false;ui.ytProg=null;renderKeep();toast(e.message||'Could not make notes');});return;}
   if(a==='ytopen'){ui.ytI=Number(d.i);ui.ytT='ch';renderKeep();return;}
   if(a==='ytdel'){YTL.splice(Number(d.i),1);ytSave();if(ui.ytI>=YTL.length)ui.ytI=0;renderKeep();return;}
   if(a==='ytab'){ui.ytT=d.t;renderKeep();return;}
@@ -3800,7 +3852,7 @@ function rpCard(P,k,r,isS){
   var e=(P.rp&&P.rp[r.id])||{n:0,done:false,log:[]},id=r.id,la=e.last,show=!!RPSHOW[id];
   var h='<div class="card"'+(e.done?' style="opacity:.8"':'')+'><div class="row sp"><span class="chip warn">Repeated in '+r.n+' papers</span><span class="mut">'+(isS?'★ ':'')+esc(r.c.split(' › ').pop().split(' – ').pop())+'</span></div>';
   if(e.n)h+='<div style="margin-top:6px"><span class="chip ok">Solved '+e.n+' time'+(e.n>1?'s':'')+'</span> <span class="mut">last '+esc(fdt(e.log.length?e.log[e.log.length-1].t:e.at))+'</span></div>';
-  h+='<div style="white-space:pre-wrap;line-height:1.5;margin-top:8px">'+esc(r.q)+'</div>';
+  h+=hwQHtml(r);
   if(r.qi)h+=shImg(r.qi,'Question from the paper',r.qf,r.qp)+(r.qf?'<div class="mut" style="margin-top:4px">Page '+r.qp+' of '+esc(r.ms||'')+' • <a href="'+esc(sUrl(r.qf))+'#page='+r.qp+'" target="_blank" rel="noopener">Open PDF</a></div>':'');
   else h+='<div class="mut" style="margin-top:4px">'+r.s.slice(0,4).map(esc).join(' • ')+'</div>';
   if(r.o){
@@ -3923,14 +3975,14 @@ function viewPT(c){
     var r=pt.run;
     if(!r.res){
       h+='<div class="card"><div class="row sp"><h3>Practice test</h3>'+(r.limit?'<span class="chip warn">Time left <b id="pt-timer">--</b></span>':'')+'</div><div class="mut">'+esc(pfull(r.k))+' • '+r.qs.length+' questions</div></div>';
-      r.qs.forEach(function(q,i){h+='<div class="card"><div class="mut">Q'+(i+1)+' • '+(r.ch==='MIX'?'Chapter hidden':esc(q.c.split(' › ').pop()))+' • '+q.mk+' mark'+(q.mk>1?'s':'')+'</div><div style="white-space:pre-wrap;line-height:1.5;margin-top:6px">'+esc(q.q)+'</div>'+q.o.map(function(o,j){return '<label style="display:flex;gap:8px;margin-top:8px;align-items:flex-start;color:var(--tx)"><input type="radio" name="ptq'+i+'" data-chg="ptans" data-i="'+i+'" data-o="'+j+'"'+(r.ans[i]===j?' checked':'')+'><span>('+['a','b','c','d'][j]+') '+esc(o)+'</span></label>';}).join('')+'</div>';});
+      r.qs.forEach(function(q,i){h+='<div class="card"><div class="mut">Q'+(i+1)+' • '+(r.ch==='MIX'?'Chapter hidden':esc(q.c.split(' › ').pop()))+' • '+q.mk+' mark'+(q.mk>1?'s':'')+'</div>'+hwQHtml(q,'margin-top:6px')+''+q.o.map(function(o,j){return '<label style="display:flex;gap:8px;margin-top:8px;align-items:flex-start;color:var(--tx)"><input type="radio" name="ptq'+i+'" data-chg="ptans" data-i="'+i+'" data-o="'+j+'"'+(r.ans[i]===j?' checked':'')+'><span>('+['a','b','c','d'][j]+') '+esc(o)+'</span></label>';}).join('')+'</div>';});
       h+='<div class="card"><button class="btn" data-act="ptsub">Submit test</button> <button class="btn sec" data-act="ptquit">Cancel</button></div>';
       if(r.limit&&!PTTM)PTTM=setInterval(ptTick,1000);
       setTimeout(ptTick,50);
     }else{
       var pc=r.res.tot?Math.round(r.res.sc/r.res.tot*100):0;
       h+='<div class="card" style="border-color:var(--ac)"><h3>Result: '+r.res.sc+' / '+r.res.tot+' ('+pc+'%)</h3><div class="mut">'+esc(pfull(r.k))+' • '+fdt(Date.now())+'</div><div style="margin-top:8px"><button class="btn" data-act="ptagain">Another test</button> <button class="btn sec" data-act="ptquit">Back</button></div></div>'+(r.ch==='MIX'?ptMixNote(r):'');
-      r.qs.forEach(function(q,i){var a=r.ans[i],ok=a!==undefined&&['a','b','c','d'][a]===q.a,ci=['a','b','c','d'].indexOf(q.a);h+='<div class="card"><div class="row sp"><span class="chip '+(ok?'ok':'warn')+'">'+(ok?'Correct':(a===undefined?'Not answered':'Wrong'))+'</span><span class="mut">Q'+(i+1)+' • '+esc(q.c.split(' › ').pop())+'</span></div><div style="white-space:pre-wrap;line-height:1.5;margin-top:6px">'+esc(q.q)+'</div><div style="margin-top:6px">Correct: ('+q.a+') '+esc(q.o[ci]||'')+'</div>'+(a!==undefined&&!ok?'<div class="mut">You chose: ('+['a','b','c','d'][a]+') '+esc(q.o[a])+'</div>':'')+(q.e?'<div class="mut" style="margin-top:4px">Why: '+esc(q.e)+'</div>':'')+'<div class="mut" style="margin-top:4px">'+esc(q.s)+(q.r?' • <a href="'+esc(sUrl(q.r))+'" target="_blank" rel="noopener">Answers PDF</a>':'')+'</div></div>';});
+      r.qs.forEach(function(q,i){var a=r.ans[i],ok=a!==undefined&&['a','b','c','d'][a]===q.a,ci=['a','b','c','d'].indexOf(q.a);h+='<div class="card"><div class="row sp"><span class="chip '+(ok?'ok':'warn')+'">'+(ok?'Correct':(a===undefined?'Not answered':'Wrong'))+'</span><span class="mut">Q'+(i+1)+' • '+esc(q.c.split(' › ').pop())+'</span></div>'+hwQHtml(q,'margin-top:6px')+'<div style="margin-top:6px">Correct: ('+q.a+') '+esc(q.o[ci]||'')+'</div>'+(a!==undefined&&!ok?'<div class="mut">You chose: ('+['a','b','c','d'][a]+') '+esc(q.o[a])+'</div>':'')+(q.e?'<div class="mut" style="margin-top:4px">Why: '+esc(q.e)+'</div>':'')+'<div class="mut" style="margin-top:4px">'+esc(q.s)+(q.r?' • <a href="'+esc(sUrl(q.r))+'" target="_blank" rel="noopener">Answers PDF</a>':'')+'</div></div>';});
     }
     return h;
   }
@@ -4269,7 +4321,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.23\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.24\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
@@ -4782,6 +4834,7 @@ function startOnb(){
 }
 
 function chg(k,d,el){
+  if(k==='ytlen'){ui.ytLen=Number(el.value)||40;return;}
   if(k.indexOf('hw')===0){hwChg(k,d,el);return;}
   if(k.indexOf('rp')===0){rpChg(k,d,el);return;}
   if(k==='qrk'){ui.qrK=el.value;renderKeep();return;}
