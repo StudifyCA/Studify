@@ -2279,7 +2279,7 @@ function viewPlan(c){
   ms.push(['Learning phase ends / revision starts',addDays(I.ex,-I.revDays)]);
   ms.push(['Mock and practice phase starts',addDays(I.ex,-I.mockDays)]);
   ms.push(['Exam starts',I.ex]);
-  var html=attemptCard(P,c.A,X,false)+revStrategyCard(P,c.A,X,I)+'<h2>Milestones</h2><div class="card">';
+  var html=attemptCard(P,c.A,X,false)+revStrategyCard(P,c.A,X,I)+revMatrixCard(P)+'<h2>Milestones</h2><div class="card">';
   html+='<div class="row sp"><span>Syllabus completion (at your pace)</span><b>'+(R.doneOn?fmt(R.doneOn):'not before the exam')+'</b></div>';
   ms.forEach(function(m){html+='<div class="row sp" style="margin-top:6px"><span>'+m[0]+'</span><b>'+fmt(m[1])+'</b></div>';});
   if(!R.doneOn)html+='<p class="mut" style="margin-bottom:0">At '+P.dailyHours+' h/day the syllabus will not finish in time. You need about '+(isFinite(I.need)?r1(I.need):'more')+' h/day, or reduce hours on papers you know well.</p>';
@@ -2297,7 +2297,7 @@ function viewLog(c){
   var P=c.P,L=LEVELS[P.level],keys=[];
   Object.keys(L.groups).forEach(function(g){keys=keys.concat(L.groups[g].p);});
   var po=keys.map(function(k){return '<option value="'+k+'">'+esc(pfull(k))+'</option>';}).join('');
-  var html='<div class="row" style="margin-bottom:12px"><button class="btn" data-act="logsession">Log a study session</button></div>'+weekCard(P);
+  var html='<div class="row" style="margin-bottom:12px"><button class="btn" data-act="logsession">Log a study session</button></div>'+weekCard(P)+hoursSplitCard(P);
   html+='<div class="card"><h3>Add mock / test score</h3><div class="row"><select id="mk-paper">'+po+'</select><input type="date" id="mk-date" value="'+iso(today())+'" style="width:auto"><input type="number" id="mk-score" min="0" step="0.5" placeholder="Score"> / <input type="number" id="mk-max" min="1" value="100"></div><div style="margin-top:8px"><button class="btn sec sm" data-act="addmock">Add</button></div>';
   P.mocks.slice().sort(function(a,b){return a.date<b.date?1:-1;}).slice(0,8).forEach(function(m){
     html+='<div class="blk"><div>'+esc(pfull(m.paper))+'<div class="mut">'+fmt(parse(m.date))+'</div></div><div class="r"><b>'+m.score+'/'+m.max+'</b><button class="btn sec sm" data-act="mkan" data-id="'+m.id+'">Analyse</button><button class="btn danger sm" data-act="delmock" data-id="'+m.id+'">\u00d7</button></div></div>'+(ui.ma===m.id?mockAnalyseForm(P,m):'');
@@ -2543,13 +2543,13 @@ async function loadLB2(){
   if(!cloud.client||!cloud.user)return;
   ui.lbp=ui.lbp||'week';ui.lbs=ui.lbs||'global';
   try{await lbSync();var r=await rpc('lb_board',{p_period:ui.lbp,p_scope:ui.lbs});cloud.lb2=r||{joined:false};}
-  catch(e){cloud.lb2={joined:false,err:true};}
+  catch(e){cloud.lb2={joined:false,err:true,msg:String((e&&e.message)||e||'').slice(0,160)};}
   render();
 }
 function lbCard2(){
   var L=cloud.lb2,h='<div class="card"><div class="row sp"><h3>🏆 Leaderboard</h3>'+(L&&L.joined?'<button class="btn sec sm" data-act="lb2">Refresh</button>':'')+'</div>';
   if(!L)return h+'<div class="mut">See how your study time compares with other students and with your partners.</div><div style="margin-top:8px"><button class="btn" data-act="lb2">Show leaderboard</button></div></div>';
-  if(L.err)return h+'<div class="warnbox">Could not load. You may be offline, or the owner has not run <b>18_leaderboard_referral.sql</b> in Supabase yet.</div><div style="margin-top:8px"><button class="btn sec sm" data-act="lb2">Try again</button></div></div>';
+  if(L.err)return h+'<div class="warnbox">Could not load the leaderboard.'+(L.msg?'<br><span class="mut">Reason: '+esc(L.msg)+'</span>':'')+'</div><div style="margin-top:8px"><button class="btn sec sm" data-act="lb2">Try again</button></div></div>';
   if(!L.joined){
     var mp=shareProfile(),nn=ui.lbNick!==undefined?ui.lbNick:String((mp&&mp.name)||'').split(' ')[0];
     return h+'<div class="mut">Join to see your rank. Everyone sees only your <b>nickname</b>, study time and streak. Never your real name, email, chapters or marks. You can leave any time.</div><label>Nickname (2 to 20 characters)</label><input type="text" id="lb-nick" maxlength="20" value="'+esc(nn)+'"><div style="margin-top:8px"><button class="btn" data-act="lbjoin">Join leaderboard</button></div></div>';
@@ -2571,17 +2571,49 @@ function lbCard2(){
   h+='<div class="mut" style="margin-top:8px">Time comes from your study timer and logged sessions. <button class="btn sec sm" data-act="lbleave">Leave leaderboard</button></div>';
   return h+'</div>';
 }
-async function loadRef(){try{cloud.ref=await rpc('ref_my');if(!cloud.ref)cloud.ref={err:true};}catch(e){cloud.ref={err:true};}render();}
+async function loadRef(){try{cloud.ref=await rpc('ref_my');if(!cloud.ref)cloud.ref={err:true};}catch(e){cloud.ref={err:true,msg:String((e&&e.message)||e||'').slice(0,160)};}render();}
 function refCard(){
   if(!cloud.user)return '';
   var R=cloud.ref,h='<div class="card"><h3>🎁 Refer a friend</h3>';
   if(!R)return h+'<div class="mut">Share your code with a friend. When they enter it, you both earn 7 days of premium. The days are credited now and used when paid plans start.</div><div style="margin-top:8px"><button class="btn" data-act="refload">Show my code</button></div></div>';
-  if(R.err)return h+'<div class="warnbox">Could not load. You may be offline, or <b>18_leaderboard_referral.sql</b> has not been run in Supabase yet.</div><div style="margin-top:8px"><button class="btn sec sm" data-act="refload">Try again</button></div></div>';
+  if(R.err)return h+'<div class="warnbox">Could not load.'+(R.msg?'<br><span class="mut">Reason: '+esc(R.msg)+'</span>':'')+'</div><div style="margin-top:8px"><button class="btn sec sm" data-act="refload">Try again</button></div></div>';
   h+='<div class="row sp"><div><div class="mut">Your code</div><b style="font-size:22px;letter-spacing:3px">'+esc(R.code)+'</b></div><button class="btn sm" data-act="refshare">Share</button></div>';
   h+='<div class="mut" style="margin-top:6px">Friends joined: <b>'+esc(R.count)+'</b> • Premium days earned: <b>'+esc(R.days)+'</b></div>';
   if(!R.used){var pre='';try{pre=localStorage.getItem('studify_ref')||'';}catch(e){}h+='<label>Got a friend’s code?</label><div class="row"><input type="text" id="ref-in" maxlength="8" placeholder="CODE" value="'+esc(pre)+'" style="flex:1;text-transform:uppercase"><button class="btn" data-act="refgo">Apply</button></div>';}
   else h+='<div class="mut" style="margin-top:6px">You already used a friend’s code. Your 7 days are credited.</div>';
   return h+'</div>';
+}
+/* ===== v1: subject hours split, R1/R2/R3 matrix, rapid-fire MCQ ===== */
+function hoursSplitCard(P){
+  var t=iso(today()),ws=weekStart(today()),a=iso(ws),b=iso(addDays(ws,6)),day={},wk={},dT=0,wT=0;
+  (P.sessions||[]).forEach(function(x){var m=Number(x.min)||0;if(x.date===t){day[x.paper]=(day[x.paper]||0)+m;dT+=m;}if(x.date>=a&&x.date<=b){wk[x.paper]=(wk[x.paper]||0)+m;wT+=m;}});
+  function blk(map,tot,lbl){
+    var ks=Object.keys(map).sort(function(x,y){return map[y]-map[x];});
+    if(!ks.length)return '<div class="mut" style="margin:6px 0">'+lbl+': no study time logged yet.</div>';
+    return '<div style="margin-top:8px"><b>'+lbl+'</b> <span class="mut">'+(Math.round(tot/6)/10)+' h</span></div>'+ks.map(function(k){var pc=Math.round(map[k]/tot*100);
+      return '<div class="row sp" style="margin-top:4px"><span>'+esc(k==='other'||!k?'Other':pfull(k))+'</span><span><b>'+(Math.round(map[k]/6)/10)+' h</b> <span class="mut">'+pc+'%</span></span></div>'+bar(pc);}).join('');
+  }
+  return '<div class="card"><h3>Where your time went</h3>'+blk(day,dT,'Today')+blk(wk,wT,'This week')+'</div>';
+}
+function revMatrixCard(P){
+  var rows=[];
+  Object.keys(P.papers||{}).forEach(function(k){
+    var chs=P.papers[k].ch||[];if(!chs.length)return;
+    var done=chs.filter(function(c){return c.status==='done';}).length,r=[0,1,2].map(function(i){
+      var tot=0,dn=0;chs.forEach(function(c){var rv=(c.revs||[]).slice().sort(function(x,y){return x.due<y.due?-1:1;});if(rv.length>i){tot++;if(rv[i].done)dn++;}});
+      return {t:tot,d:dn,p:tot?Math.round(dn/tot*100):-1};});
+    rows.push({k:k,c:Math.round(done/chs.length*100),r:r});
+  });
+  if(!rows.length)return '';
+  var h='<h2>Revision matrix</h2><div class="card scroll"><div class="mut">For every paper: how much of the course is done, and how many of your finished chapters have completed Revision 1, 2 and 3.</div><table style="margin-top:8px"><tr><th>Paper</th><th>Course</th><th>R1</th><th>R2</th><th>R3</th></tr>';
+  rows.forEach(function(x){h+='<tr><td>'+esc(pfull(x.k))+'</td><td><b>'+x.c+'%</b>'+bar(x.c)+'</td>'+x.r.map(function(r){return '<td>'+(r.p<0?'<span class="mut">–</span>':'<b>'+r.p+'%</b><div class="mut">'+r.d+'/'+r.t+'</div>'+bar(r.p))+'</td>';}).join('')+'</tr>';});
+  return h+'</table></div>';
+}
+function rfTick(){
+  var q=ui.mq;if(!q||!q.rapid||q.done||!q.list||q.i>=q.list.length||ui.tab!=='icai')return;
+  var left=60-Math.floor((Date.now()-q.t0)/1000),e=document.getElementById('mq-tm');
+  if(e){e.textContent='⏱ '+Math.max(0,left)+' s';e.style.color=left<=10?'var(--bad,#c0392b)':'';}
+  if(left<=0){q.done=true;q.sel=-1;q.to=(q.to||0)+1;q.times.push(60);renderKeep();}
 }
 function viewPartner(c){
   if(cloud.user&&cloud.icaiLoaded&&!cloud.icai)return '<div class="card"><h3>Partner</h3><p>First add your ICAI registration number. One number = one account.</p></div>'+idCard();
@@ -3631,14 +3663,14 @@ function mqCard(){
   var q=ui.mq;
   if(q&&q.list&&q.i<q.list.length){
     var x=q.list[q.i];
-    h+='<div class="mut" style="margin-top:8px">Question '+(q.i+1)+' of '+q.list.length+' • Score '+q.sc+'</div>'+(x.x?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(x.x)+'</div>':'')+'<div style="margin-top:6px"><b>'+esc(x.q)+'</b></div>';
+    h+='<div class="mut" style="margin-top:8px">'+(q.rapid?'\u26a1 Rapid-fire \u2022 ':'')+'Question '+(q.i+1)+' of '+q.list.length+' \u2022 Score '+q.sc+(q.rapid&&!q.done?' \u2022 <b id="mq-tm">\u23f1 60 s</b>':'')+'</div>'+(x.x?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(x.x)+'</div>':'')+'<div style="margin-top:6px"><b>'+esc(x.q)+'</b></div>';
     x.o.forEach(function(o,k){var st='',m='';
       if(q.done){if(x.a===k){st=' style="border-color:var(--ok)"';m=' ✓';}else if(q.sel===k&&x.a>=0){st=' style="border-color:var(--bad,#c0392b)"';m=' ✗';}else if(q.sel===k){m=' (your pick)';}}
       h+='<button class="btn sec" data-act="icqpick" data-k="'+k+'"'+(q.done?' disabled':'')+st+' style="display:block;width:100%;text-align:left;margin-top:6px">'+'abcd'.charAt(k)+') '+esc(o)+m+'</button>';});
     if(q.done){h+='<div class="mut" style="margin-top:8px">'+(x.a>=0?(q.sel===x.a?'Correct.':'Correct answer: '+'abcd'.charAt(x.a)+')'):'Answer is not available in the PDF.')+'<br>Source: '+esc(x.s)+'</div>'+mqTagRow(x)+'<button class="btn" style="margin-top:8px" data-act="icqnext">Next</button>';}
     h+='<button class="btn sec sm" style="margin-top:8px" data-act="icqstop">Stop</button></div>';return h;
   }
-  if(q&&q.list&&q.i>=q.list.length){h+='<div style="margin-top:8px"><b>Done: '+q.sc+' / '+q.n+' correct</b> (only questions with answers are scored)</div><button class="btn" style="margin-top:8px" data-act="icqstop">Back</button></div>';return h;}
+  if(q&&q.list&&q.i>=q.list.length){var rfs='';if(q.rapid&&q.times&&q.times.length){var avg=Math.round(q.times.reduce(function(a,b){return a+b;},0)/q.times.length);rfs='<div class="mut" style="margin-top:6px">Average '+avg+' s per question \u2022 '+(q.to||0)+' ran out of time. In the exam you get about 72 s for a 1-mark MCQ, so aim to stay under that.</div>';}h+='<div style="margin-top:8px"><b>Done: '+q.sc+' / '+q.n+' correct</b> (only questions with answers are scored)</div>'+rfs+'<button class="btn" style="margin-top:8px" data-act="icqstop">Back</button></div>';return h;}
   var srcs={};(MQC[lv]||[]).concat(MQC.misc||[]).forEach(function(x){srcs[x.s]=(srcs[x.s]||0)+1;});
   var sk=Object.keys(srcs).sort();
   h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><select data-chg="icqlv">'+LVORD.map(function(v){return '<option value="'+v+'"'+(v===lv?' selected':'')+'>'+esc(LVNAME[v])+'</option>';}).join('')+'</select><select data-chg="icqsrc"><option value="">All sources</option>'+sk.map(function(k){return '<option value="'+esc(k)+'"'+(k===(ui.mqSrc||'')?' selected':'')+'>'+esc(k)+' ('+srcs[k]+')</option>';}).join('')+'</select></div>';
@@ -3646,21 +3678,22 @@ function mqCard(){
   var P1=cur(),nl=0;if(P1&&P1.mqt)Object.keys(P1.mqt).forEach(function(k){if(P1.mqt[k]==='L')nl++;});
   h+='<label style="display:block;margin-top:8px"><input type="checkbox" data-chg="icqlrn"'+(ui.mqLrn?' checked':'')+'> Only my "Still learning" questions ('+nl+')</label>';
   h+='<div class="mut" style="margin-top:8px">'+(ld?pool.length+' questions available':'Loading…')+'</div>';
-  if(ld&&pool.length)h+='<button class="btn" style="margin-top:8px" data-act="icqstart">Start 20 random questions</button>';
+  if(ld&&pool.length)h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn" data-act="icqstart">Start 20 random questions</button><button class="btn sec" data-act="icqrapid">\u26a1 Rapid-fire (60 s per question)</button></div>';
   else if(ld)h+='<div class="mut" style="margin-top:6px">Nothing yet for this level. The sync adds more after each run.</div>';
   return h+'</div>';
 }
 function icqAct(a,d){
   var q=ui.mq;
+  if(a==='icqrapid'){var pr=mqShuf(mqPool()).slice(0,20);if(!pr.length)return;ui.mq={list:pr,i:0,sc:0,n:pr.filter(function(x){return x.a>=0;}).length,done:false,sel:-1,rapid:true,t0:Date.now(),times:[],to:0};renderKeep();return;}
   if(a==='icqstart'){var p=mqShuf(mqPool()).slice(0,20);if(!p.length)return;ui.mq={list:p,i:0,sc:0,n:p.filter(function(x){return x.a>=0;}).length,done:false,sel:-1};renderKeep();return;}
   if(!q)return;
-  if(a==='icqpick'&&!q.done){var k=Number(d.k),x=q.list[q.i];q.sel=k;q.done=true;if(x.a>=0&&k===x.a)q.sc++;renderKeep();return;}
+  if(a==='icqpick'&&!q.done){var k=Number(d.k),x=q.list[q.i];q.sel=k;q.done=true;if(q.rapid)q.times.push(Math.min(60,Math.round((Date.now()-q.t0)/1000)));if(x.a>=0&&k===x.a)q.sc++;renderKeep();return;}
   if(a==='icqtag'){var x2=q.list[q.i],P2=cur();if(!x2||!P2)return;P2.mqt=P2.mqt||{};if(P2.mqt[x2.i]===d.t)delete P2.mqt[x2.i];else P2.mqt[x2.i]=d.t;
     P2.cards=P2.cards||[];var sr='mq:'+x2.i,hv=P2.cards.some(function(c){return c.src===sr;});
     if(P2.mqt[x2.i]==='L'&&!hv&&x2.a>=0&&x2.o[x2.a]){P2.cards.push({id:uid(),k:'',src:sr,front:String(x2.q).slice(0,200),back:('Answer: '+'abcd'.charAt(x2.a)+') '+x2.o[x2.a]+' ('+(x2.s||'ICAI')+')').slice(0,600),box:0,due:iso(today())});toast('Saved as a flash card too');}
     else if(P2.mqt[x2.i]!=='L'&&hv)P2.cards=P2.cards.filter(function(c){return c.src!==sr;});
     P2.dirty=true;save();schedSync();renderKeep();return;}
-  if(a==='icqnext'){q.i++;q.done=false;q.sel=-1;renderKeep();return;}
+  if(a==='icqnext'){q.i++;q.done=false;q.sel=-1;if(q.rapid)q.t0=Date.now();renderKeep();return;}
   if(a==='icqstop'){ui.mq=null;renderKeep();return;}
 }
 function icqChg(k,el){
@@ -5032,6 +5065,7 @@ setInterval(function(){try{var ae=document.activeElement,tg=ae&&ae.tagName;if(ui
 setInterval(function(){var e=document.getElementById('tm-el'),t=tmGet();if(e&&t)e.textContent=tmText(t);try{tmTick();}catch(x){}},500);
 setInterval(function(){try{if(!document.hidden)tmPull();}catch(x){}},8000);
 setInterval(simTick,1000);
+setInterval(function(){try{rfTick();}catch(e){}},500);
 setInterval(function(){try{gcPoll();}catch(e){}},45000);
 window.addEventListener('beforeinstallprompt',function(e){try{e.preventDefault();}catch(x){}ui.inst=e;renderKeep();});
 window.addEventListener('appinstalled',function(){ui.inst=null;});
