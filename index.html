@@ -2916,7 +2916,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.21 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.22 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3009,7 +3009,8 @@ function hwPerfCard(P){
   if(!n)return '';
   return '<div class="card"><div class="row sp"><b>Daily homework (last 30 days)</b><button class="btn sec sm" data-act="tab" data-t="hw">Open</button></div><div class="mut" style="margin-top:6px">Done '+dn+' of '+n+(mx?' \u2022 Score '+Math.round(sc/mx*100)+'% ('+(Math.round(sc*2)/2)+' / '+mx+' marks)':'')+'</div></div>';
 }
-function hwItemHtml(P,k,it,day){
+function hwItemHtml(P,k,it,day,dd){
+  var dq=dd?' data-d="'+dd+'"':'',sx=dd?'-'+dd:'',hk=k+(dd||'');
   var B=HWQ[k],q=B&&B.map&&B.map[it.id];if(!q)return '';
   var h='<div class="card"><div class="row sp"><b>'+esc(pfull(k))+'</b><span class="chip">'+(q.t==='m'?'MCQ':'Written')+' • '+q.mk+' mark'+(q.mk>1?'s':'')+'</span></div><div class="mut">'+esc(q.c)+' • from '+esc(q.s)+'</div>';
   h+='<div style="white-space:pre-wrap;line-height:1.5;margin-top:8px">'+esc(q.q)+'</div>';
@@ -3019,18 +3020,18 @@ function hwItemHtml(P,k,it,day){
     q.o.forEach(function(o,i){
       var sty='text-align:left;margin-top:6px;display:block;width:100%';
       if(it.done){if(L[i]===q.a)sty+=';border-color:var(--ok);background:rgba(60,160,90,.18)';else if(i===it.ans)sty+=';border-color:#c44;background:rgba(200,70,70,.18)';}
-      h+='<button class="btn sec" style="'+sty+'"'+(it.done?' disabled':' data-act="hwopt" data-k="'+k+'" data-o="'+i+'"')+'><b>'+L[i].toUpperCase()+'.</b> '+esc(o)+'</button>';
+      h+='<button class="btn sec" style="'+sty+'"'+(it.done?' disabled':' data-act="hwopt" data-k="'+k+'" data-o="'+i+'"'+dq)+'><b>'+L[i].toUpperCase()+'.</b> '+esc(o)+'</button>';
     });
     if(it.done)h+='<div style="margin-top:8px"><span class="chip '+(it.ok?'ok':'bad')+'">'+(it.ok?'Correct':'Wrong. Right answer: '+q.a.toUpperCase())+'</span> '+ref+'</div>';
   }else{
     h+='<div class="mut" style="margin-top:8px">Write the answer on paper, take a photo (up to 3 pages) and add it here. Press Mark done and your answer is checked automatically.</div>';
-    h+='<div class="row" style="margin-top:8px"><input type="file" accept="image/*" data-chg="hwimg" data-k="'+k+'">'+(it.img?'<span class="chip ok">'+(typeof it.img==='number'?it.img:1)+' photo saved</span>':'')+'</div>';
+    h+='<div class="row" style="margin-top:8px"><input type="file" accept="image/*" data-chg="hwimg" data-k="'+k+'"'+dq+'>'+(it.img?'<span class="chip ok">'+(typeof it.img==='number'?it.img:1)+' photo saved</span>':'')+'</div>';
     if(!it.done){
-      var bz=HWAI['c'+k]&&HWAI['c'+k].busy;
-      h+='<div class="row" style="margin-top:8px;gap:8px;align-items:center">'+ref+'<span class="mut">My marks (only if auto check fails)</span><input type="number" min="0" max="'+q.mk+'" step="0.5" id="hw-sc-'+k+'" style="width:80px" placeholder="0-'+q.mk+'"><button class="btn sm" data-act="hwdone" data-k="'+k+'"'+(bz?' disabled':'')+'>'+(bz?'Checking...':'Mark done')+'</button></div>';
+      var bz=HWAI['c'+hk]&&HWAI['c'+hk].busy;
+      h+='<div class="row" style="margin-top:8px;gap:8px;align-items:center">'+ref+'<span class="mut">My marks (only if auto check fails)</span><input type="number" min="0" max="'+q.mk+'" step="0.5" id="hw-sc-'+k+sx+'" style="width:80px" placeholder="0-'+q.mk+'"><button class="btn sm" data-act="hwdone" data-k="'+k+'"'+dq+(bz?' disabled':'')+'>'+(bz?'Checking...':'Mark done')+'</button></div>';
     }else h+='<div style="margin-top:8px"><span class="chip ok">Done • '+it.sc+'/'+it.mx+(it.ai?' • checked':'')+'</span> '+ref+'</div>'+(it.fb?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(it.fb)+'</div>':'')+(it.et&&ETY[it.et]?'<div class="mut" style="margin-top:4px">Main reason for lost marks: '+ETY[it.et]+'</div>':'')+(typeof it.ps==='number'?'<div class="mut" style="margin-top:4px">Presentation: '+it.ps+'/5'+(it.pt?' \u2022 '+esc(it.pt):'')+' (AI guidance, not an ICAI mark)</div>':'');
   }
-  if(!it.done)h+='<div style="margin-top:8px"><button class="btn sec sm" data-act="hwskip" data-k="'+k+'">I have not studied this topic yet</button></div>';
+  if(!it.done)h+=dd?'<div style="margin-top:8px"><button class="btn sec sm" data-act="hwdrop" data-k="'+k+'" data-d="'+dd+'">Remove from pending</button></div>':'<div style="margin-top:8px"><button class="btn sec sm" data-act="hwskip" data-k="'+k+'">I have not studied this topic yet</button></div>';
   if(AIOPEN||(cloud.user&&cloud.isAdmin)){
     h+='<div style="margin-top:8px"><button class="btn sec sm" data-act="hwai" data-k="'+k+'"'+(HWAI[k]&&HWAI[k].busy?' disabled':'')+'>'+(HWAI[k]&&HWAI[k].busy?'Thinking...':'AI: one new similar question')+'</button></div>';
     if(HWAI[k]&&HWAI[k].txt)h+='<div class="card" style="margin-top:8px"><div style="white-space:pre-wrap;line-height:1.5">'+esc(HWAI[k].txt)+'</div></div>';
@@ -3048,9 +3049,15 @@ function viewHW(c){
   if(H.ns&&Object.keys(H.ns).some(function(z){return Object.keys(H.ns[z]).length;}))h+='<div class="mut" style="margin:6px 0">You skipped some topics. <button class="btn sec sm" data-act="hwresetns">Bring them back</button></div>';
   keys.forEach(function(k){
     var it=day.items[k];
-    if(!it||!it.id){h+='<div class="card"><b>'+esc(pfull(k))+'</b><div class="mut">'+(HWQ[k]&&!HWQ[k].bad?'No question yet. Mark a chapter of this subject as Learning or Done in Papers.':(HWQ[k]&&HWQ[k].bad?'Question bank not found. Upload the qbank folder.':'Loading...'))+'</div></div>';return;}
+    if(!it||!it.id){h+='<div class="card"><b>'+esc(pfull(k))+'</b><div class="mut">'+(HWQ[k]&&!HWQ[k].bad?'No question yet. Mark a chapter of this subject as Learning or Done in Papers.':(HWQ[k]&&HWQ[k].bad?'Questions for this subject are not available yet. The admin needs to upload its question file (qb-xx.json).':'Loading...'))+'</div></div>';return;}
     any=true;h+=hwItemHtml(P,k,it,day);
   });
+  var td0=iso(today()),from0=iso(addDays(today(),-13)),pend=[];
+  Object.keys(H.days).sort().reverse().forEach(function(z){if(z>=td0||z<from0)return;var its=H.days[z].items;Object.keys(its).forEach(function(k){var x=its[k];if(x&&x.id&&!x.done&&HWQ[k]&&HWQ[k].map&&HWQ[k].map[x.id])pend.push([z,k,x]);});});
+  if(pend.length){
+    h+='<h2>Pending from earlier days</h2><div class="card"><div class="mut">You can finish these now. They count for the day they were given. Remove the ones you do not want to do.</div><div style="margin-top:8px"><button class="btn sec sm" data-act="hwdropall">Remove all old pending</button></div></div>';
+    pend.forEach(function(r){h+='<div class="mut" style="margin:10px 0 2px">'+esc(r[0])+'</div>'+hwItemHtml(P,r[1],r[2],H.days[r[0]],r[0]);});
+  }
   return h;
 }
 function repCnt(B){var rc={};(B.rep||[]).forEach(function(r){rc[r.c]=(rc[r.c]||0)+1;});return rc;}
@@ -4042,27 +4049,29 @@ async function hwRef(k,q){
   }catch(e){return '';}
 }
 function hwAct(a,d,P){
-  var H=hwS(P),td=iso(today()),day=H.days[td],it=day&&day.items[d.k],B=HWQ[d.k],q=it&&B&&B.map&&B.map[it.id];
+  var H=hwS(P),td=d.d||iso(today()),day=H.days[td],it=day&&day.items[d.k],B=HWQ[d.k],q=it&&B&&B.map&&B.map[it.id];
   if(a==='hwskip'&&it&&q&&!it.done){
     if(!H.ns)H.ns={};if(!H.ns[d.k])H.ns[d.k]={};H.ns[d.k][q.c]=1;delete day.items[d.k];P.dirty=true;
     var left=Object.keys(hwTick(P,d.k)).length;
     commit();toast(left?'Okay. A question from another topic is shown now.':'No other topic is in progress. Tick or start another chapter in Papers.');return;
   }
+  if(a==='hwdrop'&&it&&!it.done){delete day.items[d.k];P.dirty=true;commit();toast('Removed from pending');return;}
+  if(a==='hwdropall'){var nd=0;Object.keys(H.days).forEach(function(z){if(z>=iso(today()))return;var its=H.days[z].items;Object.keys(its).forEach(function(k){var x=its[k];if(x&&x.id&&!x.done){delete its[k];nd++;}});});P.dirty=true;commit();toast(nd+' old pending removed');return;}
   if(a==='hwresetns'){H.ns={};P.dirty=true;commit();toast('Skipped topics are back in homework');return;}
   if(a==='hwopt'&&it&&q&&!it.done){var o=Number(d.o);it.ans=o;it.ok=['a','b','c','d'][o]===q.a;it.sc=it.ok?q.mk:0;it.mx=q.mk;it.done=true;it.at=Date.now();H.seen[q.i]=(H.seen[q.i]||0)+1;commit();return;}
   if(a==='hwdone'&&it&&q&&!it.done){
-    var v=Number(readv('hw-sc-'+d.k));if(!isFinite(v)||v<0)v=0;if(v>q.mk)v=q.mk;
-    var fin=function(sc,fb,ai,ety,pres){it.sc=sc;it.mx=q.mk;it.done=true;it.at=Date.now();if(fb)it.fb=fb;if(ai)it.ai=1;if(ety&&ety!=='none')it.et=ety;if(pres&&typeof pres.s==='number'){it.ps=pres.s;it.pt=String(pres.tip||'').slice(0,160);}H.seen[q.i]=(H.seen[q.i]||0)+1;HWAI['c'+d.k]=null;commit();};
+    var v=Number(readv('hw-sc-'+d.k+(d.d?'-'+d.d:'')));if(!isFinite(v)||v<0)v=0;if(v>q.mk)v=q.mk;
+    var fin=function(sc,fb,ai,ety,pres){it.sc=sc;it.mx=q.mk;it.done=true;it.at=Date.now();if(fb)it.fb=fb;if(ai)it.ai=1;if(ety&&ety!=='none')it.et=ety;if(pres&&typeof pres.s==='number'){it.ps=pres.s;it.pt=String(pres.tip||'').slice(0,160);}H.seen[q.i]=(H.seen[q.i]||0)+1;HWAI['c'+d.k+(d.d||'')]=null;commit();};
     var pid=it.id+'|'+td,soft='AI check was not available, your own marks are counted.',hard='AI check is not available now. Enter your own marks and press Mark done.';
     if(!(cloud.client&&cloud.user)){fin(v,'',0);return;}
-    HWAI['c'+d.k]={busy:true};render();
+    HWAI['c'+d.k+(d.d||'')]={busy:true};render();
     hwImgGet(pid).then(function(imgs){
       if(!imgs.length){fin(v,'',0);return null;}
       return hwRef(d.k,q).then(function(ref){return cloud.client.functions.invoke('hw-check',{body:{question:q.q,ref:ref,max:q.mk,images:imgs}});}).then(function(r){
         var o=r&&r.data;if(o&&typeof o.score==='number'){fin(o.score,o.feedback||'',1,o.type,o.pres);}
-        else{HWAI['c'+d.k]=null;if(v>0)fin(v,soft,0);else{toast((o&&o.error)||hard);render();}}
+        else{HWAI['c'+d.k+(d.d||'')]=null;if(v>0)fin(v,soft,0);else{toast((o&&o.error)||hard);render();}}
       });
-    }).catch(function(){HWAI['c'+d.k]=null;if(v>0)fin(v,soft,0);else{toast(hard);render();}});
+    }).catch(function(){HWAI['c'+d.k+(d.d||'')]=null;if(v>0)fin(v,soft,0);else{toast(hard);render();}});
     return;
   }
   if(a==='hwai'&&q){
@@ -4080,7 +4089,7 @@ function hwChg(k,d,el){
   if(k==='hwdl'){H.dl=Number(el.value)||0;commit();return;}
   if(k==='hwrepk'){ui.repK=el.value;hwLoad(el.value).then(function(){render();});render();return;}
   if(k==='hwimg'&&el.files&&el.files[0]){
-    var td=iso(today()),it=H.days[td]&&H.days[td].items[d.k];if(!it)return;
+    var td=d.d||iso(today()),it=H.days[td]&&H.days[td].items[d.k];if(!it)return;
     hwImgSave(it.id+'|'+td,el.files[0]).then(function(n){if(n){it.img=n;commit();}else toast('Could not save the photo on this device');});
   }
 }
@@ -4255,7 +4264,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.21\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.22\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
