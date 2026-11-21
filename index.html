@@ -1311,15 +1311,16 @@ function cardsDue(P){var t=iso(today());return (P.cards||[]).filter(function(c){
 function cardReview(P){
   var d=cardsDue(P);if(!d.length)return '';
   var c=d[0],show=ui.fc&&ui.fc.id===c.id&&ui.fc.show;
-  return '<div class="card"><h3>Flash cards due: '+d.length+'</h3><div style="font-size:17px;margin:8px 0"><b>'+esc(c.front)+'</b></div>'+(show?'<div style="margin:8px 0">'+esc(c.back)+'</div><div class="row"><button class="btn" data-act="fcok" data-id="'+c.id+'">I knew it</button><button class="btn danger" data-act="fcno" data-id="'+c.id+'">Did not know</button></div>':'<button class="btn sec" data-act="fcshow" data-id="'+c.id+'">Show answer</button>')+'<div class="mut" style="margin-top:6px">'+esc(pfull(c.k))+'</div></div>';
+  return '<div class="card"><h3>Flash cards due: '+d.length+'</h3><div style="font-size:17px;margin:8px 0"><b>'+esc(c.front)+'</b></div>'+(show?'<div style="margin:8px 0">'+esc(c.back)+'</div><div class="row"><button class="btn" data-act="fcok" data-id="'+c.id+'">I knew it</button><button class="btn danger" data-act="fcno" data-id="'+c.id+'">Did not know</button></div>':'<button class="btn sec" data-act="fcshow" data-id="'+c.id+'">Show answer</button>')+'<div class="mut" style="margin-top:6px">'+esc(c.k?pfull(c.k):'ICAI MCQ')+'</div></div>';
 }
 function cardsCard(P){
   var keys=allKeys(P),po=keys.map(function(k){return '<option value="'+k+'">'+esc(pfull(k))+'</option>';}).join('');
   var h='<h2>Formula and section cards</h2><div class="card"><div class="row"><select id="fc-k">'+po+'</select></div><input type="text" id="fc-f" placeholder="Front (question or term)" style="margin-top:6px"><textarea id="fc-b" placeholder="Back (answer, formula or section)" style="margin-top:6px"></textarea><div class="row" style="margin-top:6px"><button class="btn" data-act="fcadd">Save card</button></div>';
   h+='<div style="border-top:1px solid var(--bd);margin-top:10px;padding-top:8px"><div class="mut">Make cards with AI (needs your cloud account)</div><input type="text" id="fc-topic" placeholder="Topic, example: AS 10 recognition and measurement" style="margin-top:6px"><div style="margin-top:6px"><button class="btn sec" data-act="fcai">Make 5 cards with AI</button></div></div>';
+  h+='<div style="border-top:1px solid var(--bd);margin-top:10px;padding-top:8px"><div class="mut">Paste your notes, one card per line, like: question || answer (no AI needed)</div><textarea id="fc-paste" rows="4" placeholder="What is the useful life of an asset? || The period it is expected to be used\nAS 10 || Property, Plant and Equipment" style="margin-top:6px"></textarea><div style="margin-top:6px"><button class="btn sec" data-act="fcpaste">Make cards from my notes</button></div></div>';
   var L=P.cards||[];
   h+='<div class="mut" style="margin-top:8px">'+L.length+' card(s). Each comes back after 1, 3, 7 and 21 days.</div>';
-  L.slice().reverse().slice(0,10).forEach(function(c){h+='<div class="blk"><div>'+esc(c.front)+'<div class="mut">'+esc(pfull(c.k))+' • next '+esc(fmt(parse(c.due)))+'</div></div><div class="r"><button class="btn danger sm" data-act="fcdel" data-id="'+c.id+'">×</button></div></div>';});
+  L.slice().reverse().slice(0,10).forEach(function(c){h+='<div class="blk"><div>'+esc(c.front)+'<div class="mut">'+esc(c.k?pfull(c.k):'ICAI MCQ')+' • next '+esc(fmt(parse(c.due)))+'</div></div><div class="r"><button class="btn danger sm" data-act="fcdel" data-id="'+c.id+'">×</button></div></div>';});
   return h+'</div>';
 }
 
@@ -2916,7 +2917,7 @@ function viewSettings(c){
   var secRem=html;html='';
   html+=idCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1.22 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1.23 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
@@ -3532,7 +3533,11 @@ function icqAct(a,d){
   if(a==='icqstart'){var p=mqShuf(mqPool()).slice(0,20);if(!p.length)return;ui.mq={list:p,i:0,sc:0,n:p.filter(function(x){return x.a>=0;}).length,done:false,sel:-1};renderKeep();return;}
   if(!q)return;
   if(a==='icqpick'&&!q.done){var k=Number(d.k),x=q.list[q.i];q.sel=k;q.done=true;if(x.a>=0&&k===x.a)q.sc++;renderKeep();return;}
-  if(a==='icqtag'){var x2=q.list[q.i],P2=cur();if(!x2||!P2)return;P2.mqt=P2.mqt||{};if(P2.mqt[x2.i]===d.t)delete P2.mqt[x2.i];else P2.mqt[x2.i]=d.t;P2.dirty=true;save();schedSync();renderKeep();return;}
+  if(a==='icqtag'){var x2=q.list[q.i],P2=cur();if(!x2||!P2)return;P2.mqt=P2.mqt||{};if(P2.mqt[x2.i]===d.t)delete P2.mqt[x2.i];else P2.mqt[x2.i]=d.t;
+    P2.cards=P2.cards||[];var sr='mq:'+x2.i,hv=P2.cards.some(function(c){return c.src===sr;});
+    if(P2.mqt[x2.i]==='L'&&!hv&&x2.a>=0&&x2.o[x2.a]){P2.cards.push({id:uid(),k:'',src:sr,front:String(x2.q).slice(0,200),back:('Answer: '+'abcd'.charAt(x2.a)+') '+x2.o[x2.a]+' ('+(x2.s||'ICAI')+')').slice(0,600),box:0,due:iso(today())});toast('Saved as a flash card too');}
+    else if(P2.mqt[x2.i]!=='L'&&hv)P2.cards=P2.cards.filter(function(c){return c.src!==sr;});
+    P2.dirty=true;save();schedSync();renderKeep();return;}
   if(a==='icqnext'){q.i++;q.done=false;q.sel=-1;renderKeep();return;}
   if(a==='icqstop'){ui.mq=null;renderKeep();return;}
 }
@@ -4264,7 +4269,7 @@ function act(a,d){
   if(a==='installapp'){var ie=ui.inst;ui.inst=null;try{ie.prompt();}catch(e){}render();return;}
   if(a==='bugcopy'){
     var er='';try{er=localStorage.getItem(ERRK)||'';}catch(e){}
-    var rt='Studify CA App v1.22\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
+    var rt='Studify CA App v1.23\nLanguage: '+getLang()+'\nOnline: '+navigator.onLine+'\nProfiles: '+S.profiles.length+'\nCloud: '+cloud.state+'\nBrowser: '+navigator.userAgent+'\nRecent errors: '+(er||'none');
     if(navigator.clipboard){navigator.clipboard.writeText(rt).then(function(){toast('Copied. Send it with a screenshot.');},function(){prompt('Copy this:',rt);});}else prompt('Copy this:',rt);
     return;
   }
@@ -4526,6 +4531,12 @@ function act(a,d){
   if(a==='fcadd'){
     var P15=cur(),f=readv('fc-f').trim(),bk=readv('fc-b').trim();if(!f||!bk){toast('Fill both the front and the back');return;}
     P15.cards=P15.cards||[];P15.cards.push({id:uid(),k:readv('fc-k'),front:f.slice(0,200),back:bk.slice(0,600),box:0,due:iso(today())});commit();toast('Card saved');return;
+  }
+  if(a==='fcpaste'){
+    var P19=cur(),tx=readv('fc-paste'),kk2=readv('fc-k'),n19=0;P19.cards=P19.cards||[];
+    String(tx).split('\n').forEach(function(ln){if(n19>=40)return;ln=ln.trim();if(!ln)return;var m=ln.match(/^(.+?)\s*(?:\|\||::|\s[-\u2013\u2014]\s|\t)\s*(.+)$/);if(!m)return;var f=m[1].replace(/^[\s\d.\-*)]+/,'').trim(),bk=m[2].trim();if(f.length<2||bk.length<1)return;if(P19.cards.some(function(c){return c.front===f.slice(0,200);}))return;P19.cards.push({id:uid(),k:kk2,front:f.slice(0,200),back:bk.slice(0,600),box:0,due:iso(today())});n19++;});
+    if(!n19){toast('No cards found. Use one line per card: question || answer');return;}
+    commit();toast(n19+' card(s) saved');return;
   }
   if(a==='fcdel'){var P16=cur();P16.cards=(P16.cards||[]).filter(function(x){return x.id!==d.id;});commit();return;}
   if(a==='fcshow'){ui.fc={id:d.id,show:true};render();return;}
