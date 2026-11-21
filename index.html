@@ -368,7 +368,7 @@ function tmSet(v){try{if(v)localStorage.setItem(TMK,JSON.stringify(v));else loca
 function p2(n){return (n<10?'0':'')+n;}
 function tmMs(t){return (t.acc||0)+(t.t0?Date.now()-t.t0:0);}
 var TOK='ca_studyos_tmopts',TRK='ca_studyos_trev';
-function tmOpts(){var o=null;try{o=JSON.parse(localStorage.getItem(TOK)||'null');}catch(e){}o=o||{};return {strict:o.strict===true,brk:o.brk!==false,every:[30,45,60,90].indexOf(Number(o.every))>=0?Number(o.every):60};}
+function tmOpts(){var o=null;try{o=JSON.parse(localStorage.getItem(TOK)||'null');}catch(e){}o=o||{};return {strict:o.strict===true,brk:o.brk!==false,every:[30,45,60,90].indexOf(Number(o.every))>=0?Number(o.every):60,lock:typeof o.lock==='string'?o.lock:''};}
 function tmOptSave(o){try{localStorage.setItem(TOK,JSON.stringify(o));}catch(e){}}
 function tmRev(){try{return Number(localStorage.getItem(TRK))||0;}catch(e){return 0;}}
 function tmSetRev(r){try{localStorage.setItem(TRK,String(r));}catch(e){}}
@@ -908,6 +908,7 @@ async function refreshPartner(){
     try{var ia=await cloud.client.rpc('is_admin');cloud.isAdmin=!ia.error&&ia.data===true;}catch(e){cloud.isAdmin=false;}
     try{var io=await cloud.client.rpc('is_owner');cloud.isOwner=!io.error&&io.data===true;}catch(e){cloud.isOwner=false;}
     await loadIcai();
+    lbSync();
     if(cloud.isAdmin){await loadAdmin();try{var pd=await cloud.client.from('calendar_pending').select('*').eq('status','pending').order('created_at',{ascending:false});cloud.pending=(pd&&pd.data)||[];}catch(e){cloud.pending=[];}}
   }catch(e){toast((e&&e.message)||'Could not load partner data');}
   renderKeep();
@@ -1002,7 +1003,7 @@ function defaultAttemptIdx(){var i=aIdx(today());while(diff(today(),aDate(i))<30
 
 function viewOnboard(){
   var o=ui.onb;
-  if(!o){var idx=defaultAttemptIdx();o=ui.onb={name:'',level:'inter',route:'foundation',gtype:'commerce',gpct:'',hist:{},g1:true,g2:false,idx:idx,date:iso(aDate(idx)),hours:6,rest:0};onbDate(o);}
+  if(!o){var idx=defaultAttemptIdx();o=ui.onb={name:'',level:'inter',route:'foundation',gtype:'commerce',gpct:'',hist:{},g1:true,g2:false,idx:idx,date:iso(aDate(idx)),hours:6,rest:0,ptime:'evening'};onbDate(o);}
   var L=LEVELS[o.level];
   var lv=Object.keys(LEVELS).map(function(k){return '<label style="color:var(--tx)"><input type="radio" name="lv" data-ob="level" value="'+k+'"'+(o.level===k?' checked':'')+'> '+LEVELS[k].name+'</label>';}).join('');
   var gr='';
@@ -1031,6 +1032,7 @@ function viewOnboard(){
     '<div class="mut" style="margin-top:4px">'+(o.auto&&o.hasIcai?'Set from the ICAI schedule (first paper of your group). It will update by itself if ICAI changes it.':(o.auto?'ICAI has not announced this attempt yet, so this is an estimate. The app will fix it by itself when the date is published.':'You chose this date yourself, so it will not change automatically.'))+'</div>'+
     '<label>Study hours per day you can really give</label><input type="number" min="1" max="14" step="0.5" data-ob="hours" value="'+esc(o.hours)+'">'+
     '<label>Weekly rest day</label><select data-ob="rest">'+rest+'</select>'+
+    '<label>When do you study best?</label><select data-ob="ptime">'+Object.keys(PTIME).map(function(k){return '<option value="'+k+'"'+(o.ptime===k?' selected':'')+'>'+PTIME[k]+'</option>';}).join('')+'</select>'+
     '<div class="row" style="margin-top:14px"><button class="btn" data-act="createprof">Create my plan</button>'+(S.profiles.length?'<button class="btn sec" data-act="cancelonb">Cancel</button>':'')+'</div>'+
     '<div class="mut" style="margin-top:10px">Already attempted an exam? Create the plan first, then enter your marks in <b>Results</b>. The app will adjust the plan.</div></div><div class="tagline2">Study with vibe.</div>';
 }
@@ -2033,7 +2035,7 @@ function timerOptsCard(){
     '<div class="row" style="margin:6px 0 0 24px;align-items:center"><span class="mut">Remind me every</span><select data-chg="tmopt" data-o="every">'+ev+'</select><span class="mut">of study</span></div>'+
     '<div class="mut" style="margin:4px 0 8px 24px">Shows on screen, and as a notification if the app is closed (turn on Notifications above). You can tap Skip any time.</div>'+
     '<label style="color:var(--tx);display:flex;gap:6px;align-items:center"><input type="checkbox" data-chg="tmopt" data-o="strict"'+(o.strict?' checked':'')+'> Strict focus (pause the timer if I leave the app)</label>'+
-    '<div class="mut" style="margin:4px 0 0 24px">Off by default. '+(DSK?'In the Windows app this pauses the timer if you stay in an app that is not ticked as a study app for 10 seconds (see Windows app: focus tracking below).':'The timer keeps running when the screen is off or you use another app. The app cannot see which other apps or sites you use.')+'</div></div>';
+    '<div class="mut" style="margin:4px 0 0 24px">Off by default. '+(DSK?'In the Windows app this pauses the timer if you stay in an app that is not ticked as a study app for 10 seconds (see Windows app: focus tracking below).':'The timer keeps running when the screen is off or you use another app. The app cannot see which other apps or sites you use.')+'</div>'+blBlock(o)+'</div>';
 }
 function tmTick(){
   var t=tmGet();if(!t)return;
@@ -2063,7 +2065,7 @@ function timerCard(P,X){
   ui.tm=ui.tm||{};var k=ui.tm.k&&X.study.indexOf(ui.tm.k)>=0?ui.tm.k:X.study[0];ui.tm.k=k;
   var po=X.study.map(function(x){return '<option value="'+x+'"'+(x===k?' selected':'')+'>'+esc(pfull(x))+'</option>';}).join('');
   var co='<option value="">Any chapter</option>'+P.papers[k].ch.filter(function(x){return x.status!=='done'&&!x.removed;}).map(function(x){return '<option value="'+x.id+'">'+esc(lblOf(x))+'</option>';}).join('');
-  return '<div class="card"><h3>Study timer</h3><div class="row"><select id="tm-k" data-chg="tmpaper">'+po+'</select><select id="tm-ch">'+co+'</select><button class="btn" data-act="tmstart">Start</button></div></div>';
+  return '<div class="card"><h3>Study timer</h3>'+fhint(P)+'<div class="row"><select id="tm-k" data-chg="tmpaper">'+po+'</select><select id="tm-ch">'+co+'</select><button class="btn" data-act="tmstart">Start</button></div></div>';
 }
 function weakCard(P,X){
   var w=weakChapters(P,X.study,5);if(!w.length)return '';
@@ -2510,9 +2512,75 @@ function idCard(){
   return h+'</div>';
 }
 function lbCard(){
-  var h='<div class="card"><div class="row sp"><h3>Leaderboard (last 7 days)</h3><button class="btn sec sm" data-act="lb">'+(cloud.lb?'Refresh':'Show')+'</button></div>';
+  var h='<div class="card"><div class="row sp"><h3>Partners: last 7 days</h3><button class="btn sec sm" data-act="lb">'+(cloud.lb?'Refresh':'Show')+'</button></div>';
   if(!cloud.lb)return h+'<div class="mut">Compares study hours with everyone connected to you who has switched on “Study time and streaks”.</div></div>';
   cloud.lb.forEach(function(r,i){h+='<div class="row sp" style="margin-top:6px"><span>'+(i+1)+'. '+esc(r.name)+(r.me?' (you)':'')+'</span><span>'+(r.h===null?'<span class="mut">not sharing</span>':'<b>'+esc(r.h)+' h</b> <span class="mut">streak '+esc(r.streak)+'</span>')+'</span></div>';});
+  return h+'</div>';
+}
+/* ===== v1: buddy lock, global leaderboard, referral, first-day hint ===== */
+function blHash(c){var q='studify|'+c,h=5381;for(var i=0;i<q.length;i++)h=((h<<5)+h+q.charCodeAt(i))>>>0;return 'b'+h.toString(36);}
+function blBlock(o){
+  var h='<div style="margin-top:12px;border-top:1px solid var(--bd);padding-top:10px"><b>🔒 Buddy Lock</b>';
+  if(o.lock)h+='<div class="mut">ON. Strict focus cannot be switched off without your buddy’s code.</div><div class="row" style="margin-top:6px"><input type="password" inputmode="numeric" id="bl-code" maxlength="4" placeholder="4-digit code" style="width:130px"><button class="btn sec sm" data-act="blopen">Remove lock</button></div>';
+  else h+='<div class="mut">Pick a 4-digit code and give it to your partner or a friend. Then you cannot switch off Strict focus in a weak moment. Works on this device; clearing the app data removes it.</div><div class="row" style="margin-top:6px"><input type="password" inputmode="numeric" id="bl-code" maxlength="4" placeholder="4-digit code" style="width:130px"><button class="btn sm" data-act="blset">Turn on lock</button></div>';
+  return h+'</div>';
+}
+var PTIME={morning:'Morning',afternoon:'Afternoon',evening:'Evening',night:'Night'};
+function fhint(P){
+  if(P.sessions&&P.sessions.length)return '';
+  return '<div class="mut" style="margin-bottom:8px">🔥 Day 1: study for 25 minutes to start your streak.'+(P.prefTime&&PTIME[P.prefTime]?' Your best time: '+esc(PTIME[P.prefTime])+'.':'')+'</div>';
+}
+var LBP=[['day','Today'],['week','This week'],['month','This month'],['all','All time']];
+function lbFmt(m){m=Number(m)||0;return Math.floor(m/60)+'h '+('0'+(m%60)).slice(-2)+'m';}
+function lbSessDays(){
+  var mp=shareProfile(),d={};if(!mp)return [];
+  (mp.sessions||[]).forEach(function(x){if(x&&x.date)d[x.date]=(d[x.date]||0)+(Number(x.min)||0);});
+  var from=iso(addDays(today(),-400));
+  return Object.keys(d).filter(function(k){return k>=from;}).map(function(k){return {d:k,m:Math.round(d[k])};});
+}
+async function lbSync(){try{if(!cloud.user)return;var a=lbSessDays();if(!a.length)return;await rpc('lb_sync',{p_days:a});}catch(e){}}
+async function loadLB2(){
+  if(!cloud.client||!cloud.user)return;
+  ui.lbp=ui.lbp||'week';ui.lbs=ui.lbs||'global';
+  try{await lbSync();var r=await rpc('lb_board',{p_period:ui.lbp,p_scope:ui.lbs});cloud.lb2=r||{joined:false};}
+  catch(e){cloud.lb2={joined:false,err:true};}
+  render();
+}
+function lbCard2(){
+  var L=cloud.lb2,h='<div class="card"><div class="row sp"><h3>🏆 Leaderboard</h3>'+(L&&L.joined?'<button class="btn sec sm" data-act="lb2">Refresh</button>':'')+'</div>';
+  if(!L)return h+'<div class="mut">See how your study time compares with other students and with your partners.</div><div style="margin-top:8px"><button class="btn" data-act="lb2">Show leaderboard</button></div></div>';
+  if(L.err)return h+'<div class="warnbox">Could not load. You may be offline, or the owner has not run <b>18_leaderboard_referral.sql</b> in Supabase yet.</div><div style="margin-top:8px"><button class="btn sec sm" data-act="lb2">Try again</button></div></div>';
+  if(!L.joined){
+    var mp=shareProfile(),nn=ui.lbNick!==undefined?ui.lbNick:String((mp&&mp.name)||'').split(' ')[0];
+    return h+'<div class="mut">Join to see your rank. Everyone sees only your <b>nickname</b>, study time and streak. Never your real name, email, chapters or marks. You can leave any time.</div><label>Nickname (2 to 20 characters)</label><input type="text" id="lb-nick" maxlength="20" value="'+esc(nn)+'"><div style="margin-top:8px"><button class="btn" data-act="lbjoin">Join leaderboard</button></div></div>';
+  }
+  var sc=ui.lbs||'global',pr=ui.lbp||'week';
+  h+='<div class="row" style="margin:6px 0">'+[['global','Global'],['friends','Friends']].map(function(x){return '<button class="btn '+(sc===x[0]?'':'sec')+' sm" data-act="lbs" data-ls="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>';
+  h+='<div class="row" style="margin:6px 0">'+LBP.map(function(x){return '<button class="btn '+(pr===x[0]?'':'sec')+' sm" data-act="lbp" data-lp="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>';
+  var rows=L.rows||[];
+  if(!rows.length)h+='<div class="mut" style="margin:10px 0">'+(sc==='friends'?'None of your partners has studied in this period, or they have not joined yet.':'Nobody has logged study time in this period yet. Be the first.')+'</div>';
+  else{
+    var med=['🥇','🥈','🥉'];
+    h+='<div class="row" style="align-items:flex-end;gap:8px;margin:10px 0;flex-wrap:nowrap">'+[1,0,2].filter(function(i){return rows[i];}).map(function(i){var r=rows[i];
+      return '<div style="flex:1;min-width:0;text-align:center;padding:'+(i===0?'14px':'8px')+' 4px;border:1px solid '+(r.me?'var(--ac)':'var(--bd)')+';border-radius:12px"><div style="font-size:'+(i===0?28:22)+'px">'+med[i]+'</div><div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.nick)+'</div><div>'+esc(lbFmt(r.m))+'</div><div class="mut">🔥 '+esc(r.s)+'</div></div>';}).join('')+'</div>';
+    rows.slice(3).forEach(function(r){h+='<div class="row sp"'+(r.me?' id="lb-me"':'')+' style="margin-top:6px;padding:4px 6px;border-radius:8px'+(r.me?';background:var(--bg2,rgba(99,102,241,.12))':'')+'"><span>'+esc(r.rk)+'. '+esc(r.nick)+(r.me?' (you)':'')+'</span><span><b>'+esc(lbFmt(r.m))+'</b> <span class="mut">🔥 '+esc(r.s)+'</span></span></div>';});
+    if(rows.slice(0,3).some(function(r){return r.me;}))h=h.replace('<div class="row" style="align-items:flex-end','<div id="lb-me" class="row" style="align-items:flex-end');
+  }
+  if(L.me)h+='<div class="card" style="border-color:var(--ac);margin-top:10px"><div class="row sp"><span>Your rank <b>#'+esc(L.me.rk)+'</b> of '+esc(L.me.n)+'</span><span><b>'+esc(lbFmt(L.me.m))+'</b> <span class="mut">🔥 '+esc(L.me.s)+'</span></span></div><button class="btn sec sm" style="margin-top:6px" data-act="lbfind">Find me</button></div>';
+  else h+='<div class="mut" style="margin-top:10px">You have no study time in this period yet. Run the study timer to appear here.</div>';
+  h+='<div class="mut" style="margin-top:8px">Time comes from your study timer and logged sessions. <button class="btn sec sm" data-act="lbleave">Leave leaderboard</button></div>';
+  return h+'</div>';
+}
+async function loadRef(){try{cloud.ref=await rpc('ref_my');if(!cloud.ref)cloud.ref={err:true};}catch(e){cloud.ref={err:true};}render();}
+function refCard(){
+  if(!cloud.user)return '';
+  var R=cloud.ref,h='<div class="card"><h3>🎁 Refer a friend</h3>';
+  if(!R)return h+'<div class="mut">Share your code with a friend. When they enter it, you both earn 7 days of premium. The days are credited now and used when paid plans start.</div><div style="margin-top:8px"><button class="btn" data-act="refload">Show my code</button></div></div>';
+  if(R.err)return h+'<div class="warnbox">Could not load. You may be offline, or <b>18_leaderboard_referral.sql</b> has not been run in Supabase yet.</div><div style="margin-top:8px"><button class="btn sec sm" data-act="refload">Try again</button></div></div>';
+  h+='<div class="row sp"><div><div class="mut">Your code</div><b style="font-size:22px;letter-spacing:3px">'+esc(R.code)+'</b></div><button class="btn sm" data-act="refshare">Share</button></div>';
+  h+='<div class="mut" style="margin-top:6px">Friends joined: <b>'+esc(R.count)+'</b> • Premium days earned: <b>'+esc(R.days)+'</b></div>';
+  if(!R.used){var pre='';try{pre=localStorage.getItem('studify_ref')||'';}catch(e){}h+='<label>Got a friend’s code?</label><div class="row"><input type="text" id="ref-in" maxlength="8" placeholder="CODE" value="'+esc(pre)+'" style="flex:1;text-transform:uppercase"><button class="btn" data-act="refgo">Apply</button></div>';}
+  else h+='<div class="mut" style="margin-top:6px">You already used a friend’s code. Your 7 days are credited.</div>';
   return h+'</div>';
 }
 function viewPartner(c){
@@ -2523,7 +2591,7 @@ function viewPartner(c){
   var me=cloud.user.id,myMail=String(cloud.user.email||'').toLowerCase();
   var po=S.profiles.map(function(p){var sel=shareProfile();return '<option value="'+esc(p.id)+'"'+(sel&&sel.id===p.id?' selected':'')+'>'+esc(p.name)+' • '+esc(LEVELS[p.level].name)+'</option>';}).join('');
   var h='<div class="card"><h3>Profile you share with your partner</h3><select data-chg="shareprof">'+po+'</select><div class="mut" style="margin-top:6px">Your partner only sees what you switch on for her below. Notes, mistakes, pending work and anything private are never shared.</div></div>';
-  var secGrp=groupCard(),secLb=lbCard();h+=nudgeAllowCard();
+  var secGrp=groupCard(),secLb=lbCard2()+lbCard();h+=nudgeAllowCard();
   h+='<div class="card"><h3>Invite a partner or friend</h3><div class="row"><input type="text" id="pt-email" placeholder="partner@email.com" style="flex:1;min-width:180px"><button class="btn" data-act="invite">Send invite</button></div><div class="mut" style="margin-top:6px">They need their own account (same app link). The invite shows up in their Partner tab.</div></div>';
   var live=cloud.links.filter(function(l){return l.status==='pending'||l.status==='accepted';});
   if(!live.length)h+='<div class="card mut">No connections yet.</div>';
@@ -2899,6 +2967,7 @@ function viewSettings(c){
   }
   var icd=icaiStart(P.level,P.groups,aLabel(aIdx(parse(P.examDate))));
   html+='<label>Exam start date</label><input type="date" id="st-date" value="'+esc(P.examDate)+'">';
+  html+='<label>When do you study best?</label><select data-chg="ptime"><option value="">Not set</option>'+Object.keys(PTIME).map(function(k){return '<option value="'+k+'"'+(P.prefTime===k?' selected':'')+'>'+PTIME[k]+'</option>';}).join('')+'</select>';
   html+='<div class="mut" style="margin-top:4px">'+(P.dateAuto?(icd?'Following the ICAI schedule automatically.':'Estimate. Will be corrected automatically when ICAI publishes the date.'):'Set by you. ')+(icd&&P.examDate!==icd?' ICAI date is '+esc(fmt(parse(icd)))+'. ':'')+'</div>'+(icd&&P.examDate!==icd?'<div style="margin-top:6px"><button class="btn sec sm" data-act="useicai">Use ICAI date</button></div>':'');
   html+='<label>Study hours per day</label><input type="number" id="st-hours" min="1" max="14" step="0.5" value="'+P.dailyHours+'">';
   html+='<label>Weekly goal (hours)</label><input type="number" id="st-wg" min="1" max="90" step="1" value="'+P.weeklyGoal+'">';
@@ -2916,6 +2985,7 @@ function viewSettings(c){
   html+=(DSK?'':instCard()+dlCard(true)+pushCard())+timerOptsCard()+dskCard();
   var secRem=html;html='';
   html+=idCard();
+  html+=refCard();
   html+=cloudCard();
   html+='<div class="mut" style="margin:6px 0">App v1 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
   var secAcct=html;html='';
@@ -4521,6 +4591,19 @@ function act(a,d){
     return;
   }
   if(a==='lb'){loadLB();return;}
+  if(a==='lb2'){loadLB2();return;}
+  if(a==='lbp'){ui.lbp=d.lp;loadLB2();return;}
+  if(a==='lbs'){ui.lbs=d.ls;loadLB2();return;}
+  if(a==='lbjoin'){var nk=readv('lb-nick');ui.lbNick=nk;rpc('lb_join',{p_nick:nk,p_on:true}).then(function(r){if(r==='ok'){toast('Joined the leaderboard');loadLB2();}else toast(r==='bad_nick'?'Nickname must be 2 to 20 characters':'Could not join');}).catch(function(){toast('Could not join. The leaderboard may not be set up yet.');});return;}
+  if(a==='lbleave'){rpc('lb_join',{p_nick:'',p_on:false}).then(function(){toast('You left the leaderboard');cloud.lb2={joined:false};render();}).catch(function(){toast('Failed. Try again.');});return;}
+  if(a==='lbfind'){var me0=document.getElementById('lb-me');if(me0)me0.scrollIntoView({behavior:'smooth',block:'center'});else toast('You are below the top 50. Your rank is shown above.');return;}
+  if(a==='refload'){loadRef();return;}
+  if(a==='refgo'){var rc=readv('ref-in').trim().toUpperCase();if(!rc){toast('Type the code');return;}rpc('ref_redeem',{p_code:rc}).then(function(r){var m={ok:'Done. 7 days credited to both of you',bad:'That code does not exist',self:'You cannot use your own code',used:'You already used a code',full:'That code has reached its limit'};toast(m[r]||'Could not apply');try{if(r==='ok')localStorage.removeItem('studify_ref');}catch(e){}loadRef();}).catch(function(){toast('Could not apply. Try again.');});return;}
+  if(a==='refshare'){var R0=cloud.ref;if(!R0||!R0.code)return;var lk0=location.origin+location.pathname+'?ref='+R0.code,tx0='Study with me on Studify CA. Use my code '+R0.code+' and we both get 7 days premium: '+lk0;
+    if(navigator.share){navigator.share({title:'Studify CA',text:tx0}).catch(function(){});}
+    else{try{navigator.clipboard.writeText(tx0).then(function(){toast('Copied. Paste it in WhatsApp');},function(){window.open('https://wa.me/?text='+encodeURIComponent(tx0),'_blank');});}catch(e){window.open('https://wa.me/?text='+encodeURIComponent(tx0),'_blank');}}return;}
+  if(a==='blset'){var bc=readv('bl-code').trim();if(!/^\d{4}$/.test(bc)){toast('Code must be 4 digits');return;}var bo=tmOpts();bo.lock=blHash(bc);bo.strict=true;tmOptSave(bo);toast('Buddy Lock is on. Give the code to your buddy and forget it yourself.');render();return;}
+  if(a==='blopen'){var bc2=readv('bl-code').trim(),bo2=tmOpts();if(blHash(bc2)!==bo2.lock){toast('Wrong code');return;}bo2.lock='';tmOptSave(bo2);toast('Lock removed');render();return;}
   if(a==='theme'){var t=theme()==='dark'?'light':'dark';try{localStorage.setItem(TKEY,t);}catch(e){}render();return;}
   if(a==='pushon'){guard(pushEnable().then(function(){render();toast('Notifications on');}));return;}
   if(a==='pushoff'){guard(pushDisable().then(function(){render();toast('Notifications off');}));return;}
@@ -4659,7 +4742,7 @@ function act(a,d){
     var hrs=Number(o.hours);
     if(!(hrs>=1&&hrs<=14)){toast('Daily hours must be between 1 and 14');return;}
     var np=newProfile({name:String(o.name||'').trim(),level:o.level,groups:groups,examDate:o.date,dailyHours:hrs,rest:Number(o.rest),dateAuto:!!o.auto});
-    np.hist=o.hist||{};np.route=o.level==='inter'?(o.route==='direct'?'direct':'foundation'):(o.level==='final'?'passed':'start');
+    np.prefTime=PTIME[o.ptime]?o.ptime:'';np.hist=o.hist||{};np.route=o.level==='inter'?(o.route==='direct'?'direct':'foundation'):(o.level==='final'?'passed':'start');
     if(o.level==='inter'&&o.route==='direct')np.grad={type:o.gtype,pct:o.gpct};
     if(o.fromId){var op=S.profiles.filter(function(x){return x.id===o.fromId;})[0];if(op){op.archived=true;op.dirty=true;}}
     S.profiles.push(np);S.active=np.id;ui.onb=null;ui.tab='today';ui.res=null;commit();toast('Plan created');return;
@@ -4830,7 +4913,7 @@ function act(a,d){
 
 function startOnb(){
   var idx=defaultAttemptIdx();
-  ui.onb={name:'',level:'inter',route:'foundation',gtype:'commerce',gpct:'',hist:{},g1:true,g2:false,idx:idx,date:iso(aDate(idx)),hours:6,rest:0};
+  ui.onb={name:'',level:'inter',route:'foundation',gtype:'commerce',gpct:'',hist:{},g1:true,g2:false,idx:idx,date:iso(aDate(idx)),hours:6,rest:0,ptime:'evening'};
 }
 
 function chg(k,d,el){
@@ -4860,7 +4943,8 @@ function chg(k,d,el){
   if(k==='xdf'){var Py=cur(),Xy=xdS(Py);Xy.f=Xy.f||{};Xy.f.c=String(el.value||'').slice(0,100);Py.dirty=true;commit();return;}
   if(k==='aisub'){ui.ai.q=readv('ai-q');ui.ai.sub=el.value;render();return;}
   if(k==='aimode'){var a9=ui.ai;a9.q=readv('ai-q');a9.mat=readv('ai-mat')||a9.mat;var cx9=document.getElementById('ai-ctx');if(cx9)a9.ctx=cx9.checked;a9.mode=el.value;render();return;}
-  if(k==='tmopt'){var oo=tmOpts();if(d.o==='every')oo.every=parseInt(el.value,10)||60;else oo[d.o]=el.checked;tmOptSave(oo);if(tmGet())tmPush();render();return;}
+  if(k==='ptime'){var Pq=cur();if(Pq){Pq.prefTime=el.value;commit();}return;}
+  if(k==='tmopt'){var oo=tmOpts();if(d.o==='every')oo.every=parseInt(el.value,10)||60;else{if(d.o==='strict'&&oo.lock&&!el.checked){toast('Buddy Lock is on. Remove the lock with the code first.');render();return;}oo[d.o]=el.checked;}tmOptSave(oo);if(tmGet())tmPush();render();return;}
   if(k==='gcmode'){guard(rpc('set_group_mode',{p_group:GC.id,p_admins_only:el.checked}).then(function(m){toast(m);return refreshPartner();}));return;}
   if(k==='dskallow'){var al2=dskAllowed(),ix=al2.indexOf(d.o);if(el.checked&&ix<0)al2.push(d.o);if(!el.checked&&ix>=0)al2.splice(ix,1);dskSetAllowed(al2);return;}
   if(k==='dskauto'){try{localStorage.setItem('ca_studyos_dskauto',el.checked?'1':'0');}catch(e){}try{if(DSK)DSK.setAutoStart(el.checked);}catch(e){}return;}
@@ -4959,6 +5043,10 @@ window.addEventListener('online',function(){
 window.addEventListener('error',function(e){logErr((e&&e.message)||'error');});
 window.addEventListener('unhandledrejection',function(e){logErr((e&&e.reason&&e.reason.message)||'promise');});
 window.__so={dsk:dsk,GC:GC,gcOpen:gcOpen,gcClose:gcClose,gcSend:gcSend,gcFetch:gcFetch,gcText:gcText,tm:{get:tmGet,tick:tmTick,pull:tmPull,opts:tmOpts,check:tmCheck,push:tmPush},refreshPartner:refreshPartner,applyRemote:applyRemote,act:act,starter:starter,newsFeed:newsFeed,feedOk:feedOk,newsList:newsList,newsCard:newsCard,newsOk:newsOk,pywParse:pywParse,pywFilesOk:pywFilesOk,regOk:regOk,regRegion:regRegion,pwAll:pwAll,bulkParse:bulkParse,bulkPrompt:bulkPrompt,bulkCard:bulkCard,fbAdminCard:fbAdminCard,privacyCard:privacyCard,libCard:libCard,libFilesOk:libFilesOk,loadPdfs:loadPdfs,idCard:idCard,adminHub:adminHub,viewAI:viewAI,focus3:focus3,focusCard:focusCard,weekFix:weekFix,weekPlus:weekPlus,wkBanner:wkBanner,hyIds:hyIds,pywCard:pywCard,simBudgets:simBudgets,simParse:simParse,simCard:simCard,simTick:simTick,chkCard:chkCard,bakBanner:bakBanner,kalBanner:kalBanner,kalRow:kalRow,kalGoals:kalGoals,helpCard:helpCard,offBanner:offBanner,mmss:mmss,fsGet:fsGet,pushPrefs:pushPrefs,pushCard:pushCard,groupCard:groupCard,nudgeBanner:nudgeBanner,boardToday:boardToday,b64u:b64u,buildSummary:buildSummary,badgeList:badgeList,checkBadges:checkBadges,burnoutInfo:burnoutInfo,cardsDue:cardsDue,tr:tr,getLang:getLang,attemptOptions:attemptOptions,canTick:canTick,tmCheck:tmCheck,misDue:misDue,tmMs:tmMs,priorScore:priorScore,weak:weak,canStart:canStart,directOK:directOK,histA:histA,CAL:function(){return CAL;},SYLV:function(){return SYLVER;},icaiStart:icaiStart,applyRemote:applyRemote,applySyl:applySyl,sylDiff:sylDiff,weakChapters:weakChapters,weekText:weekText,icsText:icsText,streakDays:streakDays,normP:normP,onbDate:onbDate,tmSet:tmSet,cloud:cloud,SYL:SYL,S:function(){return S;},analyse:analyse,activeInfo:activeInfo,planInfo:planInfo,newProfile:newProfile,todayPlan:todayPlan,roadmap:roadmap,makeRevs:makeRevs,render:render,ui:ui,aIdx:aIdx,aLabel:aLabel,cur:cur,save:save};
+try{var qs0=new URLSearchParams(location.search),go0=qs0.get('go'),rf0=qs0.get('ref');
+  if(rf0&&/^[A-Za-z0-9]{4,8}$/.test(rf0))try{localStorage.setItem('studify_ref',rf0.toUpperCase());}catch(e){}
+  if(go0&&S.profiles&&S.profiles.length){var gm={focus:'today',today:'today',hw:'hw',pt:'pt',qr:'qr',papers:'papers',plan:'plan',partner:'partner'};if(gm[go0])ui.tab=gm[go0];}
+  if((go0||rf0)&&history.replaceState)history.replaceState(null,'',location.pathname);}catch(e){}
 render();
 })();
 
