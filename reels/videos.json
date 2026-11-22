@@ -1,0 +1,1232 @@
+[
+ {
+  "day": 1,
+  "voiceover": "Plan banaya, teen din baad chhod diya? Har CA student ki yahi kahani hai. Studify CA mein bas level, exam date aur daily hours daalo. App khud plan banata hai aur roz ka target dikhata hai. Plan banao, follow bhi karo. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Plan banaya. 3 din baad chhod diya?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Excel, notebook, timetable. Sab ek hafte mein band.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "onboarding",
+    "title": "Studify CA",
+    "caption": "Level, exam date, daily hours",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "today",
+    "title": "Studify CA",
+    "caption": "Roz ka Today screen",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA study plan that you can actually follow 📚\n\nPlan banaya, teen din baad chhod diya? Har CA student ki yahi kahani hai. Studify CA mein bas level, exam date aur daily hours daalo. App khud plan banata hai aur roz ka target dikhata hai. Plan banao, follow bhi karo.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CAFoundation #CAInter #CAFinal",
+  "cover": "Plan chhod diya?",
+  "alt": "Studify CA app screens: Level, exam date, daily hours and Roz ka Today screen"
+ },
+ {
+  "day": 2,
+  "voiceover": "Confused ho ki May dena hai ya September? Studify CA tumhara bacha syllabus, daily hours aur ICAI dates dekhkar batata hai kaunsa attempt realistic hai. Final decision tumhara, par numbers saaf dikhte hain. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Kaunsa attempt dena chahiye?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Syllabus bacha hai, date nikal rahi hai.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "plan",
+    "title": "Studify CA",
+    "caption": "Attempt suggestion",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "plan",
+    "title": "Studify CA",
+    "caption": "Hours needed per day",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "Which CA attempt should you give? Check realistic attempt 📚\n\nConfused ho ki May dena hai ya September? Studify CA tumhara bacha syllabus, daily hours aur ICAI dates dekhkar batata hai kaunsa attempt realistic hai. Final decision tumhara, par numbers saaf dikhte hain.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CAAttempt #CAMay2027 #CAInter",
+  "cover": "May ya Sept?",
+  "alt": "Studify CA app screens: Attempt suggestion and Hours needed per day"
+ },
+ {
+  "day": 3,
+  "voiceover": "Padha hua bhoolne ka matlab revision miss hona hai. Studify CA har chapter ke liye revision dates banata hai, ek, teen, saat, pandrah aur tees din baad. Jo due hai wo Quick Revision me upar dikhta hai. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Padha hua bhool jaate ho?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Revision ka time hi nahi milta.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "rep",
+    "title": "Studify CA",
+    "caption": "Quick revision, most marks first",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "plan",
+    "title": "Studify CA",
+    "caption": "Revision strategy by paper",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA revision planner with spaced revision 📚\n\nPadha hua bhoolne ka matlab revision miss hona hai. Studify CA har chapter ke liye revision dates banata hai, ek, teen, saat, pandrah aur tees din baad. Jo due hai wo Quick Revision me upar dikhta hai.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CARevision #SpacedRepetition #CAInter",
+  "cover": "Bhool jaate ho?",
+  "alt": "Studify CA app screens: Quick revision, most marks first and Revision strategy by paper"
+ },
+ {
+  "day": 4,
+  "voiceover": "Aaj kitna padha, iska hisaab hai? Studify CA me study session log karo. Weekly goal, streak aur paper wise time sab dikhta hai. Jo napega, wahi badhega. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Aaj kitna padha? Pata hai?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Hisaab nahi to improvement nahi.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "log",
+    "title": "Studify CA",
+    "caption": "Study hours and weekly goal",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "log",
+    "title": "Studify CA",
+    "caption": "Streak and mock scores",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA study hours tracker, log your daily study time 📚\n\nAaj kitna padha, iska hisaab hai? Studify CA me study session log karo. Weekly goal, streak aur paper wise time sab dikhta hai. Jo napega, wahi badhega.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #StudyTracker #CAStudyHours #StudyStreak",
+  "cover": "Aaj kitna padha?",
+  "alt": "Studify CA app screens: Study hours and weekly goal and Streak and mock scores"
+ },
+ {
+  "day": 5,
+  "voiceover": "Past papers dhoondhne me hi time chala jaata hai. Studify CA me paper wise library hai, PYQ, MTP aur RTP ek jagah. Subject chuno aur practice shuru. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Past papers kahan se laaun?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "20 websites, 50 PDFs, sab alag.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "papers",
+    "title": "Studify CA",
+    "caption": "Papers sorted by subject",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "pt",
+    "title": "Studify CA",
+    "caption": "Practice test",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA past papers PYQ MTP RTP in one place 📚\n\nPast papers dhoondhne me hi time chala jaata hai. Studify CA me paper wise library hai, PYQ, MTP aur RTP ek jagah. Subject chuno aur practice shuru.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CAPYQ #CAMTP #CARTP",
+  "cover": "Past papers ek jagah",
+  "alt": "Studify CA app screens: Papers sorted by subject and Practice test"
+ },
+ {
+  "day": 6,
+  "voiceover": "Studify CA roz ek chhota homework deta hai, ek question, tumhare chapters se. Karoge to streak badhegi, nahi karoge to reminder aayega. Chhoti aadat, bada fark. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Roz ka homework kaun dega?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Khud ko hi chhoti deadline do.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "hw",
+    "title": "Studify CA",
+    "caption": "Daily homework",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "today",
+    "title": "Studify CA",
+    "caption": "Today screen",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "Daily CA homework habit app 📚\n\nStudify CA roz ek chhota homework deta hai, ek question, tumhare chapters se. Karoge to streak badhegi, nahi karoge to reminder aayega. Chhoti aadat, bada fark.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #DailyHabit #CAStudent #StudyDiscipline",
+  "cover": "Daily homework",
+  "alt": "Studify CA app screens: Daily homework and Today screen"
+ },
+ {
+  "day": 7,
+  "voiceover": "ICAI ke notice aur exam form ki last date miss karna sabse bada nuksan hai. Studify CA me official announcements aur important dates ek jagah dikhte hain. Hamesha icai.org par confirm karna. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "ICAI ka notice miss kiya?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Form last date nikal gayi?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "icai",
+    "title": "Studify CA",
+    "caption": "Official ICAI announcements",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "today",
+    "title": "Studify CA",
+    "caption": "ICAI updates on Today",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "ICAI exam form dates and announcements tracker 📚\n\nICAI ke notice aur exam form ki last date miss karna sabse bada nuksan hai. Studify CA me official announcements aur important dates ek jagah dikhte hain. Hamesha icai.org par confirm karna.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #ICAI #CAExamForm #CANotice",
+  "cover": "Notice miss?",
+  "alt": "Studify CA app screens: Official ICAI announcements and ICAI updates on Today"
+ },
+ {
+  "day": 8,
+  "voiceover": "Apne marks ka andaza lagana hai? Studify CA ka score predictor tumhare chapter progress aur test scores se rough estimate deta hai, har paper ka. Ye sirf andaza hai, par direction deta hai. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Kitne marks aayenge? Andaza hai?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Mock ke baad bhi confusion.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "results",
+    "title": "Studify CA",
+    "caption": "Score predictor",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "log",
+    "title": "Studify CA",
+    "caption": "Mock scores",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA score predictor from your progress and mocks 📚\n\nApne marks ka andaza lagana hai? Studify CA ka score predictor tumhare chapter progress aur test scores se rough estimate deta hai, har paper ka. Ye sirf andaza hai, par direction deta hai.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CAMock #CAResult #CAMarks",
+  "cover": "Marks predictor",
+  "alt": "Studify CA app screens: Score predictor and Mock scores"
+ },
+ {
+  "day": 9,
+  "voiceover": "Time kam hai to starred chapters se shuru karo. Studify CA past papers me jo chapters zyada marks laate hain, unhe star karke dikhata hai. Smart study, hard study se behtar. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Sabse zyada marks wale chapters?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Sab padhna possible nahi.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "star",
+    "title": "Studify CA",
+    "caption": "Starred chapters",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "papers",
+    "title": "Studify CA",
+    "caption": "Papers by subject",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA most important chapters for more marks 📚\n\nTime kam hai to starred chapters se shuru karo. Studify CA past papers me jo chapters zyada marks laate hain, unhe star karke dikhata hai. Smart study, hard study se behtar.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CAImportantChapters #SmartStudy #CAInter",
+  "cover": "Most marks chapters",
+  "alt": "Studify CA app screens: Starred chapters and Papers by subject"
+ },
+ {
+  "day": 10,
+  "voiceover": "Kai questions alag alag papers me repeat hote hain. Studify CA ka Repeated Questions section dikhata hai kaunsa kitni baar aaya. Pehle wahi solve karo. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Repeated questions kaun se hain?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Exam me wahi question aa gaya!",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "qr",
+    "title": "Studify CA",
+    "caption": "Repeated questions",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "rep",
+    "title": "Studify CA",
+    "caption": "Revise these first",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA repeated questions from past papers 📚\n\nKai questions alag alag papers me repeat hote hain. Studify CA ka Repeated Questions section dikhata hai kaunsa kitni baar aaya. Pehle wahi solve karo.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CARepeatedQuestions #CAMTP #CAExam",
+  "cover": "Repeat questions",
+  "alt": "Studify CA app screens: Repeated questions and Revise these first"
+ },
+ {
+  "day": 11,
+  "voiceover": "Exam me calculator ke tricks time bachate hain. Studify CA me Calculator Tricks hain, quick calculator aur practice question ke saath. Ek baar try karo. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Calculator me time waste?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Casio ke tricks nahi aate.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "calc",
+    "title": "Studify CA",
+    "caption": "Calculator tricks",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "calc",
+    "title": "Studify CA",
+    "caption": "Quick calculator",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA calculator tricks for fast exam solving 📚\n\nExam me calculator ke tricks time bachate hain. Studify CA me Calculator Tricks hain, quick calculator aur practice question ke saath. Ek baar try karo.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CACalculator #Casio #CATips",
+  "cover": "Calculator tricks",
+  "alt": "Studify CA app screens: Calculator tricks and Quick calculator"
+ },
+ {
+  "day": 12,
+  "voiceover": "Paper ka pattern, marks aur passing criteria ek jagah chahiye? Studify CA ka Exam Guide har paper ka format dikhata hai. Final check hamesha icai.org par karna. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Exam pattern samajh nahi aata?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Marks, negative marking, passing criteria.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "guide",
+    "title": "Studify CA",
+    "caption": "Exam pattern and marks",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "guide",
+    "title": "Studify CA",
+    "caption": "Your path",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA exam pattern and passing marks guide 📚\n\nPaper ka pattern, marks aur passing criteria ek jagah chahiye? Studify CA ka Exam Guide har paper ka format dikhata hai. Final check hamesha icai.org par karna.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CAExamPattern #CAFoundation #CAInter",
+  "cover": "Exam pattern",
+  "alt": "Studify CA app screens: Exam pattern and marks and Your path"
+ },
+ {
+  "day": 13,
+  "voiceover": "MCQ ki practice chapter wise karo. Studify CA ka Practice Test past papers aur MTPs ke questions deta hai, answer aur source ke saath. Galti notebook me jaati hai. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "MCQ practice kaise karein?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Papers 3 aur 4 objective hote hain.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "pt",
+    "title": "Studify CA",
+    "caption": "Chapter wise MCQ test",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "hw",
+    "title": "Studify CA",
+    "caption": "Homework",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA MCQ practice test chapter wise 📚\n\nMCQ ki practice chapter wise karo. Studify CA ka Practice Test past papers aur MTPs ke questions deta hai, answer aur source ke saath. Galti notebook me jaati hai.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CAMCQ #CAFoundation #CAQuant",
+  "cover": "MCQ practice",
+  "alt": "Studify CA app screens: Chapter wise MCQ test and Homework"
+ },
+ {
+  "day": 14,
+  "voiceover": "Study buddy ke saath padhai tikti hai. Studify CA me partner link karo, ek doosre ka progress dekho. Mil kar consistent raho. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Akele padhna boring lagta hai?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Motivation do din chalti hai.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "partner",
+    "title": "Studify CA",
+    "caption": "Study partner",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "log",
+    "title": "Studify CA",
+    "caption": "Weekly report",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA study partner and accountability buddy 📚\n\nStudy buddy ke saath padhai tikti hai. Studify CA me partner link karo, ek doosre ka progress dekho. Mil kar consistent raho.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #StudyBuddy #CAStudent #Accountability",
+  "cover": "Study buddy",
+  "alt": "Studify CA app screens: Study partner and Weekly report"
+ },
+ {
+  "day": 15,
+  "voiceover": "Streak ka dar achha hai. Roz thoda bhi padho to streak chalti rehti hai. Studify CA streak aur weekly goal dikhata hai. Aaj bas ek session. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Streak todna nahi hai!",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Ek din miss, phir hafte bhar band.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "log",
+    "title": "Studify CA",
+    "caption": "Study streak",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "today",
+    "title": "Studify CA",
+    "caption": "Today",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA study streak consistency tracker 📚\n\nStreak ka dar achha hai. Roz thoda bhi padho to streak chalti rehti hai. Studify CA streak aur weekly goal dikhata hai. Aaj bas ek session.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #StudyStreak #Consistency #CAStudent",
+  "cover": "Streak mat todo",
+  "alt": "Studify CA app screens: Study streak and Today"
+ },
+ {
+  "day": 16,
+  "voiceover": "Studify CA ka AI tutor abhi locked hai. Jab app paanch sau users cross karega, tab sabke liye khulega. Tab tak baaki sab kuch free hai, plan, revision, papers aur partner. Dost ko share karo, jaldi khulega. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "AI tutor kab aayega?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Sabke paas AI hai, hamare paas?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "ai",
+    "title": "Studify CA",
+    "caption": "AI tutor, opening soon",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "plan",
+    "title": "Studify CA",
+    "caption": "Everything else is free",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "AI tutor for CA students, coming soon 📚\n\nStudify CA ka AI tutor abhi locked hai. Jab app paanch sau users cross karega, tab sabke liye khulega. Tab tak baaki sab kuch free hai, plan, revision, papers aur partner. Dost ko share karo, jaldi khulega.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #AITutor #CAStudent #StudifyCA",
+  "cover": "AI tutor soon",
+  "alt": "Studify CA app screens: AI tutor, opening soon and Everything else is free"
+ },
+ {
+  "day": 17,
+  "voiceover": "Mock aur test ke marks likhne ke liye alag copy kyun? Studify CA me mock score add karo, paper wise. Progress ek jagah dikhegi. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Mock ka score kahan likhte ho?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Marks yaad nahi rehte.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "log",
+    "title": "Studify CA",
+    "caption": "Add mock or test score",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "results",
+    "title": "Studify CA",
+    "caption": "Estimated marks",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA mock test score tracker 📚\n\nMock aur test ke marks likhne ke liye alag copy kyun? Studify CA me mock score add karo, paper wise. Progress ek jagah dikhegi.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CAMock #MockTest #CAPreparation",
+  "cover": "Mock tracker",
+  "alt": "Studify CA app screens: Add mock or test score and Estimated marks"
+ },
+ {
+  "day": 18,
+  "voiceover": "Mistake notebook banao. Studify CA me galtiyan note karo aur revise karo, taaki wahi galti dobara na ho. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Galtiyan baar baar repeat?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Wahi mistake phir se.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "log",
+    "title": "Studify CA",
+    "caption": "Mistake notebook",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "rep",
+    "title": "Studify CA",
+    "caption": "Revise these first",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA mistake notebook to avoid repeated errors 📚\n\nMistake notebook banao. Studify CA me galtiyan note karo aur revise karo, taaki wahi galti dobara na ho.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #MistakeNotebook #CAStudent #LearnFromMistakes",
+  "cover": "Galti notebook",
+  "alt": "Studify CA app screens: Mistake notebook and Revise these first"
+ },
+ {
+  "day": 19,
+  "voiceover": "Kabhi mann nahi karta, aur ye normal hai. Studify CA me Light day option hai, jo aaj ka load halka kar deta hai taaki streak aur plan dono bache. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Aaj mann nahi hai padhne ka?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Poora din waste mat karo.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "today",
+    "title": "Studify CA",
+    "caption": "Today screen",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "plan",
+    "title": "Studify CA",
+    "caption": "Plan adjusts",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA study plan for low energy days 📚\n\nKabhi mann nahi karta, aur ye normal hai. Studify CA me Light day option hai, jo aaj ka load halka kar deta hai taaki streak aur plan dono bache.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #StudyMotivation #CAStudent #LightDay",
+  "cover": "Mann nahi hai?",
+  "alt": "Studify CA app screens: Today screen and Plan adjusts"
+ },
+ {
+  "day": 20,
+  "voiceover": "Tumhara best study time kaunsa hai? Studify CA onboarding me best time poochta hai aur reminders usi hisaab se aate hain. Apni body clock follow karo. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Padhne ka best time kaunsa?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Subah ya raat?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "onboarding",
+    "title": "Studify CA",
+    "caption": "Choose your best study time",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "today",
+    "title": "Studify CA",
+    "caption": "Today",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "Best time to study for CA exams 📚\n\nTumhara best study time kaunsa hai? Studify CA onboarding me best time poochta hai aur reminders usi hisaab se aate hain. Apni body clock follow karo.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #BestTimeToStudy #CAStudent #StudyRoutine",
+  "cover": "Best study time",
+  "alt": "Studify CA app screens: Choose your best study time and Today"
+ },
+ {
+  "day": 21,
+  "voiceover": "Spaced revision ka formula simple hai. Ek, teen, saat, pandrah aur tees din. Studify CA ye dates khud banata hai aur matrix me dikhata hai kaunsa paper kitna revise hua. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Revision kab karein?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Ek baar padha to khatam?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "plan",
+    "title": "Studify CA",
+    "caption": "Revision matrix",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "rep",
+    "title": "Studify CA",
+    "caption": "Revision list",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA spaced revision schedule 1 3 7 15 30 days 📚\n\nSpaced revision ka formula simple hai. Ek, teen, saat, pandrah aur tees din. Studify CA ye dates khud banata hai aur matrix me dikhata hai kaunsa paper kitna revise hua.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #Revision #CARevision #StudyHacks",
+  "cover": "Revision formula",
+  "alt": "Studify CA app screens: Revision matrix and Revision list"
+ },
+ {
+  "day": 22,
+  "voiceover": "Hafte bhar ki padhai ka report share karo. Studify CA me weekly report aur proof card hai. Dost ko dikhao, motivation badhega. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Weekly report share karein?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Padhai ka proof dikhao.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "log",
+    "title": "Studify CA",
+    "caption": "Share this report",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "log",
+    "title": "Studify CA",
+    "caption": "Weekly goal",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "Share your CA weekly study report 📚\n\nHafte bhar ki padhai ka report share karo. Studify CA me weekly report aur proof card hai. Dost ko dikhao, motivation badhega.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #WeeklyReport #CAStudent #StudyProof",
+  "cover": "Weekly report",
+  "alt": "Studify CA app screens: Share this report and Weekly goal"
+ },
+ {
+  "day": 23,
+  "voiceover": "Time kahan ja raha hai? Studify CA time split dikhata hai, kaunse paper ko kitna time diya. Balance aa jayega. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Time kahan jaata hai?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Din bhar busy, padhai zero.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "log",
+    "title": "Studify CA",
+    "caption": "Where your time went",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "plan",
+    "title": "Studify CA",
+    "caption": "Hours by paper",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "Track where your CA study time goes 📚\n\nTime kahan ja raha hai? Studify CA time split dikhata hai, kaunse paper ko kitna time diya. Balance aa jayega.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #TimeManagement #CAStudent #StudyHours",
+  "cover": "Time kahan gaya?",
+  "alt": "Studify CA app screens: Where your time went and Hours by paper"
+ },
+ {
+  "day": 24,
+  "voiceover": "Exam form ki last date aur late fee date yaad rakhna mushkil hai. Studify CA Today screen par ICAI updates dikhata hai. Hamesha icai.org par confirm karna. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Form dates yaad nahi rehti?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Late fee kyun bharni?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "icai",
+    "title": "Studify CA",
+    "caption": "ICAI updates",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "today",
+    "title": "Studify CA",
+    "caption": "Dates on Today",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA exam form last date and late fee reminders 📚\n\nExam form ki last date aur late fee date yaad rakhna mushkil hai. Studify CA Today screen par ICAI updates dikhata hai. Hamesha icai.org par confirm karna.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CAExamForm #ICAI #CAExam",
+  "cover": "Form last date",
+  "alt": "Studify CA app screens: ICAI updates and Dates on Today"
+ },
+ {
+  "day": 25,
+  "voiceover": "Studify CA ek app ki tarah install ho jaata hai. Padhai ka data tumhare phone me rehta hai. Chrome me menu kholo aur Add to Home screen. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Internet nahi hai to?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Train me, gaon me, no network.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "today",
+    "title": "Studify CA",
+    "caption": "Installs like an app",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "plan",
+    "title": "Studify CA",
+    "caption": "Works on your phone",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "CA study app that works on your phone 📚\n\nStudify CA ek app ki tarah install ho jaata hai. Padhai ka data tumhare phone me rehta hai. Chrome me menu kholo aur Add to Home screen.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #StudyApp #CAStudent #PWA",
+  "cover": "App install",
+  "alt": "Studify CA app screens: Installs like an app and Works on your phone"
+ },
+ {
+  "day": 26,
+  "voiceover": "Studify CA free hai. Plan, revision, past papers, homework aur partner, sab. Aage kuch features paid ho sakte hain, par ab tak tumhe kuch nahi dena. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Paid app lena zaroori hai?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Subscription pe subscription.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "plan",
+    "title": "Studify CA",
+    "caption": "Free study plan",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "papers",
+    "title": "Studify CA",
+    "caption": "Free past papers",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "Free CA study app, no subscription 📚\n\nStudify CA free hai. Plan, revision, past papers, homework aur partner, sab. Aage kuch features paid ho sakte hain, par ab tak tumhe kuch nahi dena.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #FreeApp #CAStudent #StudyForFree",
+  "cover": "Bilkul free",
+  "alt": "Studify CA app screens: Free study plan and Free past papers"
+ },
+ {
+  "day": 27,
+  "voiceover": "Foundation, Intermediate ya Final, ek hi app. Level chuno aur plan, papers, guide sab usi ke hisaab se. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Foundation, Inter ya Final?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Sabke liye alag app?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "guide",
+    "title": "Studify CA",
+    "caption": "Exam guide by level",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "onboarding",
+    "title": "Studify CA",
+    "caption": "Choose your level",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "One CA study app for Foundation Inter and Final 📚\n\nFoundation, Intermediate ya Final, ek hi app. Level chuno aur plan, papers, guide sab usi ke hisaab se.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CAFoundation #CAInter #CAFinal",
+  "cover": "Ek app, 3 levels",
+  "alt": "Studify CA app screens: Exam guide by level and Choose your level"
+ },
+ {
+  "day": 28,
+  "voiceover": "Dost ko Studify CA bhejo. Referral code se dono ko fayda hai. Saath padho, saath pass ho. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Dost ko bhi sikhao?",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Akele jeetna mushkil hai.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "partner",
+    "title": "Studify CA",
+    "caption": "Invite a friend",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "log",
+    "title": "Studify CA",
+    "caption": "Compare progress",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "Invite your CA friend, study together 📚\n\nDost ko Studify CA bhejo. Referral code se dono ko fayda hai. Saath padho, saath pass ho.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CAFriends #Referral #StudyTogether",
+  "cover": "Dost ko bhejo",
+  "alt": "Studify CA app screens: Invite a friend and Compare progress"
+ },
+ {
+  "day": 29,
+  "voiceover": "Tees din ka challenge lo. Roz ek session, roz ek homework, hafte me ek revision. Studify CA saath hai. Comment me batao tum kitne din chale. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "30 din ka challenge!",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Aaj se shuru karo.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "results",
+    "title": "Studify CA",
+    "caption": "Your progress",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "today",
+    "title": "Studify CA",
+    "caption": "Daily plan",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "30 day CA study challenge 📚\n\nTees din ka challenge lo. Roz ek session, roz ek homework, hafte me ek revision. Studify CA saath hai. Comment me batao tum kitne din chale.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #30DayChallenge #CAStudent #StudifyCA",
+  "cover": "30 day challenge",
+  "alt": "Studify CA app screens: Your progress and Daily plan"
+ },
+ {
+  "day": 30,
+  "voiceover": "Ek mahine ke videos ho gaye. Agar Studify CA se thoda bhi fayda hua, to ek dost ko bhejo. Feedback comment me likho. Hum aur behtar banayenge. Link in bio.",
+  "scenes": [
+   {
+    "type": "text",
+    "title": "Shukriya CA family!",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "text",
+    "title": "Ab tumhari baari.",
+    "sub": "",
+    "w": 3
+   },
+   {
+    "type": "shot",
+    "shot": "plan",
+    "title": "Studify CA",
+    "caption": "Studify CA",
+    "w": 5
+   },
+   {
+    "type": "shot",
+    "shot": "today",
+    "title": "Studify CA",
+    "caption": "Keep going",
+    "w": 5
+   },
+   {
+    "type": "cta",
+    "title": "Plan banao. Follow bhi karo.",
+    "sub": "Link in bio · Free · Made for CA",
+    "w": 4
+   }
+  ],
+  "caption": "Studify CA, free study planner for CA students 📚\n\nEk mahine ke videos ho gaye. Agar Studify CA se thoda bhi fayda hua, to ek dost ko bhejo. Feedback comment me likho. Hum aur behtar banayenge.\n\nFree app, link in bio 🔗\nComment 'PLAN' and tell us your exam attempt.\n\n#StudifyCA #CAStudent #CAExam #StudyPlan #CAPreparation #CAFamily #ThankYou #StudifyCA",
+  "cover": "Thank you",
+  "alt": "Studify CA app screens: Studify CA and Keep going"
+ }
+]
