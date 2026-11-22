@@ -3834,13 +3834,20 @@ function viewNT(c){
   if(n.err)h+='<div class="card"><div class="mut">'+esc(n.err)+'</div></div>';
   if(!n.idx)return h+'<div class="card"><div class="mut">Loading...</div></div>';
   if(!n.idx.length)return h+'<div class="card"><div class="mut">Notes are being prepared. New chapters appear here every day.</div></div>';
-  var g={};n.idx.forEach(function(x){var k=x.course+' • '+x.paper+' • '+x.chapter;(g[k]=g[k]||[]).push(x);});
+  var LV=[['foundation','Foundation'],['inter','Intermediate'],['final','Final']];
+  function lvOf(x){var c=String(x.course||'').toLowerCase();return c.indexOf('found')===0?'foundation':(c.indexOf('inter')===0?'inter':(c.indexOf('final')===0?'final':'other'));}
+  var lv=n.lv||P.level||'foundation';
+  h+='<div class="card"><div class="mut" style="margin-bottom:6px">Level</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+LV.map(function(l){var ct=n.idx.filter(function(x){return lvOf(x)===l[0];}).length;return '<button class="btn '+(lv===l[0]?'':'sec')+' sm" data-act="ntlv" data-lv="'+l[0]+'">'+l[1]+(ct?' ('+ct+')':'')+'</button>';}).join('')+'</div></div>';
+  var shown=n.idx.filter(function(x){return lvOf(x)===lv;});
+  if(!shown.length)return h+'<div class="card"><div class="mut">No notes for this level yet. They are added every night, starting with Foundation.</div></div>';
+  var g={};shown.forEach(function(x){var k=x.course+' • '+x.paper+' • '+x.chapter;(g[k]=g[k]||[]).push(x);});
   Object.keys(g).forEach(function(k){h+='<div class="card"><h3>'+esc(k)+'</h3>'+g[k].map(function(x){return '<button class="btn sec" style="width:100%;text-align:left;margin-top:6px" data-act="ntopen" data-id="'+esc(x.id)+'">'+esc(x.unit)+' <span class="mut">('+x.topics+' topics)</span></button>';}).join('')+'</div>';});
   return h;
 }
 function ntAct(a,d,P){
   var n=ntSt();
   if(a==='ntopen'){ntOpen(d.id);return;}
+  if(a==='ntlv'){n.lv=d.lv;renderKeep();return;}
   if(a==='ntback'){n.cur=null;renderKeep();window.scrollTo(0,0);return;}
   if(a==='ntans'){n.ans[d.k]=Number(d.o);renderKeep();return;}
   if(a==='ntdone'){if(!P.ntDone)P.ntDone={};var k=d.u+':'+d.t;if(P.ntDone[k])delete P.ntDone[k];else P.ntDone[k]=1;P.dirty=true;commit();return;}
