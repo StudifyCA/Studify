@@ -21,6 +21,7 @@ h1{font-size:92px;line-height:1.18;font-weight:800}h2{font-size:64px;font-weight
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 function html(s){
   if(s.type==='shot'){const p=path.join(R,'shots',s.shot+'.png');
+    if(!fs.existsSync(p))throw new Error('Missing screen image: reels/shots/'+s.shot+'.png (upload the shots folder into reels/)');
     const img=fs.existsSync(p)?`<div class="ph"><img src="data:image/png;base64,${fs.readFileSync(p).toString('base64')}"></div>`:'';
     return `<h2>${esc(s.title)} 🎯</h2>${img}<div class="cap"><span class="a">${esc(s.caption)}</span></div>`;}
   if(s.type==='cta')return `<h1><span class="a">${esc(s.title)}</span></h1><div class="s">${esc(s.sub)}</div><div class="btn">Studify CA</div>`;
@@ -28,18 +29,28 @@ function html(s){
 (async()=>{
   // 1. voice-over
   const audio=path.join(OUT,`day${nn}.mp3`);
-  const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE}?output_format=mp3_44100_128`,{method:'POST',
-    headers:{'xi-api-key':KEY,'Content-Type':'application/json'},body:JSON.stringify({text:v.voiceover,model_id:'eleven_multilingual_v2'})});
+  const text=v.scenes.map(x=>x.vo||'').filter(Boolean).join(' ');
+  const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE}/with-timestamps?output_format=mp3_44100_128`,{method:'POST',
+    headers:{'xi-api-key':KEY,'Content-Type':'application/json'},body:JSON.stringify({text,model_id:'eleven_multilingual_v2'})});
   if(!r.ok)throw new Error('ElevenLabs '+r.status+' '+await r.text());
-  fs.writeFileSync(audio,Buffer.from(await r.arrayBuffer()));
-  const total=dur(audio)+0.8;
+  const j=await r.json();fs.writeFileSync(audio,Buffer.from(j.audio_base64,'base64'));
+  const st=(j.alignment||j.normalized_alignment).character_start_times_seconds;
+  const adur=dur(audio),total=adur+0.8;
+  // start time of every scene = time its first spoken character begins (sync with voice)
+  let off=0;const start=[];
+  v.scenes.forEach((s,i)=>{if(s.vo){start[i]=i===0?0:st[Math.min(off,st.length-1)];off+=s.vo.length+1;}else start[i]=null;});
+  for(let i=0;i<v.scenes.length;i++){if(start[i]===null){let k=i-1;while(k>=0&&start[k]===null)k--;
+    let e=i+1;while(e<v.scenes.length&&start[e]===null)e++;const endT=e<v.scenes.length?start[e]:total;
+    let g=0,n=0;for(let q=k;q<e;q++){n++;} // scenes k..e-1 share the span
+    const t0=start[k],step=(endT-t0)/n;for(let q=k;q<e;q++)start[q]=t0+step*(q-k);}}
+  const durs=v.scenes.map((s,i)=>(i+1<v.scenes.length?start[i+1]:total)-start[i]);
   // 2. frames
   const b=await chromium.launch();const p=await b.newPage({viewport:{width:1080,height:1920}});
-  const sum=v.scenes.reduce((a,s)=>a+s.w,0);let list='';
+  let list='';
   for(let i=0;i<v.scenes.length;i++){const s=v.scenes[i];
     await p.setContent(`<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet"><style>${css}</style>${html(s)}`,{waitUntil:'networkidle'});
     await p.waitForTimeout(400);const f=path.join(OUT,`f${nn}_${i}.png`);await p.screenshot({path:f});
-    list+=`file '${f}'\nduration ${(total*s.w/sum).toFixed(3)}\n`;}
+    list+=`file '${f}'\nduration ${durs[i].toFixed(3)}\n`;}
   list+=`file '${path.join(OUT,`f${nn}_${v.scenes.length-1}.png`)}'\n`;await b.close();
   fs.writeFileSync(path.join(OUT,'list.txt'),list);
   // 3. mix (optional quiet background music at reels/music/bg.mp3)
