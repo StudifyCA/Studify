@@ -1,64 +1,70 @@
-// Builds one reel: ElevenLabs voice-over + app screens -> reels/out/dayNN.mp4
+// Builds one catchy reel: ElevenLabs voice + animated captions + app screens + sound effects -> reels/out/dayNN.mp4
 const fs=require('fs'),path=require('path'),{execFileSync}=require('child_process');
 const {chromium}=require('playwright');
-const R=__dirname,OUT=path.join(R,'out');fs.mkdirSync(OUT,{recursive:true});
+const R=__dirname,OUT=path.join(R,'out'),FR=path.join(OUT,'frames');fs.mkdirSync(FR,{recursive:true});
 const vids=JSON.parse(fs.readFileSync(path.join(R,'videos.json'),'utf8'));
 function istDay(){const s=fs.readFileSync(path.join(R,'start.txt'),'utf8').trim();
   const now=new Date(Date.now()+5.5*3600e3);const t0=Date.parse(s+'T00:00:00Z');
   const t1=Date.parse(now.toISOString().slice(0,10)+'T00:00:00Z');return Math.round((t1-t0)/864e5)+1;}
 const day=process.argv[2]?+process.argv[2]:istDay();
 const v=vids.find(x=>x.day===day);
-if(!v){console.log('No video for day',day,'- nothing to do');fs.writeFileSync(path.join(OUT,'SKIP'),String(day));process.exit(0);}
-const nn=String(day).padStart(2,'0');
+if(!v){console.log('No video for day',day);fs.writeFileSync(path.join(OUT,'SKIP'),String(day));process.exit(0);}
+const nn=String(day).padStart(2,'0'),FPS=30;
 const KEY=process.env.ELEVEN_API_KEY,VOICE=process.env.ELEVEN_VOICE_ID||'aHIXlH4qG7eC13lvBlFF';
-if(!KEY)throw new Error('ELEVEN_API_KEY secret is missing');
 const dur=f=>parseFloat(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','csv=p=0',f]).toString());
-const BG='background:linear-gradient(160deg,#1e1b4b,#4338ca 60%,#7c3aed)';
-const css=`*{margin:0;box-sizing:border-box}body{width:1080px;height:1920px;${BG};font-family:Poppins,Inter,sans-serif;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px}
-h1{font-size:92px;line-height:1.18;font-weight:800}h2{font-size:64px;font-weight:700;line-height:1.2;margin-bottom:50px}.a{color:#fbbf24}.s{font-size:46px;opacity:.9;margin-top:40px}
-.ph{width:700px;height:1240px;border-radius:60px;border:14px solid #0f172a;overflow:hidden;background:#fff;box-shadow:0 30px 80px #0008}.ph img{width:100%;display:block}
-.cap{font-size:60px;font-weight:700;margin-top:50px;line-height:1.2}.btn{background:#fbbf24;color:#1e1b4b;font-size:58px;font-weight:800;padding:32px 68px;border-radius:70px;margin-top:60px}`;
-const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
-function html(s){
-  if(s.type==='shot'){const p=path.join(R,'shots',s.shot+'.png');
-    if(!fs.existsSync(p))throw new Error('Missing screen image: reels/shots/'+s.shot+'.png (upload the shots folder into reels/)');
-    const img=fs.existsSync(p)?`<div class="ph"><img src="data:image/png;base64,${fs.readFileSync(p).toString('base64')}"></div>`:'';
-    return `<h2>${esc(s.title)} 🎯</h2>${img}<div class="cap"><span class="a">${esc(s.caption)}</span></div>`;}
-  if(s.type==='cta')return `<h1><span class="a">${esc(s.title)}</span></h1><div class="s">${esc(s.sub)}</div><div class="btn">Studify CA</div>`;
-  return `<h1>${esc(s.title)}</h1>${s.sub?`<div class="s">${esc(s.sub)}</div>`:''}`;}
+const sh=(...a)=>execFileSync('ffmpeg',['-y','-loglevel','error',...a],{stdio:'inherit'});
+const PAGE=fs.readFileSync(path.join(R,'scene.html'),'utf8');
 (async()=>{
-  // 1. voice-over
   const audio=path.join(OUT,`day${nn}.mp3`);
   const text=v.scenes.map(x=>x.vo||'').filter(Boolean).join(' ');
-  const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE}/with-timestamps?output_format=mp3_44100_128`,{method:'POST',
-    headers:{'xi-api-key':KEY,'Content-Type':'application/json'},body:JSON.stringify({text,model_id:'eleven_multilingual_v2'})});
-  if(!r.ok)throw new Error('ElevenLabs '+r.status+' '+await r.text());
-  const j=await r.json();fs.writeFileSync(audio,Buffer.from(j.audio_base64,'base64'));
-  const st=(j.alignment||j.normalized_alignment).character_start_times_seconds;
-  const adur=dur(audio),total=adur+0.8;
-  // start time of every scene = time its first spoken character begins (sync with voice)
-  let off=0;const start=[];
-  v.scenes.forEach((s,i)=>{if(s.vo){start[i]=i===0?0:st[Math.min(off,st.length-1)];off+=s.vo.length+1;}else start[i]=null;});
+  let al;
+  if(process.env.MOCK_AUDIO){ // local test only
+    fs.copyFileSync(process.env.MOCK_AUDIO,audio);const d=dur(audio),n=text.length;
+    al={character_start_times_seconds:[...Array(n)].map((_,i)=>0.2+(d-0.5)*i/n),character_end_times_seconds:[...Array(n)].map((_,i)=>0.2+(d-0.5)*(i+1)/n)};
+  }else{
+    if(!KEY)throw new Error('ELEVEN_API_KEY secret is missing');
+    const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE}/with-timestamps?output_format=mp3_44100_128`,{method:'POST',
+      headers:{'xi-api-key':KEY,'Content-Type':'application/json'},body:JSON.stringify({text,model_id:'eleven_multilingual_v2'})});
+    if(!r.ok)throw new Error('ElevenLabs '+r.status+' '+await r.text());
+    const j=await r.json();fs.writeFileSync(audio,Buffer.from(j.audio_base64,'base64'));al=j.alignment||j.normalized_alignment;
+  }
+  const st=al.character_start_times_seconds,en=al.character_end_times_seconds,adur=dur(audio),total=adur+0.9;
+  // scene start = time its first spoken character begins
+  let off=0;const sOff=[],start=[];
+  v.scenes.forEach((s,i)=>{if(s.vo){sOff[i]=off;start[i]=i===0?0:st[Math.min(off,st.length-1)];off+=s.vo.length+1;}else{sOff[i]=null;start[i]=null;}});
   for(let i=0;i<v.scenes.length;i++){if(start[i]===null){let k=i-1;while(k>=0&&start[k]===null)k--;
     let e=i+1;while(e<v.scenes.length&&start[e]===null)e++;const endT=e<v.scenes.length?start[e]:total;
-    let g=0,n=0;for(let q=k;q<e;q++){n++;} // scenes k..e-1 share the span
-    const t0=start[k],step=(endT-t0)/n;for(let q=k;q<e;q++)start[q]=t0+step*(q-k);}}
-  const durs=v.scenes.map((s,i)=>(i+1<v.scenes.length?start[i+1]:total)-start[i]);
-  // 2. frames
+    const n=e-k,t0=start[k],step=(endT-t0)/n;for(let q=k;q<e;q++)start[q]=t0+step*(q-k);}}
+  // words with timing
+  const words=[];let pos=0;
+  text.split(' ').forEach(w=>{const i0=pos,i1=pos+w.length-1;pos+=w.length+1;
+    let sc=0;v.scenes.forEach((s,i)=>{if(sOff[i]!==null&&sOff[i]<=i0)sc=i;});
+    words.push({w,t0:st[Math.min(i0,st.length-1)],t1:en[Math.min(i1,en.length-1)],sc});});
+  const scenes=v.scenes.map((s,i)=>{
+    let img='';if(s.type==='shot'){const p=path.join(R,'shots',s.shot+'.png');
+      if(!fs.existsSync(p))throw new Error('Missing screen image: reels/shots/'+s.shot+'.png');
+      img='data:image/png;base64,'+fs.readFileSync(p).toString('base64');}
+    return {type:s.type,title:s.title,sub:s.sub||'',caption:s.caption||'',img,t0:start[i],t1:i+1<v.scenes.length?start[i+1]:total};});
+  // render frames
   const b=await chromium.launch();const p=await b.newPage({viewport:{width:1080,height:1920}});
-  let list='';
-  for(let i=0;i<v.scenes.length;i++){const s=v.scenes[i];
-    await p.setContent(`<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet"><style>${css}</style>${html(s)}`,{waitUntil:'networkidle'});
-    await p.waitForTimeout(400);const f=path.join(OUT,`f${nn}_${i}.png`);await p.screenshot({path:f});
-    list+=`file '${f}'\nduration ${durs[i].toFixed(3)}\n`;}
-  list+=`file '${path.join(OUT,`f${nn}_${v.scenes.length-1}.png`)}'\n`;await b.close();
-  fs.writeFileSync(path.join(OUT,'list.txt'),list);
-  // 3. mix (optional quiet background music at reels/music/bg.mp3)
-  const music=path.join(R,'music','bg.mp3'),outf=path.join(OUT,`day${nn}.mp4`);
-  const a=['-y','-loglevel','error','-f','concat','-safe','0','-i',path.join(OUT,'list.txt'),'-i',audio];
-  if(fs.existsSync(music))a.push('-stream_loop','-1','-i',music,'-filter_complex','[2:a]volume=0.08[m];[1:a][m]amix=inputs=2:duration=first[a]','-map','0:v','-map','[a]');
-  else a.push('-map','0:v','-map','1:a');
-  a.push('-vf','fps=30,format=yuv420p','-c:v','libx264','-preset','veryfast','-crf','23','-c:a','aac','-b:a','128k','-shortest',outf);
-  execFileSync('ffmpeg',a,{stdio:'inherit'});
+  await p.setContent(process.env.MOCK_AUDIO?PAGE.replace(/<link[^>]*>/,''):PAGE,{waitUntil:process.env.MOCK_AUDIO?'load':'networkidle'});
+  await p.evaluate(D=>init(D),{scenes,words,total});await p.waitForTimeout(500);
+  const N=Math.ceil(total*FPS);
+  for(let f=0;f<N;f++){await p.evaluate(t=>draw(t),f/FPS);
+    await p.screenshot({path:path.join(FR,`f${String(f).padStart(5,'0')}.jpg`),type:'jpeg',quality:88});}
+  await b.close();
+  // sound effects: a short whoosh at every scene change, a pop on the last scene
+  const wh=path.join(OUT,'whoosh.wav');
+  sh('-f','lavfi','-i','anoisesrc=d=0.35:c=pink:a=0.6','-af','highpass=f=500,lowpass=f=6000,afade=t=in:d=0.12,afade=t=out:st=0.12:d=0.23',wh);
+  const cuts=start.slice(1);const fc=[];const ins=['-framerate',String(FPS),'-i',path.join(FR,'f%05d.jpg'),'-i',audio];
+  cuts.forEach(()=>ins.push('-i',wh));
+  const music=path.join(R,'music','bg.mp3');const hasM=fs.existsSync(music);if(hasM)ins.push('-stream_loop','-1','-i',music);
+  cuts.forEach((t,i)=>fc.push(`[${i+2}:a]volume=0.5,adelay=${Math.max(0,Math.round((t-0.05)*1000))}|${Math.max(0,Math.round((t-0.05)*1000))}[w${i}]`));
+  const mix=['[1:a]'].concat(cuts.map((_,i)=>`[w${i}]`));let nIn=mix.length;
+  if(hasM){fc.push(`[${cuts.length+2}:a]volume=0.07[m]`);mix.push('[m]');nIn++;}
+  fc.push(`${mix.join('')}amix=inputs=${nIn}:duration=first:normalize=0[a]`);
+  const outf=path.join(OUT,`day${nn}.mp4`);
+  sh(...ins,'-filter_complex',fc.join(';'),'-map','0:v','-map','[a]','-c:v','libx264','-preset','veryfast','-crf','21','-pix_fmt','yuv420p','-c:a','aac','-b:a','160k','-shortest',outf);
+  fs.rmSync(FR,{recursive:true,force:true});
   console.log('Built',outf,total.toFixed(1)+'s');
 })().catch(e=>{console.error(e);process.exit(1);});
