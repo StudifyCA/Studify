@@ -26,7 +26,8 @@ function valid(j){if(!j||!Array.isArray(j.topics)||!j.topics.length)return false
    t.quiz=(t.quiz||[]).filter(q=>q&&q.q&&Array.isArray(q.o)&&q.o.length>=2&&Number.isInteger(q.a)&&q.a>=0&&q.a<q.o.length);});
   return j.topics.every(t=>t.title&&t.explain.length);}
 (async()=>{
-  const todo=src.filter(u=>!fs.existsSync(path.join(OUT,u.id+'.json'))).slice(0,LIMIT);
+  const SKIPF=process.env.SKIP_FILE,skip=SKIPF&&fs.existsSync(SKIPF)?fs.readFileSync(SKIPF,'utf8').split('\n'):[];
+  const todo=src.filter(u=>!fs.existsSync(path.join(OUT,u.id+'.json'))&&!skip.includes(u.id)).slice(0,LIMIT);
   if(!todo.length){console.log('Nothing pending. All sources done.');return;}
   const ml=await models();console.log('Models:',ml.slice(0,3).join(', '));if(!ml.length)throw new Error('No Gemini flash model found');
   for(const u of todo){
@@ -35,8 +36,9 @@ function valid(j){if(!j||!Array.isArray(j.topics)||!j.topics.length)return false
       const buf=Buffer.from(await pr.arrayBuffer());if(buf.length>19e6)throw new Error('PDF too large for one call');
       let out=null,lastErr='';
       for(const m of ml.slice(0,3)){for(let a=0;a<3&&!out;a++){
-        const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/${m}:generateContent?key=${KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({contents:[{parts:[{inlineData:{mimeType:'application/pdf',data:buf.toString('base64')}},{text:PROMPT(u)}]}],generationConfig:{temperature:0.3,responseMimeType:'application/json'}})});
+        let r;try{r=await fetch(`https://generativelanguage.googleapis.com/v1beta/${m}:generateContent?key=${KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(300000),
+          body:JSON.stringify({contents:[{parts:[{inlineData:{mimeType:'application/pdf',data:buf.toString('base64')}},{text:PROMPT(u)}]}],generationConfig:{temperature:0.3,responseMimeType:'application/json'}})});}
+        catch(e){lastErr=m+' timed out';break;}
         if(r.status===429||r.status>=500){lastErr=m+' '+r.status;await sleep(20000*(a+1));continue;}
         if(!r.ok){lastErr=m+' '+r.status+' '+(await r.text()).slice(0,200);break;}
         const j=await r.json();const t=j.candidates&&j.candidates[0]&&j.candidates[0].content.parts.map(p=>p.text||'').join('');
@@ -48,7 +50,7 @@ function valid(j){if(!j||!Array.isArray(j.topics)||!j.topics.length)return false
       fs.writeFileSync(path.join(OUT,u.id+'.json'),JSON.stringify(rec));
       idx=idx.filter(x=>x.id!==u.id);idx.push({id:u.id,course:u.course,paper:u.paper,chapter:u.chapter,unit:u.unit,topics:out.topics.length});
       fs.writeFileSync(idxF,JSON.stringify(idx));console.log('OK',u.id,out.topics.length,'topics');
-    }catch(e){console.error('FAILED',u.id,e.message);}
+    }catch(e){console.error('FAILED',u.id,e.message);if(SKIPF)fs.appendFileSync(SKIPF,u.id+'\n');}
     await sleep(8000);
   }
 })();
