@@ -7,31 +7,34 @@ on:
       limit:
         description: 'How many units to make now'
         default: '10'
-concurrency:
-  group: study-notes
 permissions:
   contents: write
 jobs:
   notes:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
-      - name: Make notes
+      - name: Make notes (saves after every 2 units, so nothing is lost if a run stops)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: node notes/gen.js "${{ github.event.inputs.limit || '20' }}"
-      - name: Save to repo
         run: |
           git config user.name "studify-notes"
           git config user.email "notes@users.noreply.github.com"
-          git add papers/notes
-          if ! git diff --cached --quiet; then
-            git commit -m "Study notes update"
-            for i in 1 2 3 4; do
-              git pull --rebase origin main && git push && break
-              sleep 8
-            done
-          fi
+          export SKIP_FILE="$RUNNER_TEMP/skip.txt"
+          LIMIT="${{ github.event.inputs.limit || '20' }}"
+          ROUNDS=$(( (LIMIT + 1) / 2 ))
+          for r in $(seq 1 $ROUNDS); do
+            node notes/gen.js 2 2>&1 | tee "$RUNNER_TEMP/out.txt" || true
+            git add papers/notes
+            if ! git diff --cached --quiet; then
+              git commit -m "Study notes update"
+              for i in 1 2 3 4; do
+                git pull --rebase origin main && git push && break
+                sleep 8
+              done
+            fi
+            grep -q "Nothing pending" "$RUNNER_TEMP/out.txt" && break
+          done
