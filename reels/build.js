@@ -28,7 +28,10 @@ const PAGE=fs.readFileSync(path.join(R,'scene.html'),'utf8');
     if(!r.ok)throw new Error('ElevenLabs '+r.status+' '+await r.text());
     const j=await r.json();fs.writeFileSync(audio,Buffer.from(j.audio_base64,'base64'));al=j.alignment||j.normalized_alignment;
   }
-  const st=al.character_start_times_seconds,en=al.character_end_times_seconds,adur=dur(audio),total=adur+0.9;
+  const st0=al.character_start_times_seconds,en0=al.character_end_times_seconds,adur=dur(audio),total=adur+0.9;
+  // safety: if ElevenLabs returns a different number of characters than we sent, stretch the timing to fit
+  const fit=a=>a.length===text.length?a:[...Array(text.length)].map((_,i)=>a[Math.min(a.length-1,Math.floor(i*a.length/text.length))]);
+  const st=fit(st0),en=fit(en0);
   // scene start = time its first spoken character begins
   let off=0;const sOff=[],start=[];
   v.scenes.forEach((s,i)=>{if(s.vo){sOff[i]=off;start[i]=i===0?0:st[Math.min(off,st.length-1)];off+=s.vo.length+1;}else{sOff[i]=null;start[i]=null;}});
