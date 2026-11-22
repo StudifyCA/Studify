@@ -6,7 +6,7 @@ on:
     inputs:
       limit:
         description: 'How many units to make now'
-        default: '3'
+        default: '10'
 permissions:
   contents: write
 jobs:
@@ -20,7 +20,7 @@ jobs:
       - name: Make notes
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: node notes/gen.js "${{ github.event.inputs.limit || '5' }}"
+        run: node notes/gen.js "${{ github.event.inputs.limit || '20' }}"
       - name: Save to repo
         run: |
           git config user.name "studify-notes"
