@@ -9,6 +9,8 @@ function istDay(){const s=fs.readFileSync(path.join(R,'start.txt'),'utf8').trim(
 const day=process.argv[2]?+process.argv[2]:istDay();
 const v=vids.find(x=>x.day===day);
 if(!v){console.log('No video for day',day);fs.writeFileSync(path.join(OUT,'SKIP'),String(day));process.exit(0);}
+// the call-to-action sentence belongs on the last (follow / link) screen, not on the phone screen before it
+const sc5=v.scenes;if(sc5.length===5&&sc5[3].vo&&/follow|share|comment|bhejo|aaj bas|banayenge|saath pass|try karo/i.test(sc5[3].vo)){sc5[4].vo=sc5[3].vo+' '+sc5[4].vo;sc5[3].vo='';}
 const nn=String(day).padStart(2,'0'),FPS=30;
 const KEY=process.env.ELEVEN_API_KEY,VOICE=process.env.ELEVEN_VOICE_ID||'aHIXlH4qG7eC13lvBlFF';
 const dur=f=>parseFloat(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','csv=p=0',f]).toString());
@@ -64,7 +66,7 @@ const PAGE=fs.readFileSync(path.join(R,'scene.html'),'utf8');
   const music=path.join(R,'music','bg.mp3');const hasM=fs.existsSync(music);if(hasM)ins.push('-stream_loop','-1','-i',music);
   cuts.forEach((t,i)=>fc.push(`[${i+2}:a]volume=0.5,adelay=${Math.max(0,Math.round((t-0.05)*1000))}|${Math.max(0,Math.round((t-0.05)*1000))}[w${i}]`));
   const mix=['[1:a]'].concat(cuts.map((_,i)=>`[w${i}]`));let nIn=mix.length;
-  if(hasM){fc.push(`[${cuts.length+2}:a]volume=0.07[m]`);mix.push('[m]');nIn++;}
+  if(hasM){fc.push(`[${cuts.length+2}:a]volume=0.10[m]`);mix.push('[m]');nIn++;}
   fc.push(`${mix.join('')}amix=inputs=${nIn}:duration=first:normalize=0[a]`);
   const outf=path.join(OUT,`day${nn}.mp4`);
   sh(...ins,'-filter_complex',fc.join(';'),'-map','0:v','-map','[a]','-c:v','libx264','-preset','veryfast','-crf','21','-pix_fmt','yuv420p','-c:a','aac','-b:a','160k','-shortest',outf);
