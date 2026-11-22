@@ -13,7 +13,7 @@
 .phone img{position:absolute;left:0;top:0;width:100%}
 .stk{position:absolute;font-size:46px;font-weight:800;background:#fff;color:#111;padding:14px 26px;border-radius:40px;box-shadow:0 10px 26px #0007}
 .subs{position:absolute;left:50px;right:50px;top:1370px;text-align:center;font-weight:900;font-size:88px;line-height:1.15;z-index:12}
-.subs span{display:inline-block;margin:0 5px;color:#fff;-webkit-text-stroke:10px #000;paint-order:stroke fill;text-shadow:0 8px 20px #0008}
+.subs span{display:inline-block;margin:0 4px;color:#fff;-webkit-text-stroke:10px #000;paint-order:stroke fill;text-shadow:0 8px 20px #0008}
 .subs span.on{color:#fde047}
 .cta{position:absolute;left:0;right:0;text-align:center}
 .pill{display:inline-block;background:#fde047;color:#1e1b4b;font-weight:900;border-radius:80px;box-shadow:0 14px 40px #0007}
@@ -67,7 +67,7 @@ function draw(t){
   if(ai<0||ws[ai].sc!==cur){subs.innerHTML=''}else{
    let a=ai;while(a>0&&ws[a-1].sc===cur&&!/[.,?!]$/.test(ws[a-1].w)&&ai-a<2)a--;
    let b=ai;while(b+1<ws.length&&ws[b+1].sc===cur&&!/[.,?!]$/.test(ws[b].w)&&b-a<3)b++;
-   subs.innerHTML=ws.slice(a,b+1).map((w,k)=>'<span'+(a+k===ai?' class="on" style="transform:scale('+(1+0.18*eb(cl((t-w.t0)/.18)))+')"':'')+'>'+w.w.replace(/[.,]$/,'')+'</span>').join('');}
+   subs.innerHTML=ws.slice(a,b+1).map((w,k)=>'<span'+(a+k===ai?' class="on" style="transform:scale('+(1+0.18*eb(cl((t-w.t0)/.18)))+')"':'')+'>'+w.w.replace(/[.,]$/,'')+'</span>').join(' ');}
  }
 }
 </script>
