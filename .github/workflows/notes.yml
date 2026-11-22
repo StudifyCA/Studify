@@ -1,0 +1,29 @@
+name: Study Notes
+on:
+  schedule:
+    - cron: '30 20 * * *'   # 02:00 IST every night, makes the next pending units
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'How many units to make now'
+        default: '3'
+permissions:
+  contents: write
+jobs:
+  notes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Make notes
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node notes/gen.js "${{ github.event.inputs.limit || '5' }}"
+      - name: Save to repo
+        run: |
+          git config user.name "studify-notes"
+          git config user.email "notes@users.noreply.github.com"
+          git add papers/notes
+          git diff --cached --quiet || (git commit -m "Study notes update" && git push)
