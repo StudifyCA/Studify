@@ -7,6 +7,8 @@ on:
       limit:
         description: 'How many units to make now'
         default: '10'
+concurrency:
+  group: study-notes
 permissions:
   contents: write
 jobs:
@@ -26,4 +28,10 @@ jobs:
           git config user.name "studify-notes"
           git config user.email "notes@users.noreply.github.com"
           git add papers/notes
-          git diff --cached --quiet || (git commit -m "Study notes update" && git push)
+          if ! git diff --cached --quiet; then
+            git commit -m "Study notes update"
+            for i in 1 2 3 4; do
+              git pull --rebase origin main && git push && break
+              sleep 8
+            done
+          fi
