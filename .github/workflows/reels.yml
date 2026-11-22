@@ -1,0 +1,55 @@
+name: Daily Reel
+on:
+  schedule:
+    - cron: '30 13 * * *'   # 19:00 IST every day
+  workflow_dispatch:
+    inputs:
+      day:
+        description: 'Day number to build (blank = today by start.txt)'
+        required: false
+      dry_run:
+        description: 'true = build only, do not post'
+        default: 'true'
+permissions:
+  contents: read
+jobs:
+  reel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Install
+        working-directory: reels
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+          which ffmpeg || sudo apt-get install -y ffmpeg
+      - name: Build video
+        working-directory: reels
+        env:
+          ELEVEN_API_KEY: ${{ secrets.ELEVEN_API_KEY }}
+          ELEVEN_VOICE_ID: ${{ secrets.ELEVEN_VOICE_ID }}
+        run: |
+          node build.js "${{ github.event.inputs.day }}"
+      - name: Keep video for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: reel
+          path: |
+            reels/out/*.mp4
+            reels/out/*.mp3
+          if-no-files-found: ignore
+      - name: Post to Instagram
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.dry_run == 'false' }}
+        working-directory: reels
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+        run: |
+          D="${{ github.event.inputs.day }}"
+          if [ -z "$D" ]; then
+            D=$(node -e "const fs=require('fs');const s=fs.readFileSync('start.txt','utf8').trim();const n=new Date(Date.now()+5.5*3600e3).toISOString().slice(0,10);console.log(Math.round((Date.parse(n)-Date.parse(s))/864e5)+1)")
+          fi
+          node post.js "$D"
