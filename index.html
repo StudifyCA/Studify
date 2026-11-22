@@ -967,7 +967,7 @@ function fmtTs(s){try{return new Date(s).toLocaleString([],{dateStyle:'medium',t
 
 /* ---------- UI state ---------- */
 var ui={open:{},tab:'today',modal:null,onb:null,res:null,toast:'',showAll:false};
-var tabs=[['qr','\u26a1','Quick revision'],['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['pt','\ud83e\uddea','Practice'],['star','\u2b50','Starred'],['rep','\ud83d\udd01','Repeat'],['guide','\ud83d\udcd8','Exam guide'],['icai','\ud83d\udcda','ICAI material'],['calc','\ud83e\uddee','Calculator'],['yt','\ud83c\udfac','Video notes'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
+var tabs=[['qr','\u26a1','Quick revision'],['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['pt','\ud83e\uddea','Practice'],['star','\u2b50','Starred'],['rep','\ud83d\udd01','Repeat'],['guide','\ud83d\udcd8','Exam guide'],['icai','\ud83d\udcda','ICAI material'],['calc','\ud83e\uddee','Calculator'],['nt','\ud83e\udde0','Study notes'],['yt','\ud83c\udfac','Video notes'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
 
 function toast(m){
   ui.toast=m;var old=document.querySelector('.toast');if(old)old.remove();
@@ -3794,6 +3794,57 @@ function viewIcai(c){
   h+='</div>';
   return h+mqCard()+gdDocs(P);
 }
+
+/* ===== Study notes: AI-written simple notes with flowcharts, made by the GitHub notes pipeline ===== */
+function ntSt(){if(!ui.nt)ui.nt={idx:null,cur:null,err:'',ans:{},ld:0};return ui.nt;}
+function ntLoad(){var n=ntSt();if(n.idx||n.ld)return;n.ld=1;
+  fetch('papers/notes/index.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){n.idx=j||[];n.ld=0;if(ui.tab==='nt')renderKeep();}).catch(function(){n.idx=[];n.ld=0;if(ui.tab==='nt')renderKeep();});}
+function ntOpen(id){var n=ntSt();n.err='';n.cur={loading:true,id:id};renderKeep();
+  fetch('papers/notes/'+encodeURIComponent(id)+'.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){n.cur=j;n.ans={};renderKeep();window.scrollTo(0,0);}).catch(function(){n.cur=null;n.err='Could not open these notes. Check your internet and try again.';renderKeep();});}
+function ntDone(P,id,t){return !!(P.ntDone&&P.ntDone[id+':'+t]);}
+function ntFlow(f){
+  if(!f||!f.steps||!f.steps.length)return '';
+  var h='<div class="ntfl">'+(f.title?'<div class="mut" style="margin-bottom:6px"><b>'+esc(f.title)+'</b></div>':'');
+  f.steps.forEach(function(s,i){h+='<div class="ntbx"><span class="ntn">'+(i+1)+'</span>'+esc(s)+'</div>'+(i<f.steps.length-1?'<div class="ntar">↓</div>':'');});
+  return h+'</div>';
+}
+function ntTopic(P,u,t,ti){
+  var done=ntDone(P,u.id,t.id),h='<div class="card" style="'+(done?'border-color:var(--ok,#2e9d5b)':'')+'"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><h3 style="margin:0">'+(ti+1)+'. '+esc(t.title)+'</h3>'+(t.section?'<span class="chip">'+esc(t.section)+'</span>':'')+'</div>';
+  h+='<ul style="margin:8px 0 8px 18px;padding:0">'+t.explain.map(function(x){return '<li style="margin:4px 0">'+esc(x)+'</li>';}).join('')+'</ul>';
+  h+=ntFlow(t.flow);
+  if(t.example)h+='<div class="blk" style="margin-top:8px"><div><b>Example</b><div>'+esc(t.example)+'</div></div></div>';
+  if(t.remember&&t.remember.length)h+='<div class="blk" style="margin-top:8px;background:var(--ac2)"><div><b>Remember</b><ul style="margin:4px 0 0 18px;padding:0">'+t.remember.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div></div>';
+  if(t.mistakes&&t.mistakes.length)h+='<div class="mut" style="margin-top:8px"><b>Common mistakes</b><ul style="margin:4px 0 0 18px;padding:0">'+t.mistakes.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>';
+  (t.quiz||[]).forEach(function(q,qi){var k=u.id+':'+t.id+':'+qi,a=ui.nt.ans[k];
+    h+='<div style="margin-top:10px"><b>Check: '+esc(q.q)+'</b>';
+    q.o.forEach(function(o,oi){var st=a==null?'':(oi===q.a?'background:#d9f5e4;':(oi===a?'background:#fde0e0;':''));
+      h+='<div><button class="btn sec sm" style="margin-top:4px;text-align:left;'+st+'" data-act="ntans" data-k="'+esc(k)+'" data-o="'+oi+'"'+(a!=null?' disabled':'')+'>'+esc(o)+'</button></div>';});
+    if(a!=null)h+='<div class="mut" style="margin-top:4px">'+(a===q.a?'Correct. ':'Not quite. ')+esc(q.why||'')+'</div>';
+    h+='</div>';});
+  h+='<button class="btn '+(done?'sec':'')+' sm" style="margin-top:10px" data-act="ntdone" data-u="'+esc(u.id)+'" data-t="'+esc(t.id)+'">'+(done?'✓ Done (tap to undo)':'Mark topic as done')+'</button></div>';
+  return h;
+}
+function viewNT(c){
+  var P=c.P,n=ntSt();ntLoad();
+  var css='<style>.ntfl{margin:8px 0}.ntbx{border:2px solid var(--ac);border-radius:10px;padding:8px 10px;font-weight:600;display:flex;gap:8px;align-items:center;background:var(--card)}.ntn{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--ac);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center}.ntar{text-align:center;color:var(--ac);font-size:18px;line-height:1.1}</style>';
+  if(n.cur&&n.cur.loading)return css+'<div class="card"><h3>Study notes</h3><div class="mut">Opening...</div></div>';
+  if(n.cur){var u=n.cur,dn=u.topics.filter(function(t){return ntDone(P,u.id,t.id);}).length;
+    return css+'<button class="btn sec sm" data-act="ntback" style="margin-bottom:8px">← All notes</button><div class="card"><h3>'+esc(u.unit)+'</h3><div class="mut">'+esc(u.course)+' • '+esc(u.paper)+' • '+esc(u.chapter)+'</div><div class="mut" style="margin-top:6px">'+dn+' of '+u.topics.length+' topics done. '+esc(u.note||'')+'</div></div>'+u.topics.map(function(t,i){return ntTopic(P,u,t,i);}).join('');}
+  var h=css+'<div class="card"><h3>Study notes</h3><div class="mut">Learn a chapter from zero, in simple words. Each topic has a short explanation, a flowchart, an example and a quick check. Written by AI from ICAI study material, so confirm exact wording in the original.</div></div>';
+  if(n.err)h+='<div class="card"><div class="mut">'+esc(n.err)+'</div></div>';
+  if(!n.idx)return h+'<div class="card"><div class="mut">Loading...</div></div>';
+  if(!n.idx.length)return h+'<div class="card"><div class="mut">Notes are being prepared. New chapters appear here every day.</div></div>';
+  var g={};n.idx.forEach(function(x){var k=x.course+' • '+x.paper+' • '+x.chapter;(g[k]=g[k]||[]).push(x);});
+  Object.keys(g).forEach(function(k){h+='<div class="card"><h3>'+esc(k)+'</h3>'+g[k].map(function(x){return '<button class="btn sec" style="width:100%;text-align:left;margin-top:6px" data-act="ntopen" data-id="'+esc(x.id)+'">'+esc(x.unit)+' <span class="mut">('+x.topics+' topics)</span></button>';}).join('')+'</div>';});
+  return h;
+}
+function ntAct(a,d,P){
+  var n=ntSt();
+  if(a==='ntopen'){ntOpen(d.id);return;}
+  if(a==='ntback'){n.cur=null;renderKeep();window.scrollTo(0,0);return;}
+  if(a==='ntans'){n.ans[d.k]=Number(d.o);renderKeep();return;}
+  if(a==='ntdone'){if(!P.ntDone)P.ntDone={};var k=d.u+':'+d.t;if(P.ntDone[k])delete P.ntDone[k];else P.ntDone[k]=1;P.dirty=true;commit();return;}
+}
 function viewGuide(c){
   var P=c.P;
   return gdHead('Exam guide','Exam pattern, your path, syllabus changes, study material and budget in one place.')+gdPattern(P)+gdPath(P)+gdSyl(P)+gdMat(P)+gdMeth()+gdBud(P);
@@ -4284,6 +4335,7 @@ function render(){
   else if(ui.tab==='guide')body=viewGuide(c);
   else if(ui.tab==='calc')body=viewCalc(c);
   else if(ui.tab==='icai')body=viewIcai(c);
+  else if(ui.tab==='nt')body=viewNT(c);
   else if(ui.tab==='yt')body=viewYT(c);
   else if(ui.tab==='papers')body=viewPapers(c);
   else if(ui.tab==='results')body=hwPerfCard(P)+insightCards(P)+viewResults(c);
@@ -4336,6 +4388,7 @@ function act(a,d){
   if(a==='icmore'){ui.annN=(ui.annN||12)+12;renderKeep();return;}
   if(a.indexOf('gd')===0){gdAct(a,d,P);return;}
   if(a.indexOf('clc')===0){clcAct(a);return;}
+  if(a.indexOf('nt')===0&&a.length>2&&a!=='ntab'){ntAct(a,d,P);return;}
   if(a.indexOf('yt')===0){ytAct(a,d);return;}
   if(a==='xdadd'||a==='xddel'){xdAct(a,d,P);return;}
   if(a==='accstop'){try{speechSynthesis.cancel();}catch(e){}return;}
