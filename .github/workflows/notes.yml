@@ -1,7 +1,8 @@
 name: Study Notes
 on:
   schedule:
-    - cron: '30 20 * * *'   # 02:00 IST every night, makes the next pending units
+    - cron: '30 20 * * *'   # 02:00 IST
+    - cron: '30 8 * * *'    # 14:00 IST
   workflow_dispatch:
     inputs:
       limit:
@@ -9,6 +10,9 @@ on:
         default: '10'
 permissions:
   contents: write
+concurrency:
+  group: study-notes
+  cancel-in-progress: false
 jobs:
   notes:
     runs-on: ubuntu-latest
@@ -24,7 +28,7 @@ jobs:
           git config user.name "studify-notes"
           git config user.email "notes@users.noreply.github.com"
           export SKIP_FILE="$RUNNER_TEMP/skip.txt"
-          LIMIT="${{ github.event.inputs.limit || '20' }}"
+          LIMIT="${{ github.event.inputs.limit || '30' }}"
           ROUNDS=$(( (LIMIT + 1) / 2 ))
           for r in $(seq 1 $ROUNDS); do
             node notes/gen.js 2 2>&1 | tee "$RUNNER_TEMP/out.txt" || true
