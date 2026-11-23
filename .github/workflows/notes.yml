@@ -36,5 +36,5 @@ jobs:
                 sleep 8
               done
             fi
-            grep -q "Nothing pending" "$RUNNER_TEMP/out.txt" && break
+            if grep -q "Nothing pending" "$RUNNER_TEMP/out.txt"; then break; fi
           done
