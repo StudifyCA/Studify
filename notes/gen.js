@@ -37,7 +37,7 @@ function valid(j){if(!j||!Array.isArray(j.topics)||!j.topics.length)return false
       let out=null,lastErr='';
       for(const m of ml.slice(0,3)){for(let a=0;a<3&&!out;a++){
         let r;try{r=await fetch(`https://generativelanguage.googleapis.com/v1beta/${m}:generateContent?key=${KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(300000),
-          body:JSON.stringify({contents:[{parts:[{inlineData:{mimeType:'application/pdf',data:buf.toString('base64')}},{text:PROMPT(u)}]}],generationConfig:{temperature:0.3,responseMimeType:'application/json'}})});}
+          body:JSON.stringify({contents:[{parts:[{inlineData:{mimeType:'application/pdf',data:buf.toString('base64')}},{text:PROMPT(u)}]}],generationConfig:{temperature:0.3,maxOutputTokens:60000,responseMimeType:'application/json'}})});}
         catch(e){lastErr=m+' timed out';break;}
         if(r.status===429||r.status>=500){lastErr=m+' '+r.status;await sleep(20000*(a+1));continue;}
         if(!r.ok){lastErr=m+' '+r.status+' '+(await r.text()).slice(0,200);break;}
@@ -48,7 +48,7 @@ function valid(j){if(!j||!Array.isArray(j.topics)||!j.topics.length)return false
       const rec={id:u.id,course:u.course,paper:u.paper,chapter:u.chapter,unit:u.unit,source:u.url,made:new Date().toISOString().slice(0,10),
         note:'AI-written summary of ICAI study material. Check the original for exact wording.',topics:out.topics};
       fs.writeFileSync(path.join(OUT,u.id+'.json'),JSON.stringify(rec));
-      idx=idx.filter(x=>x.id!==u.id);idx.push({id:u.id,course:u.course,paper:u.paper,chapter:u.chapter,unit:u.unit,topics:out.topics.length});
+      idx=idx.filter(x=>x.id!==u.id);idx.push({id:u.id,course:u.course,paper:u.paper,chapter:u.chapter,unit:u.unit,topics:out.topics.length});const ord={};src.forEach((x,i)=>ord[x.id]=i);idx.sort((a,b)=>(ord[a.id]??1e9)-(ord[b.id]??1e9));
       fs.writeFileSync(idxF,JSON.stringify(idx));console.log('OK',u.id,out.topics.length,'topics');
     }catch(e){console.error('FAILED',u.id,e.message);if(SKIPF)fs.appendFileSync(SKIPF,u.id+'\n');}
     await sleep(8000);
