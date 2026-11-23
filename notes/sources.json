@@ -1,11 +1,2546 @@
 [
- {"id":"f-bl-c2-u1","course":"Foundation","paper":"Paper 2: Business Laws","chapter":"Ch 2: Indian Contract Act, 1872","unit":"Unit 1: Nature of Contracts","url":"https://resource.cdn.icai.org/88017bos-aps2231-ch2u1.pdf"},
- {"id":"f-bl-c2-u2","course":"Foundation","paper":"Paper 2: Business Laws","chapter":"Ch 2: Indian Contract Act, 1872","unit":"Unit 2: Consideration","url":"https://resource.cdn.icai.org/88018bos-aps2231-ch2u2.pdf"},
- {"id":"f-bl-c2-u3","course":"Foundation","paper":"Paper 2: Business Laws","chapter":"Ch 2: Indian Contract Act, 1872","unit":"Unit 3: Other Essential Elements of a Contract","url":"https://resource.cdn.icai.org/88019bos-aps2231-ch2u3.pdf"},
- {"id":"f-bl-c2-u4","course":"Foundation","paper":"Paper 2: Business Laws","chapter":"Ch 2: Indian Contract Act, 1872","unit":"Unit 4: Performance of Contract","url":"https://resource.cdn.icai.org/88020bos-aps2231-ch2u4.pdf"},
- {"id":"f-bl-c2-u5","course":"Foundation","paper":"Paper 2: Business Laws","chapter":"Ch 2: Indian Contract Act, 1872","unit":"Unit 5: Breach of Contract and its Remedies","url":"https://resource.cdn.icai.org/88021bos-aps2231-ch2u5.pdf"},
- {"id":"f-bl-c2-u6","course":"Foundation","paper":"Paper 2: Business Laws","chapter":"Ch 2: Indian Contract Act, 1872","unit":"Unit 6: Contingent and Quasi Contracts","url":"https://resource.cdn.icai.org/88022bos-aps2231-ch2u6.pdf"},
- {"id":"f-bl-c2-u7","course":"Foundation","paper":"Paper 2: Business Laws","chapter":"Ch 2: Indian Contract Act, 1872","unit":"Unit 7: Contract of Indemnity and Guarantee","url":"https://resource.cdn.icai.org/88023bos-aps2231-ch2u7.pdf"},
- {"id":"f-bl-c2-u8","course":"Foundation","paper":"Paper 2: Business Laws","chapter":"Ch 2: Indian Contract Act, 1872","unit":"Unit 8: Bailment and Pledge","url":"https://resource.cdn.icai.org/88024bos-aps2231-ch2u8.pdf"},
- {"id":"f-bl-c2-u9","course":"Foundation","paper":"Paper 2: Business Laws","chapter":"Ch 2: Indian Contract Act, 1872","unit":"Unit 9: Agency","url":"https://resource.cdn.icai.org/88025bos-aps2231-ch2u9.pdf"}
+  {
+    "id": "i-ca-c1",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 1: Introduction to Cost and Management Accounting",
+    "url": "https://resource.cdn.icai.org/93304bos-aps5870-ch1.pdf"
+  },
+  {
+    "id": "i-ca-c2",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 2: Material Cost",
+    "url": "https://resource.cdn.icai.org/93305bos-aps5870-ch2.pdf"
+  },
+  {
+    "id": "i-ca-c3",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 3: Employee Cost and Direct Expenses",
+    "url": "https://resource.cdn.icai.org/93306bos-aps5870-ch3.pdf"
+  },
+  {
+    "id": "i-ca-c4",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 4: Overheads: Absorption Costing Method",
+    "url": "https://resource.cdn.icai.org/93307bos-aps5870-ch4.pdf"
+  },
+  {
+    "id": "i-ca-c5",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 5: Activity Based Costing",
+    "url": "https://resource.cdn.icai.org/93308bos-aps5870-ch5.pdf"
+  },
+  {
+    "id": "i-ca-c6",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 6: Cost Sheet",
+    "url": "https://resource.cdn.icai.org/93309bos-aps5870-ch6.pdf"
+  },
+  {
+    "id": "i-ca-c7",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 7: Cost Accounting Systems",
+    "url": "https://resource.cdn.icai.org/93310bos-aps5870-ch7.pdf"
+  },
+  {
+    "id": "i-ca-c8",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 2",
+    "unit": "Ch 8: Unit and Batch Costing",
+    "url": "https://resource.cdn.icai.org/93311bos-aps5870-ch8.pdf"
+  },
+  {
+    "id": "i-ca-c9",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 2",
+    "unit": "Ch 9: Job Costing",
+    "url": "https://resource.cdn.icai.org/93312bos-aps5870-ch9.pdf"
+  },
+  {
+    "id": "i-ca-c10",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 2",
+    "unit": "Ch 10: Process and Operation Costing",
+    "url": "https://resource.cdn.icai.org/93313bos-aps5870-ch10.pdf"
+  },
+  {
+    "id": "i-ca-c11",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 2",
+    "unit": "Ch 11: Joint Products and By Products",
+    "url": "https://resource.cdn.icai.org/93314bos-aps5870-ch11.pdf"
+  },
+  {
+    "id": "i-ca-c12",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 2",
+    "unit": "Ch 12: Service Costing",
+    "url": "https://resource.cdn.icai.org/93315bos-aps5870-ch12.pdf"
+  },
+  {
+    "id": "i-ca-c13",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 2",
+    "unit": "Ch 13: Standard Costing",
+    "url": "https://resource.cdn.icai.org/93316bos-aps5870-ch13.pdf"
+  },
+  {
+    "id": "i-ca-c14",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 2",
+    "unit": "Ch 14: Marginal Costing",
+    "url": "https://resource.cdn.icai.org/93317bos-aps5870-ch14.pdf"
+  },
+  {
+    "id": "i-ca-c15",
+    "course": "Intermediate",
+    "paper": "Paper 4: Cost and Management Accounting",
+    "chapter": "Module 2",
+    "unit": "Ch 15: Budgets and Budgetary Control",
+    "url": "https://resource.cdn.icai.org/93318bos-aps5870-ch15.pdf"
+  },
+  {
+    "id": "i-au-c1",
+    "course": "Intermediate",
+    "paper": "Paper 5: Auditing and Ethics",
+    "chapter": "Module 1",
+    "unit": "Ch 1: Nature, Objective and Scope of Audit",
+    "url": "https://resource.cdn.icai.org/93332bos-aps5884-ch1.pdf"
+  },
+  {
+    "id": "i-au-c2",
+    "course": "Intermediate",
+    "paper": "Paper 5: Auditing and Ethics",
+    "chapter": "Module 1",
+    "unit": "Ch 2: Audit Strategy, Audit Planning and Audit Programme",
+    "url": "https://resource.cdn.icai.org/93333bos-aps5884-ch2.pdf"
+  },
+  {
+    "id": "i-au-c3",
+    "course": "Intermediate",
+    "paper": "Paper 5: Auditing and Ethics",
+    "chapter": "Module 1",
+    "unit": "Ch 3: Risk Assessment and Internal Control",
+    "url": "https://resource.cdn.icai.org/93334bos-aps5884-ch3.pdf"
+  },
+  {
+    "id": "i-au-c4",
+    "course": "Intermediate",
+    "paper": "Paper 5: Auditing and Ethics",
+    "chapter": "Module 1",
+    "unit": "Ch 4: Audit Evidence",
+    "url": "https://resource.cdn.icai.org/93335bos-aps5884-ch4.pdf"
+  },
+  {
+    "id": "i-au-c5",
+    "course": "Intermediate",
+    "paper": "Paper 5: Auditing and Ethics",
+    "chapter": "Module 1",
+    "unit": "Ch 5: Audit of Items of Financial Statements",
+    "url": "https://resource.cdn.icai.org/93336bos-aps5884-ch5.pdf"
+  },
+  {
+    "id": "i-au-c6",
+    "course": "Intermediate",
+    "paper": "Paper 5: Auditing and Ethics",
+    "chapter": "Module 2",
+    "unit": "Ch 6: Audit Documentation",
+    "url": "https://resource.cdn.icai.org/93337bos-aps5884-ch6.pdf"
+  },
+  {
+    "id": "i-au-c7",
+    "course": "Intermediate",
+    "paper": "Paper 5: Auditing and Ethics",
+    "chapter": "Module 2",
+    "unit": "Ch 7: Completion and Review",
+    "url": "https://resource.cdn.icai.org/93338bos-aps5884-ch7.pdf"
+  },
+  {
+    "id": "i-au-c8",
+    "course": "Intermediate",
+    "paper": "Paper 5: Auditing and Ethics",
+    "chapter": "Module 2",
+    "unit": "Ch 8: Audit Report",
+    "url": "https://resource.cdn.icai.org/93339bos-aps5884-ch8.pdf"
+  },
+  {
+    "id": "i-au-c9",
+    "course": "Intermediate",
+    "paper": "Paper 5: Auditing and Ethics",
+    "chapter": "Module 2",
+    "unit": "Ch 9: Special Features of Audit of Different Type of Entities",
+    "url": "https://resource.cdn.icai.org/93340bos-aps5884-ch9.pdf"
+  },
+  {
+    "id": "i-au-c10",
+    "course": "Intermediate",
+    "paper": "Paper 5: Auditing and Ethics",
+    "chapter": "Module 2",
+    "unit": "Ch 10: Audit of Banks",
+    "url": "https://resource.cdn.icai.org/93341bos-aps5884-ch10.pdf"
+  },
+  {
+    "id": "i-au-c11",
+    "course": "Intermediate",
+    "paper": "Paper 5: Auditing and Ethics",
+    "chapter": "Module 2",
+    "unit": "Ch 11: Ethics and Terms of Audit Engagements",
+    "url": "https://resource.cdn.icai.org/93342bos-aps5884-ch11.pdf"
+  },
+  {
+    "id": "i-cl-c1",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part I Module 1",
+    "unit": "Ch 1: Preliminary",
+    "url": "https://resource.cdn.icai.org/93466bos-aps5940-p2-ch1.pdf"
+  },
+  {
+    "id": "i-cl-c2",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part I Module 1",
+    "unit": "Ch 2: Incorporation of Company and Matters Incidental Thereto",
+    "url": "https://resource.cdn.icai.org/93467bos-aps5940-p2-ch2.pdf"
+  },
+  {
+    "id": "i-cl-c3",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part I Module 1",
+    "unit": "Ch 3: Prospectus and Allotment of Securities",
+    "url": "https://resource.cdn.icai.org/93468bos-aps5940-p2-ch3.pdf"
+  },
+  {
+    "id": "i-cl-c4",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part I Module 1",
+    "unit": "Ch 4: Share Capital and Debentures",
+    "url": "https://resource.cdn.icai.org/93469bos-aps5940-p2-ch4.pdf"
+  },
+  {
+    "id": "i-cl-c5",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part I Module 1",
+    "unit": "Ch 5: Acceptance of Deposits by Companies",
+    "url": "https://resource.cdn.icai.org/93470bos-aps5940-p2-ch5.pdf"
+  },
+  {
+    "id": "i-cl-c6",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part I Module 1",
+    "unit": "Ch 6: Registration of Charges",
+    "url": "https://resource.cdn.icai.org/93471bos-aps5940-p2-ch6.pdf"
+  },
+  {
+    "id": "i-cl-c7",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part I Module 2",
+    "unit": "Ch 7: Management and Administration",
+    "url": "https://resource.cdn.icai.org/93472bos-aps5940-p2-ch7.pdf"
+  },
+  {
+    "id": "i-cl-c8",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part I Module 2",
+    "unit": "Ch 8: Declaration and Payment of Dividend",
+    "url": "https://resource.cdn.icai.org/93473bos-aps5940-p2-ch8.pdf"
+  },
+  {
+    "id": "i-cl-c9",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part I Module 2",
+    "unit": "Ch 9: Accounts of Companies",
+    "url": "https://resource.cdn.icai.org/93474bos-aps5940-p2-ch9.pdf"
+  },
+  {
+    "id": "i-cl-c10",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part I Module 2",
+    "unit": "Ch 10: Audit and Auditors",
+    "url": "https://resource.cdn.icai.org/93475bos-aps5940-p2-ch10.pdf"
+  },
+  {
+    "id": "i-cl-c11",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part I Module 2",
+    "unit": "Ch 11: Companies Incorporated Outside India",
+    "url": "https://resource.cdn.icai.org/93476bos-aps5940-p2-ch11.pdf"
+  },
+  {
+    "id": "i-cl-c12",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part I Module 3",
+    "unit": "Ch 12: The Limited Liability Partnership Act, 2008",
+    "url": "https://resource.cdn.icai.org/93477bos-aps5940-p2-ch12.pdf"
+  },
+  {
+    "id": "i-cl-c13",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part II Other Laws",
+    "unit": "Ch 13: The General Clauses Act, 1897",
+    "url": "https://resource.cdn.icai.org/93481bos-aps5940-p2-olc1.pdf"
+  },
+  {
+    "id": "i-cl-c14",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part II Other Laws",
+    "unit": "Ch 14: Interpretation of Statutes",
+    "url": "https://resource.cdn.icai.org/93482bos-aps5940-p2-olc2.pdf"
+  },
+  {
+    "id": "i-cl-c15",
+    "course": "Intermediate",
+    "paper": "Paper 2: Corporate and Other Laws",
+    "chapter": "Part II Other Laws",
+    "unit": "Ch 15: The Foreign Exchange Management Act, 1999",
+    "url": "https://resource.cdn.icai.org/93483bos-aps5940-p2-olc3.pdf"
+  },
+  {
+    "id": "i-ta-c1",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Module 1",
+    "unit": "Ch 1: Basic Concepts",
+    "url": "https://resource.cdn.icai.org/93394bos-aps5909-ch1.pdf"
+  },
+  {
+    "id": "i-ta-c2",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Module 1",
+    "unit": "Ch 2: Residential Status and Scope of Total Income",
+    "url": "https://resource.cdn.icai.org/93395bos-aps5909-ch2.pdf"
+  },
+  {
+    "id": "i-ta-c3-u1",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Ch 3: Heads of Income",
+    "unit": "Unit 1: Salaries",
+    "url": "https://resource.cdn.icai.org/93396bos-aps5909-ch3u1.pdf"
+  },
+  {
+    "id": "i-ta-c3-u2",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Ch 3: Heads of Income",
+    "unit": "Unit 2: Income from House Property",
+    "url": "https://resource.cdn.icai.org/93397bos-aps5909-ch3u2.pdf"
+  },
+  {
+    "id": "i-ta-c3-u3",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Ch 3: Heads of Income",
+    "unit": "Unit 3: Profits and Gains of Business or Profession",
+    "url": "https://resource.cdn.icai.org/93398bos-aps5909-ch3u3.pdf"
+  },
+  {
+    "id": "i-ta-c3-u4",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Ch 3: Heads of Income",
+    "unit": "Unit 4: Capital Gains",
+    "url": "https://resource.cdn.icai.org/93399bos-aps5909-ch3u4.pdf"
+  },
+  {
+    "id": "i-ta-c3-u5",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Ch 3: Heads of Income",
+    "unit": "Unit 5: Income from Other Sources",
+    "url": "https://resource.cdn.icai.org/93400bos-aps5909-ch3u5.pdf"
+  },
+  {
+    "id": "i-ta-c4",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Module 2",
+    "unit": "Ch 4: Income of Other Persons included in Total Income of Assessee",
+    "url": "https://resource.cdn.icai.org/93401bos-aps5909-ch4.pdf"
+  },
+  {
+    "id": "i-ta-c5",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Module 2",
+    "unit": "Ch 5: Set-Off or Carry Forward and Set-off of Losses",
+    "url": "https://resource.cdn.icai.org/93402bos-aps5909-ch5.pdf"
+  },
+  {
+    "id": "i-ta-c6",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Module 2",
+    "unit": "Ch 6: Deductions from Gross Total Income",
+    "url": "https://resource.cdn.icai.org/93403bos-aps5909-ch6.pdf"
+  },
+  {
+    "id": "i-ta-c7",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Module 2",
+    "unit": "Ch 7: Tax Deduction or Collection at Source and Advance Tax",
+    "url": "https://resource.cdn.icai.org/93465bos-aps5909-ch7.pdf"
+  },
+  {
+    "id": "i-ta-c8",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Module 2",
+    "unit": "Ch 8: Provisions for Filing Return of Income and Self Assessment",
+    "url": "https://resource.cdn.icai.org/93404bos-aps5909-ch8.pdf"
+  },
+  {
+    "id": "i-ta-c9",
+    "course": "Intermediate",
+    "paper": "Paper 3A: Taxation (Income-tax Law)",
+    "chapter": "Module 2",
+    "unit": "Ch 9: Income Tax Liability: Computation and Optimisation",
+    "url": "https://resource.cdn.icai.org/93405bos-aps5909-ch9.pdf"
+  },
+  {
+    "id": "i-tb-c1",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 1",
+    "unit": "Ch 1: GST in India: An Introduction",
+    "url": "https://resource.cdn.icai.org/93618bos-aps6021-p3b-may2027-ch1.pdf"
+  },
+  {
+    "id": "i-tb-c2",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 1",
+    "unit": "Ch 2: Supply under GST",
+    "url": "https://resource.cdn.icai.org/93619bos-aps6021-p3b-may2027-ch2.pdf"
+  },
+  {
+    "id": "i-tb-c3",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 1",
+    "unit": "Ch 3: Charge of GST",
+    "url": "https://resource.cdn.icai.org/93620bos-aps6021-p3b-may2027-ch3.pdf"
+  },
+  {
+    "id": "i-tb-c4",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 1",
+    "unit": "Ch 4: Place of Supply",
+    "url": "https://resource.cdn.icai.org/93621bos-aps6021-p3b-may2027-ch4.pdf"
+  },
+  {
+    "id": "i-tb-c5",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 1",
+    "unit": "Ch 5: Exemptions from GST",
+    "url": "https://resource.cdn.icai.org/93622bos-aps6021-p3b-may2027-ch5.pdf"
+  },
+  {
+    "id": "i-tb-c6",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 1",
+    "unit": "Ch 6: Time of Supply",
+    "url": "https://resource.cdn.icai.org/93623bos-aps6021-p3b-may2027-ch6.pdf"
+  },
+  {
+    "id": "i-tb-c7",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 1",
+    "unit": "Ch 7: Value of Supply",
+    "url": "https://resource.cdn.icai.org/93624bos-aps6021-p3b-may2027-ch7.pdf"
+  },
+  {
+    "id": "i-tb-c8",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 2",
+    "unit": "Ch 8: Input Tax Credit",
+    "url": "https://resource.cdn.icai.org/93797bos-aps6021-p3b-may2027-ch8.pdf"
+  },
+  {
+    "id": "i-tb-c9",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 2",
+    "unit": "Ch 9: Registration",
+    "url": "https://resource.cdn.icai.org/93798bos-aps6021-p3b-may2027-ch9.pdf"
+  },
+  {
+    "id": "i-tb-c10",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 2",
+    "unit": "Ch 10: Tax Invoice, Credit and Debit Notes",
+    "url": "https://resource.cdn.icai.org/93799bos-aps6021-p3b-may2027-ch10.pdf"
+  },
+  {
+    "id": "i-tb-c11",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 2",
+    "unit": "Ch 11: Accounts and Records",
+    "url": "https://resource.cdn.icai.org/93800bos-aps6021-p3b-may2027-ch11.pdf"
+  },
+  {
+    "id": "i-tb-c12",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 2",
+    "unit": "Ch 12: E-Way Bill",
+    "url": "https://resource.cdn.icai.org/93801bos-aps6021-p3b-may2027-ch12.pdf"
+  },
+  {
+    "id": "i-tb-c13",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 2",
+    "unit": "Ch 13: Payment of Tax",
+    "url": "https://resource.cdn.icai.org/93802bos-aps6021-p3b-may2027-ch13.pdf"
+  },
+  {
+    "id": "i-tb-c14",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 2",
+    "unit": "Ch 14: TDS and TCS under GST",
+    "url": "https://resource.cdn.icai.org/93803bos-aps6021-p3b-may2027-ch14.pdf"
+  },
+  {
+    "id": "i-tb-c15",
+    "course": "Intermediate",
+    "paper": "Paper 3B: Taxation (Goods and Services Tax)",
+    "chapter": "Module 2",
+    "unit": "Ch 15: Returns",
+    "url": "https://resource.cdn.icai.org/93804bos-aps6021-p3b-may2027-ch15.pdf"
+  },
+  {
+    "id": "i-fm-c1",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Module 1",
+    "unit": "Ch 1: Scope and Objectives of Financial Management",
+    "url": "https://resource.cdn.icai.org/87737bos280825-ch1.pdf"
+  },
+  {
+    "id": "i-fm-c2",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Module 1",
+    "unit": "Ch 2: Types of Financing",
+    "url": "https://resource.cdn.icai.org/87738bos280825-ch2.pdf"
+  },
+  {
+    "id": "i-fm-c3",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Module 1",
+    "unit": "Ch 3: Financial Analysis and Planning: Ratio Analysis",
+    "url": "https://resource.cdn.icai.org/87739bos280825-ch3.pdf"
+  },
+  {
+    "id": "i-fm-c4",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Module 1",
+    "unit": "Ch 4: Cost of Capital",
+    "url": "https://resource.cdn.icai.org/87740bos-280825-ch4.pdf"
+  },
+  {
+    "id": "i-fm-c5",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Module 1",
+    "unit": "Ch 5: Financing Decisions: Capital Structure",
+    "url": "https://resource.cdn.icai.org/87741bos-280825-ch5.pdf"
+  },
+  {
+    "id": "i-fm-c6",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Module 1",
+    "unit": "Ch 6: Financing Decisions: Leverages",
+    "url": "https://resource.cdn.icai.org/87742bos-28082025-ch6.pdf"
+  },
+  {
+    "id": "i-fm-c7",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Module 2",
+    "unit": "Ch 7: Investment Decisions",
+    "url": "https://resource.cdn.icai.org/87745bos280825-ch7.pdf"
+  },
+  {
+    "id": "i-fm-c8",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Module 2",
+    "unit": "Ch 8: Dividend Decision",
+    "url": "https://resource.cdn.icai.org/87746bos280825-ch8.pdf"
+  },
+  {
+    "id": "i-fm-c9-u1",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Ch 9: Management of Working Capital",
+    "unit": "Unit 1: Introduction to Working Capital Management",
+    "url": "https://resource.cdn.icai.org/88440bos280825-cp9u1.pdf"
+  },
+  {
+    "id": "i-fm-c9-u2",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Ch 9: Management of Working Capital",
+    "unit": "Unit 2: Treasury and Cash Management",
+    "url": "https://resource.cdn.icai.org/87748bos280825-cp9u2.pdf"
+  },
+  {
+    "id": "i-fm-c9-u3",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Ch 9: Management of Working Capital",
+    "unit": "Unit 3: Management of Inventory",
+    "url": "https://resource.cdn.icai.org/87749bos280825-cp9u3.pdf"
+  },
+  {
+    "id": "i-fm-c9-u4",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Ch 9: Management of Working Capital",
+    "unit": "Unit 4: Management of Receivables",
+    "url": "https://resource.cdn.icai.org/87750bos280825-cp9u4.pdf"
+  },
+  {
+    "id": "i-fm-c9-u5",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Ch 9: Management of Working Capital",
+    "unit": "Unit 5: Management of Payables (Creditors)",
+    "url": "https://resource.cdn.icai.org/87751bos280825-cp9u5.pdf"
+  },
+  {
+    "id": "i-fm-c9-u6",
+    "course": "Intermediate",
+    "paper": "Paper 6A: Financial Management",
+    "chapter": "Ch 9: Management of Working Capital",
+    "unit": "Unit 6: Financing of Working Capital",
+    "url": "https://resource.cdn.icai.org/87752bos280825-cp9u6.pdf"
+  },
+  {
+    "id": "i-sm-c1",
+    "course": "Intermediate",
+    "paper": "Paper 6B: Strategic Management",
+    "chapter": "Strategic Management",
+    "unit": "Ch 1: Introduction to Strategic Management",
+    "url": "https://resource.cdn.icai.org/93344bos-aps5885-ch1.pdf"
+  },
+  {
+    "id": "i-sm-c2",
+    "course": "Intermediate",
+    "paper": "Paper 6B: Strategic Management",
+    "chapter": "Strategic Management",
+    "unit": "Ch 2: Strategic Analysis: External Environment",
+    "url": "https://resource.cdn.icai.org/93345bos-aps5885-ch2.pdf"
+  },
+  {
+    "id": "i-sm-c3",
+    "course": "Intermediate",
+    "paper": "Paper 6B: Strategic Management",
+    "chapter": "Strategic Management",
+    "unit": "Ch 3: Strategic Analysis: Internal Environment",
+    "url": "https://resource.cdn.icai.org/93346bos-aps5885-ch3.pdf"
+  },
+  {
+    "id": "i-sm-c4",
+    "course": "Intermediate",
+    "paper": "Paper 6B: Strategic Management",
+    "chapter": "Strategic Management",
+    "unit": "Ch 4: Strategic Choices",
+    "url": "https://resource.cdn.icai.org/93347bos-aps5885-ch4.pdf"
+  },
+  {
+    "id": "i-sm-c5",
+    "course": "Intermediate",
+    "paper": "Paper 6B: Strategic Management",
+    "chapter": "Strategic Management",
+    "unit": "Ch 5: Strategy Implementation and Evaluation",
+    "url": "https://resource.cdn.icai.org/93348bos-aps5885-ch5.pdf"
+  },
+  {
+    "id": "i-aa-c1",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 1: Introduction to Accounting Standards",
+    "url": "https://resource.cdn.icai.org/81624bos65825-cp1.pdf"
+  },
+  {
+    "id": "i-aa-c2",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 2: Framework for Preparation and Presentation of Financial Statements",
+    "url": "https://resource.cdn.icai.org/81625bos65825-cp2.pdf"
+  },
+  {
+    "id": "i-aa-c3",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 3: Applicability of Accounting Standards",
+    "url": "https://resource.cdn.icai.org/81626bos65825-cp3.pdf"
+  },
+  {
+    "id": "i-aa-c4-u1",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 4: Presentation and Disclosures Based Accounting Standards",
+    "unit": "Unit 1: AS 1 Disclosure of Accounting Policies",
+    "url": "https://resource.cdn.icai.org/81627bos65825-cp4u1.pdf"
+  },
+  {
+    "id": "i-aa-c4-u2",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 4: Presentation and Disclosures Based Accounting Standards",
+    "unit": "Unit 2: AS 3 Cash Flow Statement",
+    "url": "https://resource.cdn.icai.org/81628bos65825-cp4u2.pdf"
+  },
+  {
+    "id": "i-aa-c4-u3",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 4: Presentation and Disclosures Based Accounting Standards",
+    "unit": "Unit 3: AS 17 Segment Reporting",
+    "url": "https://resource.cdn.icai.org/81629bos65825-cp4u3.pdf"
+  },
+  {
+    "id": "i-aa-c4-u4",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 4: Presentation and Disclosures Based Accounting Standards",
+    "unit": "Unit 4: AS 18 Related Party Disclosures",
+    "url": "https://resource.cdn.icai.org/81630bos65825-cp4u4.pdf"
+  },
+  {
+    "id": "i-aa-c4-u5",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 4: Presentation and Disclosures Based Accounting Standards",
+    "unit": "Unit 5: AS 20 Earnings Per Share",
+    "url": "https://resource.cdn.icai.org/81631bos65825-cp4u5.pdf"
+  },
+  {
+    "id": "i-aa-c4-u6",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 4: Presentation and Disclosures Based Accounting Standards",
+    "unit": "Unit 6: AS 24 Discontinuing Operations",
+    "url": "https://resource.cdn.icai.org/81632bos65825-cp4u6.pdf"
+  },
+  {
+    "id": "i-aa-c4-u7",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 4: Presentation and Disclosures Based Accounting Standards",
+    "unit": "Unit 7: AS 25 Interim Financial Reporting",
+    "url": "https://resource.cdn.icai.org/81633bos65825-cp4u7.pdf"
+  },
+  {
+    "id": "i-aa-c5-u1",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 5: Assets Based Accounting Standards",
+    "unit": "Unit 1: AS 2 Valuation of Inventory",
+    "url": "https://resource.cdn.icai.org/81634bos65825-cp5u1.pdf"
+  },
+  {
+    "id": "i-aa-c5-u2",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 5: Assets Based Accounting Standards",
+    "unit": "Unit 2: AS 10 Property, Plant and Equipment",
+    "url": "https://resource.cdn.icai.org/81635bos65825-cp5u2.pdf"
+  },
+  {
+    "id": "i-aa-c5-u3",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 5: Assets Based Accounting Standards",
+    "unit": "Unit 3: AS 13 Accounting for Investments",
+    "url": "https://resource.cdn.icai.org/81636bos65825-cp5u3.pdf"
+  },
+  {
+    "id": "i-aa-c5-u4",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 5: Assets Based Accounting Standards",
+    "unit": "Unit 4: AS 16 Borrowing Costs",
+    "url": "https://resource.cdn.icai.org/81637bos65825-cp5u4.pdf"
+  },
+  {
+    "id": "i-aa-c5-u5",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 5: Assets Based Accounting Standards",
+    "unit": "Unit 5: AS 19 Leases",
+    "url": "https://resource.cdn.icai.org/81638bos65825-cp5u5.pdf"
+  },
+  {
+    "id": "i-aa-c5-u6",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 5: Assets Based Accounting Standards",
+    "unit": "Unit 6: AS 26 Intangible Assets",
+    "url": "https://resource.cdn.icai.org/81639bos65825-cp5u6.pdf"
+  },
+  {
+    "id": "i-aa-c5-u7",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 5: Assets Based Accounting Standards",
+    "unit": "Unit 7: AS 28 Impairment of Assets",
+    "url": "https://resource.cdn.icai.org/81640bos65825-cp5u7.pdf"
+  },
+  {
+    "id": "i-aa-c6-u1",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 6: Liabilities Based Accounting Standards",
+    "unit": "Unit 1: AS 15 Employee Benefits",
+    "url": "https://resource.cdn.icai.org/81641bos65825-cp6u1.pdf"
+  },
+  {
+    "id": "i-aa-c6-u2",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 6: Liabilities Based Accounting Standards",
+    "unit": "Unit 2: AS 29 Provisions, Contingent Liabilities and Contingent Assets",
+    "url": "https://resource.cdn.icai.org/81642bos65825-cp6u2.pdf"
+  },
+  {
+    "id": "i-aa-c7-u1",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 7: Accounting Standards Based on Items Impacting Financial Statements",
+    "unit": "Unit 1: AS 4 Contingencies and Events after the Balance Sheet Date",
+    "url": "https://resource.cdn.icai.org/81643bos65825-cp7u1.pdf"
+  },
+  {
+    "id": "i-aa-c7-u2",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 7: Accounting Standards Based on Items Impacting Financial Statements",
+    "unit": "Unit 2: AS 5 Net Profit or Loss, Prior Period Items and Changes in Accounting Policies",
+    "url": "https://resource.cdn.icai.org/81644bos65825-cp7u2.pdf"
+  },
+  {
+    "id": "i-aa-c7-u3",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 7: Accounting Standards Based on Items Impacting Financial Statements",
+    "unit": "Unit 3: AS 11 Effects of Changes in Foreign Exchange Rates",
+    "url": "https://resource.cdn.icai.org/81645bos65825-cp7u3.pdf"
+  },
+  {
+    "id": "i-aa-c7-u4",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 7: Accounting Standards Based on Items Impacting Financial Statements",
+    "unit": "Unit 4: AS 22 Accounting for Taxes on Income",
+    "url": "https://resource.cdn.icai.org/81646bos65825-cp7u4.pdf"
+  },
+  {
+    "id": "i-aa-c8-u1",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 8: Revenue Based Accounting Standards",
+    "unit": "Unit 1: AS 7 Construction Contracts",
+    "url": "https://resource.cdn.icai.org/81647bos65825-cp8u1.pdf"
+  },
+  {
+    "id": "i-aa-c8-u2",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 8: Revenue Based Accounting Standards",
+    "unit": "Unit 2: AS 9 Revenue Recognition",
+    "url": "https://resource.cdn.icai.org/81648bos65825-cp8u2.pdf"
+  },
+  {
+    "id": "i-aa-c9-u1",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 9: Other Accounting Standards",
+    "unit": "Unit 1: AS 12 Accounting for Government Grants",
+    "url": "https://resource.cdn.icai.org/81649bos65825-cp9u1.pdf"
+  },
+  {
+    "id": "i-aa-c9-u2",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 9: Other Accounting Standards",
+    "unit": "Unit 2: AS 14 Accounting for Amalgamations",
+    "url": "https://resource.cdn.icai.org/81650bos65825-cp9u2.pdf"
+  },
+  {
+    "id": "i-aa-c10-u1",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 10: Accounting Standards for Consolidated Financial Statements",
+    "unit": "Unit 1: AS 21 Consolidated Financial Statements",
+    "url": "https://resource.cdn.icai.org/81651bos65825-cp10u1.pdf"
+  },
+  {
+    "id": "i-aa-c10-u2",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 10: Accounting Standards for Consolidated Financial Statements",
+    "unit": "Unit 2: AS 23 Investments in Associates",
+    "url": "https://resource.cdn.icai.org/81652bos65825-cp10u2.pdf"
+  },
+  {
+    "id": "i-aa-c10-u3",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 10: Accounting Standards for Consolidated Financial Statements",
+    "unit": "Unit 3: AS 27 Interests in Joint Ventures",
+    "url": "https://resource.cdn.icai.org/81653bos65825-cp10u3.pdf"
+  },
+  {
+    "id": "i-aa-c11-u1",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 11: Financial Statements of Companies",
+    "unit": "Unit 1: Preparation of Financial Statements",
+    "url": "https://resource.cdn.icai.org/81655bos65825-cp11u1.pdf"
+  },
+  {
+    "id": "i-aa-c11-u2",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Ch 11: Financial Statements of Companies",
+    "unit": "Unit 2: Cash Flow Statement",
+    "url": "https://resource.cdn.icai.org/81656bos65825-cp11u2.pdf"
+  },
+  {
+    "id": "i-aa-c12",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Module 3",
+    "unit": "Ch 12: Buyback of Securities",
+    "url": "https://resource.cdn.icai.org/81657bos65825-cp12.pdf"
+  },
+  {
+    "id": "i-aa-c13",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Module 3",
+    "unit": "Ch 13: Amalgamation of Companies",
+    "url": "https://resource.cdn.icai.org/81658bos65825-cp13.pdf"
+  },
+  {
+    "id": "i-aa-c14",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Module 3",
+    "unit": "Ch 14: Internal Reconstruction",
+    "url": "https://resource.cdn.icai.org/81659bos65825-cp14.pdf"
+  },
+  {
+    "id": "i-aa-c15",
+    "course": "Intermediate",
+    "paper": "Paper 1: Advanced Accounting",
+    "chapter": "Module 3",
+    "unit": "Ch 15: Accounting for Branches including Foreign Branches",
+    "url": "https://resource.cdn.icai.org/81660bos65825-cp15.pdf"
+  },
+  {
+    "id": "f-ac-c1-u1",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 1: Theoretical Framework",
+    "unit": "Unit 1: Meaning and Scope of Accounting",
+    "url": "https://resource.cdn.icai.org/93935bos-aps6170-ch1u1.pdf"
+  },
+  {
+    "id": "f-ac-c1-u2",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 1: Theoretical Framework",
+    "unit": "Unit 2: Accounting Concepts, Principles and Conventions",
+    "url": "https://resource.cdn.icai.org/93936bos-aps6170-ch1u2.pdf"
+  },
+  {
+    "id": "f-ac-c1-u3",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 1: Theoretical Framework",
+    "unit": "Unit 3: Capital and Revenue Expenditures and Receipts",
+    "url": "https://resource.cdn.icai.org/93937bos-aps6170-ch1u3.pdf"
+  },
+  {
+    "id": "f-ac-c1-u4",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 1: Theoretical Framework",
+    "unit": "Unit 4: Contingent Assets and Contingent Liabilities",
+    "url": "https://resource.cdn.icai.org/93938bos-aps6170-ch1u4.pdf"
+  },
+  {
+    "id": "f-ac-c1-u5",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 1: Theoretical Framework",
+    "unit": "Unit 5: Accounting Policies",
+    "url": "https://resource.cdn.icai.org/93939bos-aps6170-ch1u5.pdf"
+  },
+  {
+    "id": "f-ac-c1-u6",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 1: Theoretical Framework",
+    "unit": "Unit 6: Accounting as a Measurement Discipline",
+    "url": "https://resource.cdn.icai.org/93940bos-aps6170-ch1u6.pdf"
+  },
+  {
+    "id": "f-ac-c1-u7",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 1: Theoretical Framework",
+    "unit": "Unit 7: Accounting Standards",
+    "url": "https://resource.cdn.icai.org/93941bos-aps6170-ch1u7.pdf"
+  },
+  {
+    "id": "f-ac-c2-u1",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 2: Accounting Process",
+    "unit": "Unit 1: Basic Accounting Procedures: Journal Entries",
+    "url": "https://resource.cdn.icai.org/93942bos-aps6170-ch2u1.pdf"
+  },
+  {
+    "id": "f-ac-c2-u2",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 2: Accounting Process",
+    "unit": "Unit 2: Ledgers",
+    "url": "https://resource.cdn.icai.org/93943bos-aps6170-ch2u2.pdf"
+  },
+  {
+    "id": "f-ac-c2-u3",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 2: Accounting Process",
+    "unit": "Unit 3: Trial Balance",
+    "url": "https://resource.cdn.icai.org/93944bos-aps6170-ch2u3.pdf"
+  },
+  {
+    "id": "f-ac-c2-u4",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 2: Accounting Process",
+    "unit": "Unit 4: Subsidiary Books",
+    "url": "https://resource.cdn.icai.org/93945bos-aps6170-ch2u4.pdf"
+  },
+  {
+    "id": "f-ac-c2-u5",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 2: Accounting Process",
+    "unit": "Unit 5: Cash Book",
+    "url": "https://resource.cdn.icai.org/93946bos-aps6170-ch2u5.pdf"
+  },
+  {
+    "id": "f-ac-c2-u6",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 2: Accounting Process",
+    "unit": "Unit 6: Rectification of Errors",
+    "url": "https://resource.cdn.icai.org/93954bos-aps6170-ch2u6.pdf"
+  },
+  {
+    "id": "f-ac-c3",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 3: Bank Reconciliation Statement",
+    "url": "https://resource.cdn.icai.org/93955bos-aps6170-ch3.pdf"
+  },
+  {
+    "id": "f-ac-c4",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 4: Inventories",
+    "url": "https://resource.cdn.icai.org/93956bos-aps6170-ch4.pdf"
+  },
+  {
+    "id": "f-ac-c5",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 5: Depreciation and Amortisation",
+    "url": "https://resource.cdn.icai.org/93957bos-aps6170-ch5.pdf"
+  },
+  {
+    "id": "f-ac-c6",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Module 1",
+    "unit": "Ch 6: Bills of Exchange and Promissory Notes",
+    "url": "https://resource.cdn.icai.org/93958bos-aps6170-ch6.pdf"
+  },
+  {
+    "id": "f-ac-c7-u1",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 7: Preparation of Final Accounts of Sole Proprietors",
+    "unit": "Unit 1: Final Accounts of Non-Manufacturing Entities",
+    "url": "https://resource.cdn.icai.org/93959bos-aps6170-ch7u1.pdf"
+  },
+  {
+    "id": "f-ac-c7-u2",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 7: Preparation of Final Accounts of Sole Proprietors",
+    "unit": "Unit 2: Final Accounts of Manufacturing Entities",
+    "url": "https://resource.cdn.icai.org/93960bos-aps6170-ch7u2.pdf"
+  },
+  {
+    "id": "f-ac-c8",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Module 2",
+    "unit": "Ch 8: Financial Statements of Not-for-Profit Organisations",
+    "url": "https://resource.cdn.icai.org/94004bos-aps6170-ch8.pdf"
+  },
+  {
+    "id": "f-ac-c9",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Module 2",
+    "unit": "Ch 9: Accounts from Incomplete Records",
+    "url": "https://resource.cdn.icai.org/94005bos-aps6170-ch9.pdf"
+  },
+  {
+    "id": "f-ac-c10-u1",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 10: Partnership and LLP Accounts",
+    "unit": "Unit 1: Introduction to Partnership Accounts",
+    "url": "https://resource.cdn.icai.org/94007bos-aps6170-ch10u1.pdf"
+  },
+  {
+    "id": "f-ac-c10-u2",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 10: Partnership and LLP Accounts",
+    "unit": "Unit 2: Treatment of Goodwill in Partnership Accounts",
+    "url": "https://resource.cdn.icai.org/94008bos-aps6170-ch10u2.pdf"
+  },
+  {
+    "id": "f-ac-c10-u3",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 10: Partnership and LLP Accounts",
+    "unit": "Unit 3: Admission of a New Partner",
+    "url": "https://resource.cdn.icai.org/94009bos-aps6170-ch10u3.pdf"
+  },
+  {
+    "id": "f-ac-c10-u4",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 10: Partnership and LLP Accounts",
+    "unit": "Unit 4: Retirement of a Partner",
+    "url": "https://resource.cdn.icai.org/94010bos-aps6170-ch10u4.pdf"
+  },
+  {
+    "id": "f-ac-c10-u5",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 10: Partnership and LLP Accounts",
+    "unit": "Unit 5: Death of a Partner",
+    "url": "https://resource.cdn.icai.org/94011bos-aps6170-ch10u5.pdf"
+  },
+  {
+    "id": "f-ac-c10-u6",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 10: Partnership and LLP Accounts",
+    "unit": "Unit 6: Dissolution of Partnership Firms and LLPs",
+    "url": "https://resource.cdn.icai.org/94012bos-aps6170-ch10u6.pdf"
+  },
+  {
+    "id": "f-ac-c11-u1",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 11: Company Accounts",
+    "unit": "Unit 1: Introduction to Company Accounts",
+    "url": "https://resource.cdn.icai.org/94013bos-aps6170-ch11u1.pdf"
+  },
+  {
+    "id": "f-ac-c11-u2",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 11: Company Accounts",
+    "unit": "Unit 2: Issue, Forfeiture and Re-Issue of Shares",
+    "url": "https://resource.cdn.icai.org/94014bos-aps6170-ch11u2.pdf"
+  },
+  {
+    "id": "f-ac-c11-u3",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 11: Company Accounts",
+    "unit": "Unit 3: Issue of Debentures",
+    "url": "https://resource.cdn.icai.org/94015bos-aps6170-ch11u3.pdf"
+  },
+  {
+    "id": "f-ac-c11-u4",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 11: Company Accounts",
+    "unit": "Unit 4: Accounting for Bonus Issue and Right Issue",
+    "url": "https://resource.cdn.icai.org/94016bos-aps6170-ch11u4.pdf"
+  },
+  {
+    "id": "f-ac-c11-u5",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 11: Company Accounts",
+    "unit": "Unit 5: Redemption of Preference Shares",
+    "url": "https://resource.cdn.icai.org/94021bos-aps6170-ch11u5.pdf"
+  },
+  {
+    "id": "f-ac-c11-u6",
+    "course": "Foundation",
+    "paper": "Paper 1: Accounting",
+    "chapter": "Ch 11: Company Accounts",
+    "unit": "Unit 6: Redemption of Debentures",
+    "url": "https://resource.cdn.icai.org/94022bos-aps6170-ch11u6.pdf"
+  },
+  {
+    "id": "f-bl-c1",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Chapters",
+    "unit": "Ch 1: Indian Regulatory Framework",
+    "url": "https://resource.cdn.icai.org/93742bos-aps6083-p2-ch1.pdf"
+  },
+  {
+    "id": "f-bl-c2-u1",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 2: Indian Contract Act, 1872",
+    "unit": "Unit 1: Nature of Contracts",
+    "url": "https://resource.cdn.icai.org/88017bos-aps2231-ch2u1.pdf"
+  },
+  {
+    "id": "f-bl-c2-u2",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 2: Indian Contract Act, 1872",
+    "unit": "Unit 2: Consideration",
+    "url": "https://resource.cdn.icai.org/88018bos-aps2231-ch2u2.pdf"
+  },
+  {
+    "id": "f-bl-c2-u3",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 2: Indian Contract Act, 1872",
+    "unit": "Unit 3: Other Essential Elements of a Contract",
+    "url": "https://resource.cdn.icai.org/88019bos-aps2231-ch2u3.pdf"
+  },
+  {
+    "id": "f-bl-c2-u4",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 2: Indian Contract Act, 1872",
+    "unit": "Unit 4: Performance of Contract",
+    "url": "https://resource.cdn.icai.org/88020bos-aps2231-ch2u4.pdf"
+  },
+  {
+    "id": "f-bl-c2-u5",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 2: Indian Contract Act, 1872",
+    "unit": "Unit 5: Breach of Contract and its Remedies",
+    "url": "https://resource.cdn.icai.org/88021bos-aps2231-ch2u5.pdf"
+  },
+  {
+    "id": "f-bl-c2-u6",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 2: Indian Contract Act, 1872",
+    "unit": "Unit 6: Contingent and Quasi Contracts",
+    "url": "https://resource.cdn.icai.org/88022bos-aps2231-ch2u6.pdf"
+  },
+  {
+    "id": "f-bl-c2-u7",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 2: Indian Contract Act, 1872",
+    "unit": "Unit 7: Contract of Indemnity and Guarantee",
+    "url": "https://resource.cdn.icai.org/88023bos-aps2231-ch2u7.pdf"
+  },
+  {
+    "id": "f-bl-c2-u8",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 2: Indian Contract Act, 1872",
+    "unit": "Unit 8: Bailment and Pledge",
+    "url": "https://resource.cdn.icai.org/88024bos-aps2231-ch2u8.pdf"
+  },
+  {
+    "id": "f-bl-c2-u9",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 2: Indian Contract Act, 1872",
+    "unit": "Unit 9: Agency",
+    "url": "https://resource.cdn.icai.org/88025bos-aps2231-ch2u9.pdf"
+  },
+  {
+    "id": "f-bl-c3-u1",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 3: The Sale of Goods Act, 1930",
+    "unit": "Unit 1: Formation of the Contract of Sale",
+    "url": "https://resource.cdn.icai.org/93752bos-aps6083-p2-ch3u1.pdf"
+  },
+  {
+    "id": "f-bl-c3-u2",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 3: The Sale of Goods Act, 1930",
+    "unit": "Unit 2: Conditions and Warranties",
+    "url": "https://resource.cdn.icai.org/93753bos-aps6083-p2-ch3u2.pdf"
+  },
+  {
+    "id": "f-bl-c3-u3",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 3: The Sale of Goods Act, 1930",
+    "unit": "Unit 3: Transfer of Ownership and Delivery of Goods",
+    "url": "https://resource.cdn.icai.org/93754bos-aps6083-p2-ch3u3.pdf"
+  },
+  {
+    "id": "f-bl-c3-u4",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 3: The Sale of Goods Act, 1930",
+    "unit": "Unit 4: Unpaid Seller",
+    "url": "https://resource.cdn.icai.org/93755bos-aps6083-p2-ch3u4.pdf"
+  },
+  {
+    "id": "f-bl-c4-u1",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 4: The Indian Partnership Act, 1932",
+    "unit": "Unit 1: General Nature of Partnership",
+    "url": "https://resource.cdn.icai.org/93756bos-aps6083-p2-ch4u1.pdf"
+  },
+  {
+    "id": "f-bl-c4-u2",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 4: The Indian Partnership Act, 1932",
+    "unit": "Unit 2: Relations of Partners",
+    "url": "https://resource.cdn.icai.org/93757bos-aps6083-p2-ch4u2.pdf"
+  },
+  {
+    "id": "f-bl-c4-u3",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Ch 4: The Indian Partnership Act, 1932",
+    "unit": "Unit 3: Registration and Dissolution of a Firm",
+    "url": "https://resource.cdn.icai.org/93758bos-aps6083-p2-ch4u3.pdf"
+  },
+  {
+    "id": "f-bl-c5",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Chapters",
+    "unit": "Ch 5: The Limited Liability Partnership Act, 2008",
+    "url": "https://resource.cdn.icai.org/93759bos-aps6083-p2-ch5.pdf"
+  },
+  {
+    "id": "f-bl-c6",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Chapters",
+    "unit": "Ch 6: The Companies Act, 2013",
+    "url": "https://resource.cdn.icai.org/93760bos-aps6083-p2-ch6.pdf"
+  },
+  {
+    "id": "f-bl-c7",
+    "course": "Foundation",
+    "paper": "Paper 2: Business Laws",
+    "chapter": "Chapters",
+    "unit": "Ch 7: The Negotiable Instruments Act, 1881",
+    "url": "https://resource.cdn.icai.org/93761bos-aps6083-p2-ch7.pdf"
+  },
+  {
+    "id": "f-qa-c1",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part A: Business Mathematics",
+    "unit": "Ch 1: Ratio and Proportion, Indices, Logarithms",
+    "url": "https://resource.cdn.icai.org/93822bos-aps6110-p3-ch1.pdf"
+  },
+  {
+    "id": "f-qa-c2",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part A: Business Mathematics",
+    "unit": "Ch 2: Equations",
+    "url": "https://resource.cdn.icai.org/93823bos-aps6110-p3-ch2.pdf"
+  },
+  {
+    "id": "f-qa-c3",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part A: Business Mathematics",
+    "unit": "Ch 3: Linear Inequalities",
+    "url": "https://resource.cdn.icai.org/93824bos-aps6110-p3-ch3.pdf"
+  },
+  {
+    "id": "f-qa-c4",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part A: Business Mathematics",
+    "unit": "Ch 4: Mathematics of Finance",
+    "url": "https://resource.cdn.icai.org/93825bos-aps6110-p3-ch4.pdf"
+  },
+  {
+    "id": "f-qa-c5",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part A: Business Mathematics",
+    "unit": "Ch 5: Basic Concepts of Permutations and Combinations",
+    "url": "https://resource.cdn.icai.org/93826bos-aps6110-p3-ch5.pdf"
+  },
+  {
+    "id": "f-qa-c6",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part A: Business Mathematics",
+    "unit": "Ch 6: Sequence and Series: AP and GP",
+    "url": "https://resource.cdn.icai.org/93827bos-aps6110-p3-ch6.pdf"
+  },
+  {
+    "id": "f-qa-c7",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part A: Business Mathematics",
+    "unit": "Ch 7: Sets, Relations and Functions, Limits and Continuity",
+    "url": "https://resource.cdn.icai.org/93828bos-aps6110-p3-ch7.pdf"
+  },
+  {
+    "id": "f-qa-c8",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part A: Business Mathematics",
+    "unit": "Ch 8: Basic Applications of Differential and Integral Calculus",
+    "url": "https://resource.cdn.icai.org/93829bos-aps6110-p3-ch8.pdf"
+  },
+  {
+    "id": "f-qa-c9",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part B: Logical Reasoning",
+    "unit": "Ch 9: Number Series, Coding and Decoding, Odd Man Out",
+    "url": "https://resource.cdn.icai.org/93830bos-aps6110-p3-ch9.pdf"
+  },
+  {
+    "id": "f-qa-c10",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part B: Logical Reasoning",
+    "unit": "Ch 10: Direction Sense Test",
+    "url": "https://resource.cdn.icai.org/93831bos-aps6110-p3-ch10.pdf"
+  },
+  {
+    "id": "f-qa-c11",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part B: Logical Reasoning",
+    "unit": "Ch 11: Seating Arrangements",
+    "url": "https://resource.cdn.icai.org/93832bos-aps6110-p3-ch11.pdf"
+  },
+  {
+    "id": "f-qa-c12",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part B: Logical Reasoning",
+    "unit": "Ch 12: Blood Relations",
+    "url": "https://resource.cdn.icai.org/93833bos-aps6110-p3-ch12.pdf"
+  },
+  {
+    "id": "f-qa-c13-u1",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Ch 13: Statistical Description of Data and Sampling",
+    "unit": "Unit 1: Statistical Description of Data",
+    "url": "https://resource.cdn.icai.org/93834bos-aps6110-p3-ch13u1.pdf"
+  },
+  {
+    "id": "f-qa-c13-u2",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Ch 13: Statistical Description of Data and Sampling",
+    "unit": "Unit 2: Sampling",
+    "url": "https://resource.cdn.icai.org/93835bos-aps6110-p3-ch13u2.pdf"
+  },
+  {
+    "id": "f-qa-c14-u1",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Ch 14: Measures of Central Tendency and Dispersion",
+    "unit": "Unit 1: Measures of Central Tendency",
+    "url": "https://resource.cdn.icai.org/93836bos-aps6110-p3-ch14u1.pdf"
+  },
+  {
+    "id": "f-qa-c14-u2",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Ch 14: Measures of Central Tendency and Dispersion",
+    "unit": "Unit 2: Dispersion",
+    "url": "https://resource.cdn.icai.org/93837bos-aps6110-p3-ch14u2.pdf"
+  },
+  {
+    "id": "f-qa-c15",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part C: Statistics",
+    "unit": "Ch 15: Probability",
+    "url": "https://resource.cdn.icai.org/93838bos-aps6110-p3-ch15.pdf"
+  },
+  {
+    "id": "f-qa-c16",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part C: Statistics",
+    "unit": "Ch 16: Theoretical Distributions",
+    "url": "https://resource.cdn.icai.org/93839bos-aps6110-p3-ch16.pdf"
+  },
+  {
+    "id": "f-qa-c17",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part C: Statistics",
+    "unit": "Ch 17: Correlation and Regression",
+    "url": "https://resource.cdn.icai.org/93840bos-aps6110-p3-ch17.pdf"
+  },
+  {
+    "id": "f-qa-c18",
+    "course": "Foundation",
+    "paper": "Paper 3: Quantitative Aptitude",
+    "chapter": "Part C: Statistics",
+    "unit": "Ch 18: Index Numbers",
+    "url": "https://resource.cdn.icai.org/93841bos-aps6110-p3-ch18.pdf"
+  },
+  {
+    "id": "f-be-c1-u1",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 1: Nature and Scope of Business Economics",
+    "unit": "Unit 1: Introduction",
+    "url": "https://resource.cdn.icai.org/93845bos-aps6111-p4-ch1u1.pdf"
+  },
+  {
+    "id": "f-be-c1-u2",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 1: Nature and Scope of Business Economics",
+    "unit": "Unit 2: Basic Problems of an Economy and Role of Price Mechanism",
+    "url": "https://resource.cdn.icai.org/93846bos-aps6111-p4-ch1u2.pdf"
+  },
+  {
+    "id": "f-be-c2-u1",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 2: Theory of Demand and Supply",
+    "unit": "Unit 1: Law of Demand and Elasticity of Demand",
+    "url": "https://resource.cdn.icai.org/93847bos-aps6111-p4-ch2u1.pdf"
+  },
+  {
+    "id": "f-be-c2-u2",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 2: Theory of Demand and Supply",
+    "unit": "Unit 2: Theory of Consumer Behaviour",
+    "url": "https://resource.cdn.icai.org/93848bos-aps6111-p4-ch2u2.pdf"
+  },
+  {
+    "id": "f-be-c2-u3",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 2: Theory of Demand and Supply",
+    "unit": "Unit 3: Supply",
+    "url": "https://resource.cdn.icai.org/93849bos-aps6111-p4-ch2u3.pdf"
+  },
+  {
+    "id": "f-be-c3-u1",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 3: Theory of Production and Cost",
+    "unit": "Unit 1: Theory of Production",
+    "url": "https://resource.cdn.icai.org/93850bos-aps6111-p4-ch3u1.pdf"
+  },
+  {
+    "id": "f-be-c3-u2",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 3: Theory of Production and Cost",
+    "unit": "Unit 2: Theory of Cost",
+    "url": "https://resource.cdn.icai.org/93851bos-aps6111-p4-ch3u2.pdf"
+  },
+  {
+    "id": "f-be-c4-u1",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 4: Price Determination in Different Markets",
+    "unit": "Unit 1: Meaning and Types of Markets",
+    "url": "https://resource.cdn.icai.org/93852bos-aps6111-p4-ch4u1.pdf"
+  },
+  {
+    "id": "f-be-c4-u2",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 4: Price Determination in Different Markets",
+    "unit": "Unit 2: Determination of Prices",
+    "url": "https://resource.cdn.icai.org/93853bos-aps6111-p4-ch4u2.pdf"
+  },
+  {
+    "id": "f-be-c4-u3",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 4: Price Determination in Different Markets",
+    "unit": "Unit 3: Price Output Determination under Different Market Forms",
+    "url": "https://resource.cdn.icai.org/93854bos-aps6111-p4-ch4u3.pdf"
+  },
+  {
+    "id": "f-be-c5-u1",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 5: Determination of National Income",
+    "unit": "Unit 1: National Income Accounting",
+    "url": "https://resource.cdn.icai.org/93855bos-aps6111-p4-ch5u1.pdf"
+  },
+  {
+    "id": "f-be-c5-u2",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 5: Determination of National Income",
+    "unit": "Unit 2: The Keynesian Theory of Determination of National Income",
+    "url": "https://resource.cdn.icai.org/93857bos-aps6111-p4-ch5u2.pdf"
+  },
+  {
+    "id": "f-be-c6",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Business Economics",
+    "unit": "Ch 6: Business Cycles",
+    "url": "https://resource.cdn.icai.org/93858bos-aps6111-p4-ch6.pdf"
+  },
+  {
+    "id": "f-be-c7-u1",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 7: Public Finance",
+    "unit": "Unit 1: Fiscal Functions: Centre and State Finance",
+    "url": "https://resource.cdn.icai.org/93859bos-aps6111-p4-ch7u1.pdf"
+  },
+  {
+    "id": "f-be-c7-u2",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 7: Public Finance",
+    "unit": "Unit 2: Market Failure and Government Intervention",
+    "url": "https://resource.cdn.icai.org/93860bos-aps6111-p4-ch7u2.pdf"
+  },
+  {
+    "id": "f-be-c7-u3",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 7: Public Finance",
+    "unit": "Unit 3: Budget Making, Revenue, Expenditure and Public Debt",
+    "url": "https://resource.cdn.icai.org/93861bos-aps6111-p4-ch7u3.pdf"
+  },
+  {
+    "id": "f-be-c7-u4",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 7: Public Finance",
+    "unit": "Unit 4: Fiscal Policy",
+    "url": "https://resource.cdn.icai.org/93862bos-aps6111-p4-ch7u4.pdf"
+  },
+  {
+    "id": "f-be-c8-u1",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 8: Money Market",
+    "unit": "Unit 1: Money Demand: Important Theories",
+    "url": "https://resource.cdn.icai.org/93863bos-aps6111-p4-ch8u1.pdf"
+  },
+  {
+    "id": "f-be-c8-u2",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 8: Money Market",
+    "unit": "Unit 2: The Concept of Money Supply",
+    "url": "https://resource.cdn.icai.org/93864bos-aps6111-p4-ch8u2.pdf"
+  },
+  {
+    "id": "f-be-c8-u3",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 8: Money Market",
+    "unit": "Unit 3: Monetary Policy",
+    "url": "https://resource.cdn.icai.org/93865bos-aps6111-p4-ch8u3.pdf"
+  },
+  {
+    "id": "f-be-c9-u1",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 9: International Trade",
+    "unit": "Unit 1: Theories of International Trade",
+    "url": "https://resource.cdn.icai.org/93866bos-aps6111-p4-ch9u1.pdf"
+  },
+  {
+    "id": "f-be-c9-u2",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 9: International Trade",
+    "unit": "Unit 2: The Instruments of Trade Policy",
+    "url": "https://resource.cdn.icai.org/93867bos-aps6111-p4-ch9u2.pdf"
+  },
+  {
+    "id": "f-be-c9-u3",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 9: International Trade",
+    "unit": "Unit 3: Trade Negotiations",
+    "url": "https://resource.cdn.icai.org/93868bos-aps6111-p4-ch9u3.pdf"
+  },
+  {
+    "id": "f-be-c9-u4",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 9: International Trade",
+    "unit": "Unit 4: Exchange Rate and Its Economic Effects",
+    "url": "https://resource.cdn.icai.org/93869bos-aps6111-p4-ch9u4.pdf"
+  },
+  {
+    "id": "f-be-c9-u5",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Ch 9: International Trade",
+    "unit": "Unit 5: International Capital Movements",
+    "url": "https://resource.cdn.icai.org/93870bos-aps6111-p4-ch9u5.pdf"
+  },
+  {
+    "id": "f-be-c10",
+    "course": "Foundation",
+    "paper": "Paper 4: Business Economics",
+    "chapter": "Business Economics",
+    "unit": "Ch 10: Indian Economy",
+    "url": "https://resource.cdn.icai.org/93871bos-aps6111-p4-ch10.pdf"
+  },
+  {
+    "id": "fi-fr-c1",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Module 1",
+    "unit": "Ch 1: Introduction to Indian Accounting Standards",
+    "url": "https://resource.cdn.icai.org/94768bos-aps6581-ch1.pdf"
+  },
+  {
+    "id": "fi-fr-c2",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Module 1",
+    "unit": "Ch 2: Conceptual Framework for Financial Reporting under Ind AS",
+    "url": "https://resource.cdn.icai.org/94833bos-aps6581-ch2.pdf"
+  },
+  {
+    "id": "fi-fr-c3-u1",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 3: Ind AS on Presentation of General Purpose Financial Statements",
+    "unit": "Unit 1: Ind AS 1 Presentation of Financial Statements",
+    "url": "https://resource.cdn.icai.org/94778bos-aps6581-ch3u1.pdf"
+  },
+  {
+    "id": "fi-fr-c3-u2",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 3: Ind AS on Presentation of General Purpose Financial Statements",
+    "unit": "Unit 2: Ind AS 34 Interim Financial Reporting",
+    "url": "https://resource.cdn.icai.org/94779bos-aps6581-ch3u2.pdf"
+  },
+  {
+    "id": "fi-fr-c3-u3",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 3: Ind AS on Presentation of General Purpose Financial Statements",
+    "unit": "Unit 3: Ind AS 7 Statement of Cash Flows",
+    "url": "https://resource.cdn.icai.org/94780bos-aps6581-ch3u3.pdf"
+  },
+  {
+    "id": "fi-fr-c4-u1",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 4: Ind AS on Measurement based on Accounting Policies",
+    "unit": "Unit 1: Ind AS 8 Accounting Policies, Estimates and Errors",
+    "url": "https://resource.cdn.icai.org/94781bos-aps6581-ch4u1.pdf"
+  },
+  {
+    "id": "fi-fr-c4-u2",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 4: Ind AS on Measurement based on Accounting Policies",
+    "unit": "Unit 2: Ind AS 10 Events after the Reporting Period",
+    "url": "https://resource.cdn.icai.org/94782bos-aps6581-ch4u2.pdf"
+  },
+  {
+    "id": "fi-fr-c4-u3",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 4: Ind AS on Measurement based on Accounting Policies",
+    "unit": "Unit 3: Ind AS 113 Fair Value Measurement",
+    "url": "https://resource.cdn.icai.org/94783bos-aps6581-ch4u3.pdf"
+  },
+  {
+    "id": "fi-fr-c5-u1",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 5: Ind AS on Assets of the Financial Statements",
+    "unit": "Unit 1: Ind AS 2 Inventories",
+    "url": "https://resource.cdn.icai.org/94786bos-aps6581-ch5u1.pdf"
+  },
+  {
+    "id": "fi-fr-c5-u2",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 5: Ind AS on Assets of the Financial Statements",
+    "unit": "Unit 2: Ind AS 16 Property, Plant and Equipment",
+    "url": "https://resource.cdn.icai.org/94787bos-aps6581-ch5u2.pdf"
+  },
+  {
+    "id": "fi-fr-c5-u3",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 5: Ind AS on Assets of the Financial Statements",
+    "unit": "Unit 3: Ind AS 23 Borrowing Costs",
+    "url": "https://resource.cdn.icai.org/94788bos-aps6581-ch5u3.pdf"
+  },
+  {
+    "id": "fi-fr-c5-u4",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 5: Ind AS on Assets of the Financial Statements",
+    "unit": "Unit 4: Ind AS 36 Impairment of Assets",
+    "url": "https://resource.cdn.icai.org/94789bos-aps6581-ch5u4.pdf"
+  },
+  {
+    "id": "fi-fr-c5-u5",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 5: Ind AS on Assets of the Financial Statements",
+    "unit": "Unit 5: Ind AS 38 Intangible Assets",
+    "url": "https://resource.cdn.icai.org/94790bos-aps6581-ch5u5.pdf"
+  },
+  {
+    "id": "fi-fr-c5-u6",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 5: Ind AS on Assets of the Financial Statements",
+    "unit": "Unit 6: Ind AS 40 Investment Property",
+    "url": "https://resource.cdn.icai.org/94791bos-aps6581-ch5u6.pdf"
+  },
+  {
+    "id": "fi-fr-c5-u7",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 5: Ind AS on Assets of the Financial Statements",
+    "unit": "Unit 7: Ind AS 105 Non-current Assets Held for Sale",
+    "url": "https://resource.cdn.icai.org/94792bos-aps6581-ch5u7.pdf"
+  },
+  {
+    "id": "fi-fr-c5-u8",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 5: Ind AS on Assets of the Financial Statements",
+    "unit": "Unit 8: Ind AS 116 Leases",
+    "url": "https://resource.cdn.icai.org/94793bos-aps6581-ch5u8.pdf"
+  },
+  {
+    "id": "fi-fr-c6-u1",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 6: Ind AS on Liabilities of the Financial Statements",
+    "unit": "Unit 1: Ind AS 19 Employee Benefits",
+    "url": "https://resource.cdn.icai.org/94796bos-aps6581-ch6u1.pdf"
+  },
+  {
+    "id": "fi-fr-c6-u2",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 6: Ind AS on Liabilities of the Financial Statements",
+    "unit": "Unit 2: Ind AS 37 Provisions, Contingent Liabilities and Assets",
+    "url": "https://resource.cdn.icai.org/94797bos-aps6581-ch6u2.pdf"
+  },
+  {
+    "id": "fi-fr-c7-u1",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 7: Ind AS on Items impacting the Financial Statements",
+    "unit": "Unit 1: Ind AS 12 Income Taxes",
+    "url": "https://resource.cdn.icai.org/94798bos-aps6581-ch7u1.pdf"
+  },
+  {
+    "id": "fi-fr-c7-u2",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 7: Ind AS on Items impacting the Financial Statements",
+    "unit": "Unit 2: Ind AS 21 Effects of Changes in Foreign Exchange Rates",
+    "url": "https://resource.cdn.icai.org/94799bos-aps6581-ch7u2.pdf"
+  },
+  {
+    "id": "fi-fr-c8-u1",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 8: Ind AS on Disclosures in the Financial Statements",
+    "unit": "Unit 1: Ind AS 24 Related Party Disclosures",
+    "url": "https://resource.cdn.icai.org/94800bos-aps6581-ch8u1.pdf"
+  },
+  {
+    "id": "fi-fr-c8-u2",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 8: Ind AS on Disclosures in the Financial Statements",
+    "unit": "Unit 2: Ind AS 33 Earnings per Share",
+    "url": "https://resource.cdn.icai.org/94801bos-aps6581-ch8u2.pdf"
+  },
+  {
+    "id": "fi-fr-c8-u3",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 8: Ind AS on Disclosures in the Financial Statements",
+    "unit": "Unit 3: Ind AS 108 Operating Segments",
+    "url": "https://resource.cdn.icai.org/94802bos-aps6581-ch8u3.pdf"
+  },
+  {
+    "id": "fi-fr-c9",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Module 4",
+    "unit": "Ch 9: Ind AS 115 Revenue from Contracts with Customers",
+    "url": "https://resource.cdn.icai.org/94807bos-aps6581-ch9.pdf"
+  },
+  {
+    "id": "fi-fr-c10-u1",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 10: Other Indian Accounting Standards",
+    "unit": "Unit 1: Ind AS 41 Agriculture",
+    "url": "https://resource.cdn.icai.org/94808bos-aps6581-ch10u1.pdf"
+  },
+  {
+    "id": "fi-fr-c10-u2",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 10: Other Indian Accounting Standards",
+    "unit": "Unit 2: Ind AS 20 Government Grants",
+    "url": "https://resource.cdn.icai.org/94809bos-aps6581-ch10u2.pdf"
+  },
+  {
+    "id": "fi-fr-c10-u3",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 10: Other Indian Accounting Standards",
+    "unit": "Unit 3: Ind AS 102 Share Based Payment",
+    "url": "https://resource.cdn.icai.org/94810bos-aps6581-ch10u3.pdf"
+  },
+  {
+    "id": "fi-fr-c11-u1",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 11: Accounting and Reporting of Financial Instruments",
+    "unit": "Unit 1: Scope and Definitions",
+    "url": "https://resource.cdn.icai.org/94811bos-aps6581-ch11u1.pdf"
+  },
+  {
+    "id": "fi-fr-c11-u2",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 11: Accounting and Reporting of Financial Instruments",
+    "unit": "Unit 2: Classification and Measurement",
+    "url": "https://resource.cdn.icai.org/94812bos-aps6581-ch11u2.pdf"
+  },
+  {
+    "id": "fi-fr-c11-u3",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 11: Accounting and Reporting of Financial Instruments",
+    "unit": "Unit 3: Equity and Financial Liabilities",
+    "url": "https://resource.cdn.icai.org/94813bos-aps6581-ch11u3.pdf"
+  },
+  {
+    "id": "fi-fr-c11-u4",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 11: Accounting and Reporting of Financial Instruments",
+    "unit": "Unit 4: Derivatives and Embedded Derivatives",
+    "url": "https://resource.cdn.icai.org/94814bos-aps6581-ch11u4.pdf"
+  },
+  {
+    "id": "fi-fr-c11-u5",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 11: Accounting and Reporting of Financial Instruments",
+    "unit": "Unit 5: Recognition and Derecognition",
+    "url": "https://resource.cdn.icai.org/94815bos-aps6581-ch11u5.pdf"
+  },
+  {
+    "id": "fi-fr-c11-u6",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 11: Accounting and Reporting of Financial Instruments",
+    "unit": "Unit 6: Hedge Accounting",
+    "url": "https://resource.cdn.icai.org/94816bos-aps6581-ch11u6.pdf"
+  },
+  {
+    "id": "fi-fr-c11-u7",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 11: Accounting and Reporting of Financial Instruments",
+    "unit": "Unit 7: Disclosures",
+    "url": "https://resource.cdn.icai.org/94817bos-aps6581-ch11u7.pdf"
+  },
+  {
+    "id": "fi-fr-c12",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Module 5",
+    "unit": "Ch 12: Ind AS 103 Business Combinations",
+    "url": "https://resource.cdn.icai.org/94820bos-aps6581-ch12.pdf"
+  },
+  {
+    "id": "fi-fr-c13-u1",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 13: Consolidated and Separate Financial Statements",
+    "unit": "Unit 1: Introduction",
+    "url": "https://resource.cdn.icai.org/94821bos-aps6581-ch13u1.pdf"
+  },
+  {
+    "id": "fi-fr-c13-u2",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 13: Consolidated and Separate Financial Statements",
+    "unit": "Unit 2: Important Definitions",
+    "url": "https://resource.cdn.icai.org/94822bos-aps6581-ch13u2.pdf"
+  },
+  {
+    "id": "fi-fr-c13-u3",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 13: Consolidated and Separate Financial Statements",
+    "unit": "Unit 3: Consolidated Financial Statements",
+    "url": "https://resource.cdn.icai.org/94823bos-aps6581-ch13u3.pdf"
+  },
+  {
+    "id": "fi-fr-c13-u4",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 13: Consolidated and Separate Financial Statements",
+    "unit": "Unit 4: Ind AS 110 Consolidation Procedure",
+    "url": "https://resource.cdn.icai.org/94824bos-aps6581-ch13u4.pdf"
+  },
+  {
+    "id": "fi-fr-c13-u5",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 13: Consolidated and Separate Financial Statements",
+    "unit": "Unit 5: Ind AS 111 Joint Arrangements",
+    "url": "https://resource.cdn.icai.org/94825bos-aps6581-ch13u5.pdf"
+  },
+  {
+    "id": "fi-fr-c13-u6",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 13: Consolidated and Separate Financial Statements",
+    "unit": "Unit 6: Ind AS 28 Associates and Joint Ventures",
+    "url": "https://resource.cdn.icai.org/94826bos-aps6581-ch13u6.pdf"
+  },
+  {
+    "id": "fi-fr-c13-u7",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 13: Consolidated and Separate Financial Statements",
+    "unit": "Unit 7: Ind AS 27 Separate Financial Statements",
+    "url": "https://resource.cdn.icai.org/94827bos-aps6581-ch13u7.pdf"
+  },
+  {
+    "id": "fi-fr-c13-u8",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Ch 13: Consolidated and Separate Financial Statements",
+    "unit": "Unit 8: Disclosures",
+    "url": "https://resource.cdn.icai.org/94828bos-aps6581-ch13u8.pdf"
+  },
+  {
+    "id": "fi-fr-c14",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Module 5",
+    "unit": "Ch 14: Ind AS 101 First-time Adoption of Ind AS",
+    "url": "https://resource.cdn.icai.org/94829bos-aps6581-ch14.pdf"
+  },
+  {
+    "id": "fi-fr-c15",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Module 5",
+    "unit": "Ch 15: Analysis of Financial Statements",
+    "url": "https://resource.cdn.icai.org/94830bos-aps6581-ch15.pdf"
+  },
+  {
+    "id": "fi-fr-c16",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Module 5",
+    "unit": "Ch 16: Professional and Ethical Duty of a Chartered Accountant",
+    "url": "https://resource.cdn.icai.org/94831bos-aps6581-ch16.pdf"
+  },
+  {
+    "id": "fi-fr-c17",
+    "course": "Final",
+    "paper": "Paper 1: Financial Reporting",
+    "chapter": "Module 5",
+    "unit": "Ch 17: Accounting and Technology",
+    "url": "https://resource.cdn.icai.org/94832bos-aps6581-ch17.pdf"
+  },
+  {
+    "id": "fi-au-c1",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 1",
+    "unit": "Ch 1: Quality Control",
+    "url": "https://resource.cdn.icai.org/87904bos-aps2168-ch1.pdf"
+  },
+  {
+    "id": "fi-au-c2",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 1",
+    "unit": "Ch 2: General Auditing Principles and Auditors Responsibilities",
+    "url": "https://resource.cdn.icai.org/87905bos-aps2168-ch2.pdf"
+  },
+  {
+    "id": "fi-au-c3",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 1",
+    "unit": "Ch 3: Audit Planning, Strategy and Execution",
+    "url": "https://resource.cdn.icai.org/87906bos-aps2168-ch3.pdf"
+  },
+  {
+    "id": "fi-au-c4",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 1",
+    "unit": "Ch 4: Materiality, Risk Assessment and Internal Control",
+    "url": "https://resource.cdn.icai.org/87907bos-aps2168-ch4.pdf"
+  },
+  {
+    "id": "fi-au-c5",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 1",
+    "unit": "Ch 5: Audit Evidence",
+    "url": "https://resource.cdn.icai.org/87908bos-aps2168-ch5.pdf"
+  },
+  {
+    "id": "fi-au-c6",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 1",
+    "unit": "Ch 6: Completion and Review",
+    "url": "https://resource.cdn.icai.org/87909bos-aps2168-ch6.pdf"
+  },
+  {
+    "id": "fi-au-c7",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 1",
+    "unit": "Ch 7: Reporting",
+    "url": "https://resource.cdn.icai.org/87910bos-aps2168-ch7.pdf"
+  },
+  {
+    "id": "fi-au-c8",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 2",
+    "unit": "Ch 8: Specialised Areas",
+    "url": "https://resource.cdn.icai.org/87914bos-aps2168-ch8.pdf"
+  },
+  {
+    "id": "fi-au-c9",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 2",
+    "unit": "Ch 9: Related Services",
+    "url": "https://resource.cdn.icai.org/87915bos-aps2168-ch9.pdf"
+  },
+  {
+    "id": "fi-au-c10",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 2",
+    "unit": "Ch 10: Review of Financial Information",
+    "url": "https://resource.cdn.icai.org/87916bos-aps2168-ch10.pdf"
+  },
+  {
+    "id": "fi-au-c11",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 2",
+    "unit": "Ch 11: Prospective Financial Information and Other Assurance Services",
+    "url": "https://resource.cdn.icai.org/87917bos-aps2168-ch11.pdf"
+  },
+  {
+    "id": "fi-au-c12",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 2",
+    "unit": "Ch 12: Digital Auditing and Assurance",
+    "url": "https://resource.cdn.icai.org/87918bos-aps2168-ch12.pdf"
+  },
+  {
+    "id": "fi-au-c13",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 2",
+    "unit": "Ch 13: Group Audits",
+    "url": "https://resource.cdn.icai.org/87919bos-aps2168-ch13.pdf"
+  },
+  {
+    "id": "fi-au-c14-u1",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Ch 14: Special Features of Audit of Banks and NBFCs",
+    "unit": "Unit 1: Audit of Banks",
+    "url": "https://resource.cdn.icai.org/87920bos-aps2168-ch14u1.pdf"
+  },
+  {
+    "id": "fi-au-c14-u2",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Ch 14: Special Features of Audit of Banks and NBFCs",
+    "unit": "Unit 2: Audit of NBFCs",
+    "url": "https://resource.cdn.icai.org/87921bos-aps2168-ch14u2.pdf"
+  },
+  {
+    "id": "fi-au-c15",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 3",
+    "unit": "Ch 15: Overview of Audit of Public Sector Undertakings",
+    "url": "https://resource.cdn.icai.org/87922bos-aps2168-ch15.pdf"
+  },
+  {
+    "id": "fi-au-c16",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 3",
+    "unit": "Ch 16: Internal Audit",
+    "url": "https://resource.cdn.icai.org/87923bos-aps2168-ch16.pdf"
+  },
+  {
+    "id": "fi-au-c17",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 3",
+    "unit": "Ch 17: Due Diligence, Investigation and Forensic Accounting",
+    "url": "https://resource.cdn.icai.org/87924bos-aps2168-ch17.pdf"
+  },
+  {
+    "id": "fi-au-c18",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 3",
+    "unit": "Ch 18: SDG and ESG Assurance",
+    "url": "https://resource.cdn.icai.org/87925bos-aps2168-ch18.pdf"
+  },
+  {
+    "id": "fi-au-c19",
+    "course": "Final",
+    "paper": "Paper 3: Advanced Auditing, Assurance and Professional Ethics",
+    "chapter": "Module 3",
+    "unit": "Ch 19: Professional Ethics and Liabilities of Auditors",
+    "url": "https://resource.cdn.icai.org/87926bos-aps2168-ch19.pdf"
+  },
+  {
+    "id": "fi-dt-c1",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 1",
+    "unit": "Ch 1: Basic Concepts",
+    "url": "https://resource.cdn.icai.org/93464bos-aps5939-ch1.pdf"
+  },
+  {
+    "id": "fi-dt-c2",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 1",
+    "unit": "Ch 2: Incomes which do not form part of Total Income",
+    "url": "https://resource.cdn.icai.org/93463bos-aps5939-ch2.pdf"
+  },
+  {
+    "id": "fi-dt-c3",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 1",
+    "unit": "Ch 3: Profits and Gains of Business or Profession",
+    "url": "https://resource.cdn.icai.org/93539bos-aps5939-ch3.pdf"
+  },
+  {
+    "id": "fi-dt-c4",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 1",
+    "unit": "Ch 4: Capital Gains",
+    "url": "https://resource.cdn.icai.org/93724bos-aps5939-ch4.pdf"
+  },
+  {
+    "id": "fi-dt-c5",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 1",
+    "unit": "Ch 5: Income from Other Sources",
+    "url": "https://resource.cdn.icai.org/94025bos-aps5939-ch5.pdf"
+  },
+  {
+    "id": "fi-dt-c6",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 1",
+    "unit": "Ch 6: Income of Other Persons included in Assessee's Total Income",
+    "url": "https://resource.cdn.icai.org/94130bos-aps5939-ch6.pdf"
+  },
+  {
+    "id": "fi-dt-c7",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 1",
+    "unit": "Ch 7: Set Off or Carry Forward",
+    "url": "https://resource.cdn.icai.org/94194bos-aps5939-ch7.pdf"
+  },
+  {
+    "id": "fi-dt-c8",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 1",
+    "unit": "Ch 8: Deductions from Gross Total Income",
+    "url": "https://resource.cdn.icai.org/94202CHP-8%20Deduction%20from%20Gross%20Total%20Income.pdf"
+  },
+  {
+    "id": "fi-dt-c9",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 2",
+    "unit": "Ch 9: Assessment of Various Entities",
+    "url": "https://resource.cdn.icai.org/94350bos-aps5939-ch9.pdf"
+  },
+  {
+    "id": "fi-dt-c10",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 2",
+    "unit": "Ch 10: Assessment of Trusts, Institutions, Political Parties",
+    "url": "https://resource.cdn.icai.org/94351bos-aps5939-ch10.pdf"
+  },
+  {
+    "id": "fi-dt-c11",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 2",
+    "unit": "Ch 11: Tax Planning, Tax Avoidance and Tax Evasion",
+    "url": "https://resource.cdn.icai.org/94483bos-aps5939-ch11.pdf"
+  },
+  {
+    "id": "fi-dt-c12",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 2",
+    "unit": "Ch 12: Taxation of Digital Transactions",
+    "url": "https://resource.cdn.icai.org/94484bos-aps5939-ch12.pdf"
+  },
+  {
+    "id": "fi-dt-c13",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 3",
+    "unit": "Ch 13: Deduction, Collection and Recovery of Tax",
+    "url": "https://resource.cdn.icai.org/94601bos-aps5939-ch13.pdf"
+  },
+  {
+    "id": "fi-dt-c14",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 3",
+    "unit": "Ch 14: Income Tax Authorities",
+    "url": "https://resource.cdn.icai.org/94681bos-aps5939-ch14.pdf"
+  },
+  {
+    "id": "fi-dt-c15",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 3",
+    "unit": "Ch 15: Assessment Procedure",
+    "url": "https://resource.cdn.icai.org/94682bos-aps5939-ch15.pdf"
+  },
+  {
+    "id": "fi-dt-c16",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 3",
+    "unit": "Ch 16: Appeals and Revision",
+    "url": "https://resource.cdn.icai.org/94683bos-aps5939-ch16.pdf"
+  },
+  {
+    "id": "fi-dt-c17",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 3",
+    "unit": "Ch 17: Dispute Resolution",
+    "url": "https://resource.cdn.icai.org/94684bos-aps5939-ch17.pdf"
+  },
+  {
+    "id": "fi-dt-c18",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 3",
+    "unit": "Ch 18: Miscellaneous Provisions",
+    "url": "https://resource.cdn.icai.org/94685bos-aps5939-ch18.pdf"
+  },
+  {
+    "id": "fi-dt-c19",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 3",
+    "unit": "Ch 19: Provisions to Counteract Unethical Tax Practices",
+    "url": "https://resource.cdn.icai.org/94686bos-aps5939-ch19.pdf"
+  },
+  {
+    "id": "fi-dt-c20",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 3",
+    "unit": "Ch 20: Tax Audit and Ethical Compliances",
+    "url": "https://resource.cdn.icai.org/94687bos-aps5939-ch20.pdf"
+  },
+  {
+    "id": "fi-dt-c21",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 4",
+    "unit": "Ch 21: Non Resident Taxation",
+    "url": "https://resource.cdn.icai.org/94691bos-aps5939-ch21.pdf"
+  },
+  {
+    "id": "fi-dt-c22",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 4",
+    "unit": "Ch 22: Double Taxation Relief",
+    "url": "https://resource.cdn.icai.org/94698bos-aps5939-ch22.pdf"
+  },
+  {
+    "id": "fi-dt-c23",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 4",
+    "unit": "Ch 23: Advance Rulings",
+    "url": "https://resource.cdn.icai.org/94692bos-aps5939-ch23.pdf"
+  },
+  {
+    "id": "fi-dt-c24",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 4",
+    "unit": "Ch 24: Transfer Pricing",
+    "url": "https://resource.cdn.icai.org/94693bos-aps5939-ch24.pdf"
+  },
+  {
+    "id": "fi-dt-c25",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 4",
+    "unit": "Ch 25: Fundamentals of BEPS",
+    "url": "https://resource.cdn.icai.org/94694bos-aps5939-ch25.pdf"
+  },
+  {
+    "id": "fi-dt-c26",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 4",
+    "unit": "Ch 26: Application and Interpretation of Tax Treaties",
+    "url": "https://resource.cdn.icai.org/94695bos-aps5939-ch26.pdf"
+  },
+  {
+    "id": "fi-dt-c27",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 4",
+    "unit": "Ch 27: Overview of Model Tax Conventions",
+    "url": "https://resource.cdn.icai.org/94696bos-aps5939-ch27.pdf"
+  },
+  {
+    "id": "fi-dt-c28",
+    "course": "Final",
+    "paper": "Paper 4: Direct Tax Laws and International Taxation",
+    "chapter": "Module 4",
+    "unit": "Ch 28: Latest Developments in International Taxation",
+    "url": "https://resource.cdn.icai.org/94697bos-aps5939-ch28.pdf"
+  }
 ]
