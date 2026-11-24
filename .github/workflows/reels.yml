@@ -1,15 +1,15 @@
 name: Daily Reel
 on:
   schedule:
-    - cron: '30 13 * * *'   # 19:00 IST every day
+    - cron: '45 13 * * *'   # 19:15 IST every day
   workflow_dispatch:
     inputs:
       day:
         description: 'Day number to build (blank = today by start.txt)'
         required: false
       dry_run:
-        description: 'true = build only, do not post'
-        default: 'true'
+        description: 'true = build only, do not post (set false to post on Instagram)'
+        default: 'false'
 permissions:
   contents: read
 jobs:
