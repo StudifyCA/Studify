@@ -8,7 +8,7 @@ on:
         description: 'Day number to build (blank = today by start.txt)'
         required: false
       dry_run:
-        description: 'true = build only, do not post (set false to post on Instagram)'
+        description: 'true = build only, do not post'
         default: 'false'
 permissions:
   contents: read
@@ -53,3 +53,28 @@ jobs:
             D=$(node -e "const fs=require('fs');const s=fs.readFileSync('start.txt','utf8').trim();const n=new Date(Date.now()+5.5*3600e3).toISOString().slice(0,10);console.log(Math.round((Date.parse(n)-Date.parse(s))/864e5)+1)")
           fi
           node post.js "$D"
+      - name: Post to YouTube
+        if: ${{ always() && (github.event_name == 'schedule' || github.event.inputs.dry_run == 'false') }}
+        working-directory: reels
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: |
+          D="${{ github.event.inputs.day }}"
+          if [ -z "$D" ]; then
+            D=$(node -e "const fs=require('fs');const s=fs.readFileSync('start.txt','utf8').trim();const n=new Date(Date.now()+5.5*3600e3).toISOString().slice(0,10);console.log(Math.round((Date.parse(n)-Date.parse(s))/864e5)+1)")
+          fi
+          node youtube.js "$D"
+      - name: Post to Telegram
+        if: ${{ always() && (github.event_name == 'schedule' || github.event.inputs.dry_run == 'false') }}
+        working-directory: reels
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          D="${{ github.event.inputs.day }}"
+          if [ -z "$D" ]; then
+            D=$(node -e "const fs=require('fs');const s=fs.readFileSync('start.txt','utf8').trim();const n=new Date(Date.now()+5.5*3600e3).toISOString().slice(0,10);console.log(Math.round((Date.parse(n)-Date.parse(s))/864e5)+1)")
+          fi
+          node telegram.js "$D"
