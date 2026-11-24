@@ -24,5 +24,5 @@ async function j(url,opt){const r=await fetch(url,opt);const t=await r.text();if
     body:JSON.stringify(meta)});
   const loc=init.r.headers.get('location');
   const up=await j(loc,{method:'PUT',headers:{'content-type':'video/mp4','content-length':String(buf.length)},body:buf});
-  console.log('YouTube uploaded, video id',JSON.parse(up.t).id);
+  const id=JSON.parse(up.t).id;console.log('YouTube uploaded, video id',id);fs.writeFileSync(path.join(OUT,'yt_id.txt'),id);
 })().catch(e=>{console.error(e.message);process.exit(1);});
