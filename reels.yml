@@ -1,7 +1,7 @@
 name: Daily Reel
 on:
   schedule:
-    - cron: '30 13 * * *'   # 19:00 IST every day
+    - cron: '0 12 * * *'   # starts 17:30 IST, waits and posts at 19:00 IST
   workflow_dispatch:
     inputs:
       day:
@@ -15,7 +15,7 @@ permissions:
 jobs:
   reel:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -41,6 +41,11 @@ jobs:
             reels/out/*.mp4
             reels/out/*.mp3
           if-no-files-found: ignore
+      - name: Wait until 19:00 IST
+        if: ${{ github.event_name == 'schedule' }}
+        run: |
+          NOW=$(date -u +%s); T=$(date -u -d "13:30 today" +%s)
+          if [ "$NOW" -lt "$T" ]; then echo "Waiting $((T-NOW))s"; sleep $((T-NOW)); fi
       - name: Post to Instagram
         if: ${{ github.event_name == 'schedule' || github.event.inputs.dry_run == 'false' }}
         working-directory: reels
