@@ -1,7 +1,7 @@
 name: Daily Reel
 on:
   schedule:
-    - cron: '45 13 * * *'   # 19:15 IST every day
+    - cron: '35 12 * * *'   # 18:05 IST (with GitHub queue delay runs ~18:45-19:05 IST)
   workflow_dispatch:
     inputs:
       day:
@@ -32,6 +32,7 @@ jobs:
           ELEVEN_API_KEY: ${{ secrets.ELEVEN_API_KEY }}
           ELEVEN_VOICE_ID: ${{ secrets.ELEVEN_VOICE_ID }}
         run: |
+          [ ! -f start.txt ] && [ -f start.txt. ] && cp start.txt. start.txt || true
           node build.js "${{ github.event.inputs.day }}"
       - name: Keep video for review
         uses: actions/upload-artifact@v4
@@ -50,7 +51,7 @@ jobs:
         run: |
           D="${{ github.event.inputs.day }}"
           if [ -z "$D" ]; then
-            D=$(node -e "const fs=require('fs');const s=fs.readFileSync('start.txt','utf8').trim();const n=new Date(Date.now()+5.5*3600e3).toISOString().slice(0,10);console.log(Math.round((Date.parse(n)-Date.parse(s))/864e5)+1)")
+            D=$(node -e "const fs=require('fs');const f=fs.existsSync('start.txt')?'start.txt':'start.txt.';const s=fs.readFileSync(f,'utf8').trim();const n=new Date(Date.now()+5.5*3600e3).toISOString().slice(0,10);console.log(Math.round((Date.parse(n)-Date.parse(s))/864e5)+1)")
           fi
           node post.js "$D"
       - name: Post to YouTube
@@ -63,7 +64,7 @@ jobs:
         run: |
           D="${{ github.event.inputs.day }}"
           if [ -z "$D" ]; then
-            D=$(node -e "const fs=require('fs');const s=fs.readFileSync('start.txt','utf8').trim();const n=new Date(Date.now()+5.5*3600e3).toISOString().slice(0,10);console.log(Math.round((Date.parse(n)-Date.parse(s))/864e5)+1)")
+            D=$(node -e "const fs=require('fs');const f=fs.existsSync('start.txt')?'start.txt':'start.txt.';const s=fs.readFileSync(f,'utf8').trim();const n=new Date(Date.now()+5.5*3600e3).toISOString().slice(0,10);console.log(Math.round((Date.parse(n)-Date.parse(s))/864e5)+1)")
           fi
           node youtube.js "$D"
       - name: Post to Telegram
@@ -75,6 +76,6 @@ jobs:
         run: |
           D="${{ github.event.inputs.day }}"
           if [ -z "$D" ]; then
-            D=$(node -e "const fs=require('fs');const s=fs.readFileSync('start.txt','utf8').trim();const n=new Date(Date.now()+5.5*3600e3).toISOString().slice(0,10);console.log(Math.round((Date.parse(n)-Date.parse(s))/864e5)+1)")
+            D=$(node -e "const fs=require('fs');const f=fs.existsSync('start.txt')?'start.txt':'start.txt.';const s=fs.readFileSync(f,'utf8').trim();const n=new Date(Date.now()+5.5*3600e3).toISOString().slice(0,10);console.log(Math.round((Date.parse(n)-Date.parse(s))/864e5)+1)")
           fi
           node telegram.js "$D"
