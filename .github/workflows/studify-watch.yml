@@ -1,0 +1,37 @@
+name: Studify CA 24x7 Automated Bug Watch
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check live Studify CA pages and alert on failure
+        env:
+          SITE_URL: https://studifyca.github.io/Studify
+          BUG_ALERT_URL: https://tcbjmzbrdgivdjvhrlas.supabase.co/functions/v1/bug-alert
+          BUG_WATCH_SECRET: ${{ secrets.BUG_WATCH_SECRET }}
+        run: |
+          FAILS=""
+          for path in "/" "/index.html" "/landing.js" "/privacy.html" "/sw.js" "/manifest.webmanifest" "/library.json"; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "${SITE_URL}${path}")
+            echo "${path} -> HTTP ${code}"
+            if [ "$code" != "200" ]; then
+              FAILS="${FAILS}${path} returned HTTP ${code}\n"
+            fi
+          done
+          if [ -n "$FAILS" ]; then
+            echo "Detected issues:"
+            printf "$FAILS"
+            if [ -n "$BUG_WATCH_SECRET" ]; then
+              curl -s -X POST "$BUG_ALERT_URL" \
+                -H "Content-Type: application/json" \
+                -H "x-watch-secret: $BUG_WATCH_SECRET" \
+                -d "$(jq -n --arg d "$FAILS" '{source:"cron",severity:"critical",title:"Studify CA Live Asset Down",details:$d,page_url:"https://studifyca.github.io/Studify/",send_email:true}')"
+            fi
+            exit 1
+          fi
+          echo "All Studify CA assets healthy (HTTP 200)."
