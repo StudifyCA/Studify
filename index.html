@@ -116,6 +116,7 @@ html.acc-lh body{line-height:1.9;letter-spacing:.02em;word-spacing:.06em}html.ac
 <body>
 <div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="landing.js"></script>
 <script>
 (function(){
 'use strict';
@@ -766,7 +767,7 @@ function initCloud(){
       var was=cloud.user&&cloud.user.id;
       cloud.user=session?session.user:null;
       if(session){cloud.state='on';if(!was)onSignedIn();}
-      else{cloud.state='out';cloud.links=[];cloud.goals=[];cloud.progress=[];cloud.partner=null;cloud.psums={};ui.libTried=false;cloud.isAdmin=false;cloud.isOwner=false;cloud.lib=null;cloud.aAdmins=[];cloud.aFb=[];cloud.icai=null;cloud.icaiLoaded=false;cloud.aIds=[];cloud.aStats=null;cloud.aPapers=[];cloud.pending=[];cloud.lb=null;cloud.lastProg={};}
+      else{cloud.state='out';cloud.links=[];cloud.goals=[];cloud.progress=[];cloud.partner=null;cloud.psums={};ui.libTried=false;cloud.isAdmin=false;cloud.isOwner=false;cloud.isTeam=false;cloud.teamRole='student';cloud.pro=null;cloud.proPreview=null;cloud.lib=null;cloud.aAdmins=[];cloud.aTeam=[];cloud.aPros=[];cloud.aProOrders=[];cloud.aBugs=[];cloud.aFb=[];cloud.icai=null;cloud.icaiLoaded=false;cloud.aIds=[];cloud.aStats=null;cloud.aPapers=[];cloud.pending=[];cloud.lb=null;cloud.lastProg={};}
       render();
     });
   }catch(e){cloud.state='off';cmsg('Could not start the cloud: '+e.message,'bad');}
@@ -907,9 +908,14 @@ async function refreshPartner(){
     if(pushPrefs().on&&pushSupported()&&!ui.pushSynced){ui.pushSynced=1;pushUpdate().catch(function(){});}
     try{var ia=await cloud.client.rpc('is_admin');cloud.isAdmin=!ia.error&&ia.data===true;}catch(e){cloud.isAdmin=false;}
     try{var io=await cloud.client.rpc('is_owner');cloud.isOwner=!io.error&&io.data===true;}catch(e){cloud.isOwner=false;}
+    try{var trr=await cloud.client.rpc('my_team_role');cloud.teamRole=(!trr.error&&trr.data)?trr.data:(cloud.isOwner?'owner':(cloud.isAdmin?'admin':'student'));}catch(e){cloud.teamRole=cloud.isOwner?'owner':(cloud.isAdmin?'admin':'student');}
+    cloud.isTeam=['owner','admin','coadmin','qa_tester','bug_checker','support'].indexOf(cloud.teamRole)>=0;
+    if(cloud.teamRole==='owner')cloud.isOwner=true;
+    if(cloud.teamRole==='owner'||cloud.teamRole==='coadmin'||cloud.teamRole==='admin')cloud.isAdmin=true;
+    try{var pr=await cloud.client.rpc('my_pro_status');cloud.pro=(!pr.error&&pr.data)?pr.data:null;}catch(e){cloud.pro=null;}
     await loadIcai();
     lbSync();
-    if(cloud.isAdmin){await loadAdmin();try{var pd=await cloud.client.from('calendar_pending').select('*').eq('status','pending').order('created_at',{ascending:false});cloud.pending=(pd&&pd.data)||[];}catch(e){cloud.pending=[];}}
+    if(cloud.isAdmin||cloud.isTeam){await loadAdmin();try{if(cloud.isAdmin){var pd=await cloud.client.from('calendar_pending').select('*').eq('status','pending').order('created_at',{ascending:false});cloud.pending=(pd&&pd.data)||[];}}catch(e){cloud.pending=[];}}
   }catch(e){toast((e&&e.message)||'Could not load partner data');}
   renderKeep();
 }
@@ -967,7 +973,7 @@ function fmtTs(s){try{return new Date(s).toLocaleString([],{dateStyle:'medium',t
 
 /* ---------- UI state ---------- */
 var ui={open:{},tab:'today',modal:null,onb:null,res:null,toast:'',showAll:false};
-var tabs=[['qr','\u26a1','Quick revision'],['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['pt','\ud83e\uddea','Practice'],['star','\u2b50','Starred'],['rep','\ud83d\udd01','Repeat'],['guide','\ud83d\udcd8','Exam guide'],['icai','\ud83d\udcda','ICAI material'],['calc','\ud83e\uddee','Calculator'],['nt','\ud83e\udde0','Study notes'],['yt','\ud83c\udfac','Video notes'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
+var tabs=[['qr','\u26a1','Quick revision'],['today','\u2600','Today'],['papers','\ud83d\udcda','Papers'],['results','\ud83c\udfaf','Results'],['plan','\ud83d\uddfa','Plan'],['hw','\ud83d\udcd3','Homework'],['pt','\ud83e\uddea','Practice'],['star','\u2b50','Starred'],['rep','\ud83d\udd01','Repeat'],['guide','\ud83d\udcd8','Exam guide'],['icai','\ud83d\udcda','ICAI material'],['calc','\ud83e\uddee','Calculator'],['yt','\ud83c\udfac','Video notes'],['log','\ud83d\udcdd','Log'],['ai','\u2728','AI'],['partner','\ud83e\udd1d','Partner'],['settings','\u2699','Settings']];
 
 function toast(m){
   ui.toast=m;var old=document.querySelector('.toast');if(old)old.remove();
@@ -1855,16 +1861,16 @@ function helpCard(){
   q.forEach(function(x){h+='<details style="margin:6px 0"><summary style="cursor:pointer;font-weight:600">'+x[0]+'</summary><div class="mut" style="margin-top:4px">'+x[1]+'</div></details>';});
   return h+'</div>';
 }
-var SUPPORT_EMAIL='studifyca.support@gmail.com';
+var SUPPORT_EMAIL='studifyca.support@gmail.com',OFFICIAL_EMAIL='studifyca.official@gmail.com',SUPPORT_WA='919509707043',PAY_UPI='9509707043@upi';
 function aboutCard(){
-  return '<div class="card"><h3>About</h3><div style="text-align:center"><img src="logo.jpg" alt="Studify CA" width="110" height="110" style="border-radius:20px"></div><div class="tagline" style="margin-top:6px">Your playlist got the vibe. Studify gets the grades.</div><div class="tagline2">Study with vibe.</div><div class="mut">Studify CA is a free study planner for CA Foundation, Intermediate and Final. It is not an ICAI product. Chapter lists and exam dates can be wrong, so always confirm on icai.org.</div><div class="mut" style="margin-top:6px">We do not sell or show your data to anyone. Your study data stays on your device unless you sign in. If you share with a partner or a group, only the items you switch on are visible.</div></div>';
+  return '<div class="card"><h3>About</h3><div style="text-align:center"><img src="logo.jpg" alt="Studify CA" width="110" height="110" style="border-radius:20px"></div><div class="tagline" style="margin-top:6px">Your playlist got the vibe. Studify gets the grades.</div><div class="tagline2">Study with vibe.</div><div class="mut">Studify CA is a smart study planner for CA Foundation, Intermediate and Final. It is not an ICAI product. Chapter lists and exam dates can be wrong, so always confirm on icai.org.</div><div class="mut" style="margin-top:6px">We do not sell or show your data to anyone. Your study data stays on your device unless you sign in. If you share with a partner or a group, only the items you switch on are visible.</div></div>';
 }
 function privacyCard(){
   var h='<div class="card"><h3>Privacy and your data</h3>';
   h+='<div class="mut">What we keep: your study plan and progress stay on your device. If you sign in, a copy is saved in your cloud account so it syncs between your devices.</div>';
   h+='<div class="mut" style="margin-top:6px">Your ICAI registration number, name and email are seen only by the admins, to verify you. Partners and group members see only what you switch on. We do not sell your data and show no ads.</div>';
-  h+='<div class="mut" style="margin-top:6px">We never ask for your ICAI password. This app is free, is not an ICAI product, and is provided as it is. Dates, chapter lists and papers can be wrong, so confirm on icai.org.</div>';
-  h+='<div class="mut" style="margin-top:6px">Questions about your data: '+SUPPORT_EMAIL+'</div>';
+  h+='<div class="mut" style="margin-top:6px">We never ask for your ICAI password. This app is not an ICAI product, and is provided as it is. Dates, chapter lists and papers can be wrong, so confirm on icai.org.</div>';
+  h+='<div class="mut" style="margin-top:6px">Official & Data Support: '+OFFICIAL_EMAIL+' • '+SUPPORT_EMAIL+' • WhatsApp +91 95097 07043</div>';
   if(cloud.user){
     h+='<div style="border-top:1px solid var(--bd);margin-top:12px;padding-top:10px"><b>Delete my account and cloud data</b><div class="mut">This removes your account, your ICAI number, your partner links, your groups and everything saved in the cloud. It cannot be undone. Your data on this device stays until you delete it below.</div>';
     h+='<label>Type DELETE to confirm</label><input type="text" id="del-confirm" autocomplete="off" placeholder="DELETE">'+(ui.delMsg?'<div class="warnbox" style="margin-top:8px">'+esc(ui.delMsg)+'</div>':'')+'<div style="margin-top:8px"><button class="btn danger" data-act="delacct">Delete my account</button></div></div>';
@@ -1880,9 +1886,9 @@ function feedbackCard(){
     h+='<label>Your message</label><textarea id="fb-msg" maxlength="1000" placeholder="Write here (max 1000 characters)">'+esc(ui.fbMsg||'')+'</textarea>';
     h+='<div style="margin-top:8px"><button class="btn"'+(ui.fbBusy?' disabled':'')+' data-act="fbsend">'+(ui.fbBusy?'Sending...':'Send feedback')+'</button></div>';
   }else{
-    h+='<div class="mut" style="margin-top:6px">Sign in (Settings \u2192 Cloud account) to send feedback from inside the app. You can also email us below.</div>';
+    h+='<div class="mut" style="margin-top:6px">Sign in (Settings \u2192 Cloud account) to send feedback from inside the app. You can also email or WhatsApp us below.</div>';
   }
-  h+='<div style="margin-top:10px"><button class="btn sec" data-act="bugcopy">Copy problem report</button> <a class="btn sec" href="mailto:'+SUPPORT_EMAIL+'?subject=Studify%20CA%20support" style="text-decoration:none">Email support</a></div><div class="mut" style="margin-top:6px">Support: '+SUPPORT_EMAIL+'</div></div>';
+  h+='<div style="margin-top:10px"><button class="btn sec" data-act="bugcopy">Copy problem report</button> <a class="btn sec" href="mailto:'+OFFICIAL_EMAIL+'?subject=Studify%20CA%20support" style="text-decoration:none">Email Official</a> <a class="btn sec" href="https://wa.me/'+SUPPORT_WA+'" target="_blank" style="text-decoration:none">WhatsApp +91 95097 07043</a></div><div class="mut" style="margin-top:6px">Official: '+OFFICIAL_EMAIL+' • Support: '+SUPPORT_EMAIL+'</div></div>';
   return h;
 }
 function instCard(){
@@ -2073,11 +2079,24 @@ function weakCard(P,X){
   w.forEach(function(x){h+='<div class="blk"><div>'+esc(lblOf(x.ch))+'<div class="mut">'+esc(pfull(x.k))+' • '+esc(x.why)+'</div></div></div>';});
   return h+'<div class="mut" style="margin-top:6px">Based on your confidence ratings and the mistakes you note after sessions.</div></div>';
 }
+function subjectHoursBar(P){
+  var ws=weekStart(today()),a=iso(ws),b=iso(addDays(ws,6)),per={};
+  P.sessions.forEach(function(s){if(s.date>=a&&s.date<=b)per[s.paper]=(per[s.paper]||0)+s.min;});
+  var ks=Object.keys(per);
+  if(!ks.length)return '';
+  var totM=ks.reduce(function(acc,k){return acc+per[k];},0)||1;
+  var h='<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--bd)"><b>Subject hours distribution</b> <span class="mut">(this week)</span></div>';
+  ks.sort(function(x,y){return per[y]-per[x];}).forEach(function(k){
+    var hrs=r1(per[k]/60),pct=Math.round(per[k]/totM*100);
+    h+='<div style="margin-top:6px"><div class="row sp"><span style="font-size:13px">'+esc(plab(k))+'</span><span class="mut" style="font-size:12px">'+hrs+' h ('+pct+'%)</span></div><div class="bar"><i style="width:'+pct+'%"></i></div></div>';
+  });
+  return h;
+}
 function weekCard(P){
   var w=weekReport(P);
   return '<div class="card"><h3>This week</h3><div class="row sp"><span>Study time</span><b>'+w.th+' h <span class="mut">/ goal '+w.goal+' h</span></b></div>'+bar(w.goal?w.th/w.goal*100:0)+
     '<div class="row sp mut" style="margin-top:6px"><span>Last week</span><span>'+w.lh+' h</span></div><div class="row sp mut"><span>Chapters / units finished</span><span>'+w.ch+'</span></div><div class="row sp mut"><span>Mock tests</span><span>'+w.mocks+'</span></div>'+(w.top?'<div class="row sp mut"><span>Most time</span><span>'+esc(w.top)+' ('+w.topH+' h)</span></div>':'')+'<div class="row sp mut"><span>Streak</span><span>'+w.streak+' day(s)</span></div>'+
-    weekPlus(P)+'<div style="margin-top:8px"><button class="btn sec sm" data-act="wkshare">Share this report</button> <button class="btn sec sm" data-act="wkproof">Proof card (image)</button></div></div>';
+    weekPlus(P)+subjectHoursBar(P)+'<div style="margin-top:8px"><button class="btn sec sm" data-act="wkshare">Share this report</button> <button class="btn sec sm" data-act="wkproof">Proof card (image)</button></div></div>';
 }
 function tipsCard(){
   if(S.tipsOff)return '';
@@ -2279,7 +2298,23 @@ function viewPlan(c){
   ms.push(['Learning phase ends / revision starts',addDays(I.ex,-I.revDays)]);
   ms.push(['Mock and practice phase starts',addDays(I.ex,-I.mockDays)]);
   ms.push(['Exam starts',I.ex]);
-  var html=attemptCard(P,c.A,X,false)+revStrategyCard(P,c.A,X,I)+revMatrixCard(P)+'<h2>Milestones</h2><div class="card">';
+  function revMatrixCard(P,X){
+  if(!X||!X.study||!X.study.length)return '';
+  var h='<div class="card"><h3>Revision matrix (R1, R2, R3)</h3><div class="mut">Track your 3 revision cycles across all subjects.</div>';
+  X.study.forEach(function(k){
+    var chs=(P.papers[k]&&P.papers[k].ch)||[],tot=chs.length||1;
+    var cd=chs.filter(function(c){return c.status==='done';}).length;
+    var r1=chs.filter(function(c){return c.revs&&c.revs[0]&&c.revs[0].done;}).length;
+    var r2=chs.filter(function(c){return c.revs&&c.revs[1]&&c.revs[1].done;}).length;
+    var r3=chs.filter(function(c){return c.revs&&c.revs[2]&&c.revs[2].done;}).length;
+    var p0=Math.round(cd/tot*100);
+    h+='<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--bd)"><div class="row sp"><b>'+esc(pfull(k))+'</b><span class="mut">'+cd+'/'+tot+' chapters</span></div>'+
+      '<div class="row sp mut" style="font-size:12px;margin-top:4px"><span>Course: '+p0+'%</span><span>R1: '+r1+'/'+tot+'</span><span>R2: '+r2+'/'+tot+'</span><span>R3: '+r3+'/'+tot+'</span></div>'+
+      '<div class="bar" style="margin-top:4px"><i style="width:'+p0+'%"></i></div></div>';
+  });
+  return h+'</div>';
+}
+var html=attemptCard(P,c.A,X,false)+revStrategyCard(P,c.A,X,I)+revMatrixCard(P,X)+'<h2>Milestones</h2><div class="card">';
   html+='<div class="row sp"><span>Syllabus completion (at your pace)</span><b>'+(R.doneOn?fmt(R.doneOn):'not before the exam')+'</b></div>';
   ms.forEach(function(m){html+='<div class="row sp" style="margin-top:6px"><span>'+m[0]+'</span><b>'+fmt(m[1])+'</b></div>';});
   if(!R.doneOn)html+='<p class="mut" style="margin-bottom:0">At '+P.dailyHours+' h/day the syllabus will not finish in time. You need about '+(isFinite(I.need)?r1(I.need):'more')+' h/day, or reduce hours on papers you know well.</p>';
@@ -2297,7 +2332,7 @@ function viewLog(c){
   var P=c.P,L=LEVELS[P.level],keys=[];
   Object.keys(L.groups).forEach(function(g){keys=keys.concat(L.groups[g].p);});
   var po=keys.map(function(k){return '<option value="'+k+'">'+esc(pfull(k))+'</option>';}).join('');
-  var html='<div class="row" style="margin-bottom:12px"><button class="btn" data-act="logsession">Log a study session</button></div>'+weekCard(P)+hoursSplitCard(P);
+  var html='<div class="row" style="margin-bottom:12px"><button class="btn" data-act="logsession">Log a study session</button></div>'+weekCard(P);
   html+='<div class="card"><h3>Add mock / test score</h3><div class="row"><select id="mk-paper">'+po+'</select><input type="date" id="mk-date" value="'+iso(today())+'" style="width:auto"><input type="number" id="mk-score" min="0" step="0.5" placeholder="Score"> / <input type="number" id="mk-max" min="1" value="100"></div><div style="margin-top:8px"><button class="btn sec sm" data-act="addmock">Add</button></div>';
   P.mocks.slice().sort(function(a,b){return a.date<b.date?1:-1;}).slice(0,8).forEach(function(m){
     html+='<div class="blk"><div>'+esc(pfull(m.paper))+'<div class="mut">'+fmt(parse(m.date))+'</div></div><div class="r"><b>'+m.score+'/'+m.max+'</b><button class="btn sec sm" data-act="mkan" data-id="'+m.id+'">Analyse</button><button class="btn danger sm" data-act="delmock" data-id="'+m.id+'">\u00d7</button></div></div>'+(ui.ma===m.id?mockAnalyseForm(P,m):'');
@@ -2384,12 +2419,46 @@ function loadUc(){
   ui.ucBusy=true;
   cloud.client.rpc('user_count').then(function(r){var n=Number(r&&r.data);if(!r.error&&isFinite(n)&&n>=0){UCOUNT=n;renderKeep();}}).catch(function(){}).then(function(){ui.ucBusy=false;});
 }
+function isProUser(){
+  return !!(AIOPEN||(cloud.user&&(cloud.isAdmin||cloud.isTeam||(cloud.pro&&cloud.pro.pro))));
+}
+function proPlanMeta(plan){
+  if(plan==='attempt')return {k:'attempt',n:'Attempt Pass (6 Months)',p:249};
+  if(plan==='annual')return {k:'annual',n:'Annual Master Pass (12 Months)',p:449};
+  return {k:'monthly',n:'Pro Monthly',p:49};
+}
+function proCard(){
+  if(!cloud.user)return '';
+  var p=cloud.pro,h='<div class="card"><h3>\u2726 Studify Pro Pass</h3>';
+  if(p&&p.pro){
+    var expTxt=p.expires_at?('Valid till '+new Date(p.expires_at).toLocaleDateString('en-IN')):'Lifetime Free Access';
+    h+='<div class="row sp"><div><span class="chip ok">\u2713 PRO ACTIVE</span> <b>'+esc(p.free_reason||proPlanMeta(p.plan).n)+'</b><div class="mut" style="margin-top:4px">'+esc(expTxt)+(p.note?' \u2022 '+esc(p.note):'')+'</div></div></div>';
+    return h+'</div>';
+  }
+  var sel=ui.proPlan||'monthly',code=(ui.proCode!==undefined?ui.proCode:'');
+  if(!code){try{code=localStorage.getItem('studify_ref')||'';}catch(e){}}
+  var pm=proPlanMeta(sel),px=cloud.proPreview;
+  if(!px||px.plan!==sel||px._code!==code){
+    var dc=0,lbl='',uc=String(code||'').trim().toUpperCase();
+    if(uc==='RANKER50'){dc=Math.round(pm.p*0.5);lbl='50% scholarship discount';}
+    else if(uc==='FOUNDATION'){dc=10;lbl='Flat ₹10 OFF';}
+    else if(/^[A-Z0-9]{4,10}$/.test(uc)){dc=Math.round(pm.p*0.2);lbl='20% Referral / Launch OFF (+7 days to friend)';}
+    px={plan:sel,list_price:pm.p,discount:dc,final_price:Math.max(1,pm.p-dc),label:lbl,_code:uc};
+  }
+  h+='<div class="mut">Unlock AI Tutor (grounded in ICAI papers), Photo Homework Audit, Chapter Weightage Analytics & Priority PDF Vault. Admins & Special Category VIPs get this free.</div>';
+  h+='<label>Choose Plan</label><select id="pro-plan" data-chg="proplan"><option value="monthly"'+(sel==='monthly'?' selected':'')+'>Pro Monthly — ₹49</option><option value="attempt"'+(sel==='attempt'?' selected':'')+'>Attempt Pass (6 Months) — ₹249</option><option value="annual"'+(sel==='annual'?' selected':'')+'>Annual Pass (12 Months) — ₹449</option></select>';
+  h+='<label>Referral or Coupon Code (try CA20 or friend code for 20% OFF)</label><div class="row"><input type="text" id="pro-code" maxlength="10" value="'+esc(code)+'" placeholder="CODE" style="flex:1;text-transform:uppercase"><button class="btn sec sm" data-act="propreview">Apply Code</button></div>';
+  if(px.discount>0)h+='<div class="chip ok" style="margin-top:6px">\u2713 '+esc(px.label)+' • Save ₹'+esc(px.discount)+'</div>';
+  h+='<div style="margin-top:10px;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg)"><b>Pay ₹'+esc(px.final_price)+' via UPI</b><div class="mut">UPI ID: <b>'+PAY_UPI+'</b> • Or WhatsApp +91 95097 07043</div><div style="margin-top:6px"><a class="btn sec sm" href="upi://pay?pa='+encodeURIComponent(PAY_UPI)+'&pn=Studify%20CA&am='+px.final_price+'&cu=INR&tn=Studify%20Pro" style="text-decoration:none">Open UPI App (₹'+px.final_price+')</a></div></div>';
+  h+='<label>Enter 12-digit UPI Ref / UTR after payment</label><div class="row"><input type="text" id="pro-utr" maxlength="32" placeholder="UPI UTR / Transaction ID" style="flex:1"><button class="btn" data-act="proorder">Submit & Unlock</button></div>';
+  return h+'</div>';
+}
 function viewAI(c){
-  if(AIOPEN||(cloud.user&&cloud.isAdmin))return viewAIOpen(c);
+  if(isProUser())return viewAIOpen(c);
   setTimeout(loadUc,0);
-  var n=UCOUNT,h='<div class="card"><h3>\ud83d\udd12 AI tutor (locked for now)</h3><p>The AI tutor will open for everyone when we cross '+UC_GOAL+' users. Until then you can use everything else in the app: plan, timer, revision, papers, partner.</p>';
-  if(n!==null){var pc=Math.min(100,Math.round(n/UC_GOAL*100));h+='<div class="mut">Users so far: <b>'+n+' / '+UC_GOAL+'</b></div><div style="height:10px;background:var(--bd);border-radius:6px;margin-top:6px;overflow:hidden"><div style="height:10px;width:'+pc+'%;background:var(--ac)"></div></div>';}
-  h+='<div class="mut" style="margin-top:8px">Share the app with your friends to open it sooner.</div></div>';
+  var n=UCOUNT,h='<div class="card"><h3>\ud83d\udd12 AI tutor</h3><p>Unlock instantly with <b>Studify Pro</b> (from <b>₹49/mo</b> — ₹39 with Referral Code!) or wait until community free unlock crosses '+UC_GOAL+' users.</p>';
+  if(n!==null){var pc=Math.min(100,Math.round(n/UC_GOAL*100));h+='<div class="mut">Community free unlock progress: <b>'+n+' / '+UC_GOAL+'</b></div><div style="height:10px;background:var(--bd);border-radius:6px;margin-top:6px;overflow:hidden"><div style="height:10px;width:'+pc+'%;background:var(--ac)"></div></div>';}
+  h+='<div class="mut" style="margin-top:8px">Share with friends using your Referral Code for 20% discount + 7 bonus Pro days.</div></div>'+proCard();
   return h;
 }
 function viewAIOpen(c){
@@ -2478,14 +2547,20 @@ async function loadIcai(){
   try{var r=await cloud.client.rpc('my_icai_id');if(r.error){cloud.icaiLoaded=false;return;}cloud.icai=r.data||null;cloud.icaiLoaded=true;}catch(e){cloud.icaiLoaded=false;}
 }
 async function loadAdmin(){
-  if(!cloud.isAdmin||!cloud.client)return;
+  if(!cloud.client||(!cloud.isAdmin&&!cloud.isTeam))return;
   try{
-    var a=await cloud.client.rpc('admin_ids',{p_status:'pending'});cloud.aIds=(a&&a.data)||[];
-    var t=await cloud.client.rpc('admin_stats');cloud.aStats=(t&&t.data&&t.data.users!==undefined)?t.data:null;
-    var p=await cloud.client.rpc('admin_papers');cloud.aPapers=(p&&p.data)||[];
-    var al=await cloud.client.rpc('admin_list');cloud.aAdmins=(al&&al.data)||[];
-    var fb=await cloud.client.rpc('admin_feedback',{p_status:'new'});cloud.aFb=Array.isArray(fb&&fb.data)?fb.data:[];
-    await loadPdfs();
+    if(cloud.isAdmin){
+      var a=await cloud.client.rpc('admin_ids',{p_status:'pending'});cloud.aIds=(a&&a.data)||[];
+      var t=await cloud.client.rpc('admin_stats');cloud.aStats=(t&&t.data&&t.data.users!==undefined)?t.data:null;
+      var p=await cloud.client.rpc('admin_papers');cloud.aPapers=(p&&p.data)||[];
+      var al=await cloud.client.rpc('admin_list');cloud.aAdmins=(al&&al.data)||[];
+      var fb=await cloud.client.rpc('admin_feedback',{p_status:'new'});cloud.aFb=Array.isArray(fb&&fb.data)?fb.data:[];
+      try{var pl=await cloud.client.rpc('admin_pro_list');cloud.aPros=Array.isArray(pl&&pl.data)?pl.data:[];}catch(e){cloud.aPros=[];}
+      try{var po=await cloud.client.rpc('admin_pro_orders');cloud.aProOrders=Array.isArray(po&&po.data)?po.data:[];}catch(e){cloud.aProOrders=[];}
+      await loadPdfs();
+    }
+    try{var tl=await cloud.client.rpc('team_list');cloud.aTeam=Array.isArray(tl&&tl.data)?tl.data:[];}catch(e){cloud.aTeam=[];}
+    try{var bl=await cloud.client.rpc('admin_bug_list');cloud.aBugs=Array.isArray(bl&&bl.data)?bl.data:[];}catch(e){cloud.aBugs=[];}
   }catch(e){}
 }
 function idBanner(){
@@ -2543,13 +2618,13 @@ async function loadLB2(){
   if(!cloud.client||!cloud.user)return;
   ui.lbp=ui.lbp||'week';ui.lbs=ui.lbs||'global';
   try{await lbSync();var r=await rpc('lb_board',{p_period:ui.lbp,p_scope:ui.lbs});cloud.lb2=r||{joined:false};}
-  catch(e){cloud.lb2={joined:false,err:true,msg:String((e&&e.message)||e||'').slice(0,160)};}
+  catch(e){cloud.lb2={joined:false,err:true};}
   render();
 }
 function lbCard2(){
   var L=cloud.lb2,h='<div class="card"><div class="row sp"><h3>🏆 Leaderboard</h3>'+(L&&L.joined?'<button class="btn sec sm" data-act="lb2">Refresh</button>':'')+'</div>';
   if(!L)return h+'<div class="mut">See how your study time compares with other students and with your partners.</div><div style="margin-top:8px"><button class="btn" data-act="lb2">Show leaderboard</button></div></div>';
-  if(L.err)return h+'<div class="warnbox">Could not load the leaderboard.'+(L.msg?'<br><span class="mut">Reason: '+esc(L.msg)+'</span>':'')+'</div><div style="margin-top:8px"><button class="btn sec sm" data-act="lb2">Try again</button></div></div>';
+  if(L.err)return h+'<div class="warnbox">Could not load. You may be offline, or the owner has not run <b>18_leaderboard_referral.sql</b> in Supabase yet.</div><div style="margin-top:8px"><button class="btn sec sm" data-act="lb2">Try again</button></div></div>';
   if(!L.joined){
     var mp=shareProfile(),nn=ui.lbNick!==undefined?ui.lbNick:String((mp&&mp.name)||'').split(' ')[0];
     return h+'<div class="mut">Join to see your rank. Everyone sees only your <b>nickname</b>, study time and streak. Never your real name, email, chapters or marks. You can leave any time.</div><label>Nickname (2 to 20 characters)</label><input type="text" id="lb-nick" maxlength="20" value="'+esc(nn)+'"><div style="margin-top:8px"><button class="btn" data-act="lbjoin">Join leaderboard</button></div></div>';
@@ -2571,49 +2646,17 @@ function lbCard2(){
   h+='<div class="mut" style="margin-top:8px">Time comes from your study timer and logged sessions. <button class="btn sec sm" data-act="lbleave">Leave leaderboard</button></div>';
   return h+'</div>';
 }
-async function loadRef(){try{cloud.ref=await rpc('ref_my');if(!cloud.ref)cloud.ref={err:true};}catch(e){cloud.ref={err:true,msg:String((e&&e.message)||e||'').slice(0,160)};}render();}
+async function loadRef(){try{cloud.ref=await rpc('ref_my');if(!cloud.ref)cloud.ref={err:true};}catch(e){cloud.ref={err:true};}render();}
 function refCard(){
   if(!cloud.user)return '';
   var R=cloud.ref,h='<div class="card"><h3>🎁 Refer a friend</h3>';
   if(!R)return h+'<div class="mut">Share your code with a friend. When they enter it, you both earn 7 days of premium. The days are credited now and used when paid plans start.</div><div style="margin-top:8px"><button class="btn" data-act="refload">Show my code</button></div></div>';
-  if(R.err)return h+'<div class="warnbox">Could not load.'+(R.msg?'<br><span class="mut">Reason: '+esc(R.msg)+'</span>':'')+'</div><div style="margin-top:8px"><button class="btn sec sm" data-act="refload">Try again</button></div></div>';
+  if(R.err)return h+'<div class="warnbox">Could not load. You may be offline, or <b>18_leaderboard_referral.sql</b> has not been run in Supabase yet.</div><div style="margin-top:8px"><button class="btn sec sm" data-act="refload">Try again</button></div></div>';
   h+='<div class="row sp"><div><div class="mut">Your code</div><b style="font-size:22px;letter-spacing:3px">'+esc(R.code)+'</b></div><button class="btn sm" data-act="refshare">Share</button></div>';
   h+='<div class="mut" style="margin-top:6px">Friends joined: <b>'+esc(R.count)+'</b> • Premium days earned: <b>'+esc(R.days)+'</b></div>';
   if(!R.used){var pre='';try{pre=localStorage.getItem('studify_ref')||'';}catch(e){}h+='<label>Got a friend’s code?</label><div class="row"><input type="text" id="ref-in" maxlength="8" placeholder="CODE" value="'+esc(pre)+'" style="flex:1;text-transform:uppercase"><button class="btn" data-act="refgo">Apply</button></div>';}
   else h+='<div class="mut" style="margin-top:6px">You already used a friend’s code. Your 7 days are credited.</div>';
   return h+'</div>';
-}
-/* ===== v1: subject hours split, R1/R2/R3 matrix, rapid-fire MCQ ===== */
-function hoursSplitCard(P){
-  var t=iso(today()),ws=weekStart(today()),a=iso(ws),b=iso(addDays(ws,6)),day={},wk={},dT=0,wT=0;
-  (P.sessions||[]).forEach(function(x){var m=Number(x.min)||0;if(x.date===t){day[x.paper]=(day[x.paper]||0)+m;dT+=m;}if(x.date>=a&&x.date<=b){wk[x.paper]=(wk[x.paper]||0)+m;wT+=m;}});
-  function blk(map,tot,lbl){
-    var ks=Object.keys(map).sort(function(x,y){return map[y]-map[x];});
-    if(!ks.length)return '<div class="mut" style="margin:6px 0">'+lbl+': no study time logged yet.</div>';
-    return '<div style="margin-top:8px"><b>'+lbl+'</b> <span class="mut">'+(Math.round(tot/6)/10)+' h</span></div>'+ks.map(function(k){var pc=Math.round(map[k]/tot*100);
-      return '<div class="row sp" style="margin-top:4px"><span>'+esc(k==='other'||!k?'Other':pfull(k))+'</span><span><b>'+(Math.round(map[k]/6)/10)+' h</b> <span class="mut">'+pc+'%</span></span></div>'+bar(pc);}).join('');
-  }
-  return '<div class="card"><h3>Where your time went</h3>'+blk(day,dT,'Today')+blk(wk,wT,'This week')+'</div>';
-}
-function revMatrixCard(P){
-  var rows=[];
-  Object.keys(P.papers||{}).forEach(function(k){
-    var chs=P.papers[k].ch||[];if(!chs.length)return;
-    var done=chs.filter(function(c){return c.status==='done';}).length,r=[0,1,2].map(function(i){
-      var tot=0,dn=0;chs.forEach(function(c){var rv=(c.revs||[]).slice().sort(function(x,y){return x.due<y.due?-1:1;});if(rv.length>i){tot++;if(rv[i].done)dn++;}});
-      return {t:tot,d:dn,p:tot?Math.round(dn/tot*100):-1};});
-    rows.push({k:k,c:Math.round(done/chs.length*100),r:r});
-  });
-  if(!rows.length)return '';
-  var h='<h2>Revision matrix</h2><div class="card scroll"><div class="mut">For every paper: how much of the course is done, and how many of your finished chapters have completed Revision 1, 2 and 3.</div><table style="margin-top:8px"><tr><th>Paper</th><th>Course</th><th>R1</th><th>R2</th><th>R3</th></tr>';
-  rows.forEach(function(x){h+='<tr><td>'+esc(pfull(x.k))+'</td><td><b>'+x.c+'%</b>'+bar(x.c)+'</td>'+x.r.map(function(r){return '<td>'+(r.p<0?'<span class="mut">–</span>':'<b>'+r.p+'%</b><div class="mut">'+r.d+'/'+r.t+'</div>'+bar(r.p))+'</td>';}).join('')+'</tr>';});
-  return h+'</table></div>';
-}
-function rfTick(){
-  var q=ui.mq;if(!q||!q.rapid||q.done||!q.list||q.i>=q.list.length||ui.tab!=='icai')return;
-  var left=60-Math.floor((Date.now()-q.t0)/1000),e=document.getElementById('mq-tm');
-  if(e){e.textContent='⏱ '+Math.max(0,left)+' s';e.style.color=left<=10?'var(--bad,#c0392b)':'';}
-  if(left<=0){q.done=true;q.sel=-1;q.to=(q.to||0)+1;q.times.push(60);renderKeep();}
 }
 function viewPartner(c){
   if(cloud.user&&cloud.icaiLoaded&&!cloud.icai)return '<div class="card"><h3>Partner</h3><p>First add your ICAI registration number. One number = one account.</p></div>'+idCard();
@@ -2728,6 +2771,73 @@ function kbAct(a,d){
 }
 function cact(a,d){
   if(a==='kbload'||a==='kbsave'||a==='kbdel')return kbAct(a,d);
+  if(a==='propreview'){
+    var pc0=readv('pro-code').trim().toUpperCase(),pl0=readv('pro-plan')||ui.proPlan||'monthly';
+    ui.proCode=pc0;ui.proPlan=pl0;
+    try{if(pc0)localStorage.setItem('studify_ref',pc0);}catch(e){}
+    if(cloud.client){
+      cloud.client.rpc('preview_pro_price',{p_plan:pl0,p_code:pc0}).then(function(r){
+        if(!r.error&&r.data){cloud.proPreview=r.data;cloud.proPreview._code=pc0;if(pc0&&!r.data.valid)toast('Code not valid, regular price applied');else if(r.data.valid)toast('Discount applied!');}
+        render();
+      }).catch(function(){render();});
+    }else render();
+    return true;
+  }
+  if(a==='proorder'){
+    var pl1=readv('pro-plan')||ui.proPlan||'monthly',pc1=readv('pro-code').trim().toUpperCase(),utr=readv('pro-utr').trim();
+    if(utr.length<6){toast('Enter valid UPI Ref / UTR (min 6 chars)');return true;}
+    guard(rpc('submit_pro_order',{p_plan:pl1,p_code:pc1,p_utr:utr}).then(function(r){
+      toast('Submitted (₹'+((r&&r.final_price)||'')+')! Admin will approve shortly.');return refreshPartner();
+    }));return true;
+  }
+  if(a==='progrant'){
+    var emg=readv('pr-em').trim(),catg=readv('pr-cat')||'special',daysg=parseInt(readv('pr-days'),10)||0,noteg=readv('pr-note').trim();
+    if(!emg){toast('Enter student email');return true;}
+    guard(rpc('admin_grant_pro',{p_email:emg,p_days:daysg,p_category:catg,p_note:noteg}).then(async function(){toast('Free Pro Pass granted to '+emg);await loadAdmin();render();}));
+    return true;
+  }
+  if(a==='prorevoke'&&d&&d.u){
+    guard(rpc('admin_revoke_pro',{p_user:d.u}).then(async function(){toast('Pro access revoked');await loadAdmin();render();}));
+    return true;
+  }
+  if((a==='proordok'||a==='proordno')&&d&&d.id){
+    guard(rpc('admin_pro_order_action',{p_id:Number(d.id),p_action:a==='proordok'?'approve':'reject'}).then(async function(){toast(a==='proordok'?'Approved & Pro activated!':'Rejected');await loadAdmin();render();}));
+    return true;
+  }
+  if(a==='teamset'){
+    var tem=readv('tm-role-em').trim(),trv=readv('tm-role-val');
+    if(!tem){toast('Enter signed-up email');return true;}
+    guard(rpc('team_set_role',{p_email:tem,p_role:trv}).then(async function(){toast('Role '+trv+' assigned to '+tem);await loadAdmin();render();}));
+    return true;
+  }
+  if(a==='teamrm'&&d&&d.e){
+    if(confirm('Remove platform team role for '+d.e+'?'))
+      guard(rpc('team_set_role',{p_email:d.e,p_role:'remove'}).then(async function(){toast('Role removed');await loadAdmin();render();}));
+    return true;
+  }
+  if(a==='ownertr'){
+    var oem=readv('own-tr-em').trim();
+    if(!oem){toast('Enter new Primary Owner email');return true;}
+    if(!confirm('Transfer Primary Ownership to '+oem+'? Your role will change to Co-Admin.'))return true;
+    guard(rpc('owner_transfer',{p_target_email:oem}).then(async function(){
+      toast('Ownership transferred to '+oem+'! You are now Co-Admin.');await refreshPartner();await loadAdmin();render();
+    }));return true;
+  }
+  if(a==='qabot'||a==='qabottest'){runStudifyQaBot(a==='qabottest');return true;}
+  if(a==='qabugshot'){openStudifyBugPrompt();return true;}
+  if(a==='bugstat'&&d&&d.id){
+    guard(rpc('admin_bug_action',{p_id:Number(d.id),p_status:d.s||'fixed'}).then(async function(){toast('Bug #'+d.id+' -> '+(d.s||'fixed'));await loadAdmin();render();}));
+    return true;
+  }
+  if(a==='bugview'&&d&&d.id){
+    var bg=(cloud.aBugs||[]).filter(function(x){return String(x.id)===String(d.id);})[0];
+    if(bg&&bg.screenshot_data){
+      var ov=document.createElement('div');ov.className='ov';
+      ov.innerHTML='<div class="modal"><h3>\ud83d\udcf8 Bug #'+esc(bg.id)+' Screenshot</h3><div class="mut">'+esc(bg.title)+'</div><img src="'+bg.screenshot_data+'" style="width:100%;border-radius:10px;border:1px solid var(--bd);margin:10px 0"><button class="btn" onclick="this.closest(\'.ov\').remove()">Close</button></div>';
+      document.body.appendChild(ov);
+    }
+    return true;
+  }
   if(a==='cloudsave'){
     var url=readv('cl-url').trim().replace(/\/(rest|auth|functions|storage)\/v1.*$/i,'').replace(/\/+$/,''),key=readv('cl-key').trim(),err=validateCfg(url,key);
     if(err){cmsg(err,'bad');render();return true;}
@@ -2934,10 +3044,34 @@ function libUploadAll(fl,key,kind,att,title){
 }
 function adminHub(){
   if(!cloud.isAdmin)return '';
-  var h='<div class="card"><h3>Admins</h3><div class="mut">Admins can verify ICAI numbers, add papers and PDFs. Only the owner can add or remove admins.</div>';
-  (cloud.aAdmins||[]).forEach(function(x){h+='<div class="row sp" style="margin-top:6px"><span>'+esc(x.email||'')+' '+(x.owner?'<span class="chip ok">Owner</span>':'<span class="chip">Admin</span>')+'</span>'+(cloud.isOwner&&!x.owner?'<button class="btn danger sm" data-act="adrm" data-u="'+esc(x.user)+'">Remove</button>':'')+'</div>';});
-  if(cloud.isOwner)h+='<div class="row" style="margin-top:8px"><input type="text" id="ad-email" placeholder="their email (they must have signed up)" style="flex:1;min-width:180px"><button class="btn" data-act="adadd">Make admin</button></div>';
+  var h='<div class="card"><h3>Admins & Platform Team</h3><div class="mut">Admins verify ICAI numbers & papers. Platform Team (Co-Admin, QA Tester, Bug Checker, Support) gets free Pro & Bug Monitor access.</div>';
+  (cloud.aAdmins||[]).forEach(function(x){h+='<div class="row sp" style="margin-top:6px"><span>'+esc(x.email||'')+' '+(x.owner?'<span class="chip ok">Primary Owner</span>':'<span class="chip">Admin</span>')+'</span>'+(cloud.isOwner&&!x.owner?'<button class="btn danger sm" data-act="adrm" data-u="'+esc(x.user)+'">Remove</button>':'')+'</div>';});
+  (cloud.aTeam||[]).forEach(function(t){h+='<div class="row sp" style="margin-top:6px"><span>'+esc(t.email||'')+' <span class="chip">'+esc(t.role)+'</span></span>'+(cloud.isAdmin&&t.role!=='owner'?'<button class="btn danger sm" data-act="teamrm" data-e="'+esc(t.email)+'">Remove Role</button>':'')+'</div>';});
+  if(cloud.isOwner)h+='<div class="row" style="margin-top:8px"><input type="text" id="ad-email" placeholder="their email (must have signed up)" style="flex:1;min-width:180px"><button class="btn" data-act="adadd">Make admin</button></div>';
+  h+='<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)"><b>Assign Platform Team Role (Co-Admin / QA / Bug Checker / Support)</b><div class="row" style="margin-top:6px"><input type="text" id="tm-role-em" placeholder="signed-up email" style="flex:1;min-width:160px"><select id="tm-role-val" style="width:auto"><option value="coadmin">Co-Admin (Partner)</option><option value="qa_tester">QA Tester</option><option value="bug_checker">Bug Checker</option><option value="support">Support</option></select><button class="btn sec sm" data-act="teamset">Assign</button></div></div>';
+  if(cloud.isOwner)h+='<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--warn)"><b>\ud83d\udc51 Transfer Primary Ownership</b><div class="mut">Target email becomes Primary Owner and you become Co-Admin. New Owner can manage or remove Co-Admin anytime.</div><div class="row" style="margin-top:6px"><input type="text" id="own-tr-em" placeholder="new owner email (must be signed up)" style="flex:1;min-width:160px"><button class="btn bad sm" data-act="ownertr">Transfer Owner</button></div></div>';
   h+='</div>';
+
+  // Free VIP / Special Category Grants & Student UPI Approvals
+  h+='<div class="card"><h3>\u2726 Pro Pass: Special Category Free Grants & UPI Approvals</h3><div class="mut">Admins & Special Category students never pay. Grant lifetime or custom-day Free Pro Pass to any signed-up email.</div>';
+  h+='<div class="row" style="margin-top:8px"><input type="text" id="pr-em" placeholder="student email" style="flex:1;min-width:160px"><select id="pr-cat" style="width:auto"><option value="special">Special Category (Free)</option><option value="topper">Topper / Ranker</option><option value="partner">Partner / Friend</option><option value="beta">Beta Tester</option></select><select id="pr-days" style="width:auto"><option value="0">Lifetime</option><option value="30">30 Days</option><option value="180">180 Days</option><option value="365">365 Days</option></select></div>';
+  h+='<div class="row" style="margin-top:6px"><input type="text" id="pr-note" placeholder="Note (e.g. Scholarship / Special VIP)" style="flex:1"><button class="btn ok sm" data-act="progrant">Grant Free Pro</button></div>';
+  var pros=cloud.aPros||[];
+  if(pros.length){
+    h+='<div style="margin-top:10px"><b>Active Pro / Special Grants ('+pros.length+')</b></div>';
+    pros.slice(0,25).forEach(function(p){
+      h+='<div class="row sp mut" style="margin-top:4px"><span><b>'+esc(p.email)+'</b> • <span class="chip">'+esc(p.category)+'</span> '+(p.expires_at?('till '+esc(String(p.expires_at).slice(0,10))):'Lifetime')+(p.note?' \u2022 '+esc(p.note):'')+'</span><button class="btn danger sm" data-act="prorevoke" data-u="'+esc(p.user_id)+'">Revoke</button></div>';
+    });
+  }
+  var ords=cloud.aProOrders||[];
+  if(ords.length){
+    h+='<div style="margin-top:12px"><b>Student Pro UPI Requests ('+ords.filter(function(o){return o.status==='pending';}).length+' pending)</b></div>';
+    ords.slice(0,25).forEach(function(o){
+      h+='<div style="border-top:1px solid var(--bd);margin-top:6px;padding-top:6px"><div class="row sp"><span><b>'+esc(o.email)+'</b> • '+esc(o.plan)+' • ₹'+esc(o.final_price)+(o.ref_code?' (Code: '+esc(o.ref_code)+')':'')+'<br><span class="mut">UTR: '+esc(o.utr)+'</span></span>'+(o.status==='pending'?'<div class="row"><button class="btn ok sm" data-act="proordok" data-id="'+esc(o.id)+'">Approve</button><button class="btn danger sm" data-act="proordno" data-id="'+esc(o.id)+'">Reject</button></div>':'<span class="chip '+(o.status==='approved'?'ok':'bad')+'">'+esc(o.status)+'</span>')+'</div></div>';
+    });
+  }
+  h+='</div>';
+
   var st=cloud.aStats;h+='<div class="card"><h3>Admin: users and ICAI numbers</h3>';
   if(st)h+='<div class="mut">Users: <b>'+esc(st.users)+'</b>'+(st.active7!==undefined?' • active (7 days): <b>'+esc(st.active7)+'</b>':'')+' • verified numbers: <b>'+esc(st.ids_verified)+'</b> • waiting: <b>'+esc(st.ids_pending)+'</b> • papers saved: <b>'+esc(st.papers)+'</b>'+(st.files!==undefined?' \u2022 PDFs: <b>'+esc(st.files)+'</b>':'')+'</div>';
   var L=cloud.aIds||[];
@@ -2968,6 +3102,22 @@ function adminHub(){
   var pl=cloud.aPapers||[];
   if(pl.length){h+='<div style="margin-top:12px"><b>Saved papers</b></div>';pl.forEach(function(x){h+='<div class="row sp mut" style="margin-top:4px"><span>'+esc(x.key)+' • '+esc(x.kind)+' • '+esc(x.attempt)+' • '+esc(r1(x.total))+'</span><button class="btn danger sm" data-act="apdel" data-id="'+esc(x.id)+'">Delete</button></div>';});}
   return h+'</div>'+bulkCard()+fbAdminCard();
+}
+function bugMonitorCard(){
+  if(!cloud.isAdmin&&!cloud.isTeam)return '';
+  var L=cloud.aBugs||[],qr=ui.qaRes||[];
+  var h='<div class="card"><div class="row sp"><div><h3>\ud83e\udd16 Automated QA Bot & Bug Monitor</h3><div class="mut">Auto catches JS errors + captures screenshots + emails Official/Support when RESEND_API_KEY is set.</div></div><div class="row"><button class="btn sm" data-act="qabot"'+(ui.qaBusy?' disabled':'')+'>'+(ui.qaBusy?'Scanning…':'Run Auto Bug Check')+'</button><button class="btn sec sm" data-act="qabottest"'+(ui.qaBusy?' disabled':'')+'>Test Email + Shot</button><button class="btn sec sm" data-act="qabugshot">Report Bug + Shot</button></div></div>';
+  if(qr.length){
+    h+='<div style="margin-top:10px">';
+    qr.forEach(function(x){h+='<div class="row sp" style="padding:4px 0;border-top:1px solid var(--bd)"><span>'+(x.ok?'\u2705':'\u274c')+' <b>'+esc(x.name)+'</b></span><span class="mut">'+esc(x.info)+'</span></div>';});
+    h+='</div>';
+  }
+  h+='</div><div class="card"><h3>Bug Reports Inbox ('+L.length+')</h3>';
+  if(!L.length)h+='<div class="mut">No bugs logged yet — system healthy!</div>';
+  L.forEach(function(b){
+    h+='<div style="border-top:1px solid var(--bd);margin-top:8px;padding-top:8px"><div class="row sp"><span><span class="chip '+(b.severity==='critical'||b.severity==='error'?'bad':'ok')+'">'+esc(b.severity)+'</span> <b>#'+esc(b.id)+' '+esc(b.title)+'</b>'+(b.emailed?' <span class="chip ok">Emailed</span>':'')+'</span><span class="chip">'+esc(b.status)+'</span></div><div class="mut" style="margin-top:4px">'+esc(b.source)+' • '+esc(b.reporter_email||'')+' • '+esc(String(b.created_at||'').slice(0,16))+'</div>'+(b.details?'<div class="mut" style="margin-top:4px;white-space:pre-wrap">'+esc(String(b.details).slice(0,220))+'</div>':'')+(b.ai_diagnosis?'<div style="margin-top:4px;font-size:13px;color:var(--ac)">\ud83e\udd16 '+esc(b.ai_diagnosis)+'</div>':'')+'<div class="row" style="margin-top:6px">'+(b.screenshot_data?'<button class="btn sec sm" data-act="bugview" data-id="'+esc(b.id)+'">View \ud83d\udcf8</button>':'')+'<button class="btn sm" data-act="bugstat" data-id="'+esc(b.id)+'" data-s="fixed">Fixed</button><button class="btn sec sm" data-act="bugstat" data-id="'+esc(b.id)+'" data-s="investigating">Checking</button></div></div>';
+  });
+  return h+'</div>';
 }
 function adminCard(){
   if(!cloud.isAdmin)return '';
@@ -3017,19 +3167,21 @@ function viewSettings(c){
   html+=(DSK?'':instCard()+dlCard(true)+pushCard())+timerOptsCard()+dskCard();
   var secRem=html;html='';
   html+=idCard();
+  html+=proCard();
   html+=refCard();
   html+=cloudCard();
-  html+='<div class="mut" style="margin:6px 0">App v1 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):'Not admin'):'')+'</div>';
+  html+='<div class="mut" style="margin:6px 0">App v1 • ICAI calendar '+esc(CAL.version)+' • Syllabus '+esc(SYLVER)+(cloud.user?' • '+(cloud.isAdmin?(cloud.isOwner?'You are the owner':'You are an admin'):(cloud.isTeam?'Team: '+esc(cloud.teamRole):'Not admin')):'')+'</div>';
   var secAcct=html;html='';
   html+=adminCard()+announceAdmin()+adminHub();var secAdm=html;html='';
+  var secBugs=bugMonitorCard();
   html+=helpCard()+feedbackCard()+aboutCard()+privacyCard();
   var secHelp=html;
-  var showAdm=!!(cloud.user&&cloud.isAdmin);
-  var tabs=[['gen','Profile'],['rem','Reminders'],['acct','Account']];if(showAdm){tabs.push(['adm','Admin']);tabs.push(['kb','AI memory']);}tabs.push(['help','Help']);
-  var st=ui.stab||'gen';if((st==='adm'||st==='kb')&&!showAdm)st='gen';
+  var showAdm=!!(cloud.user&&cloud.isAdmin),showBugs=!!(cloud.user&&(cloud.isAdmin||cloud.isTeam));
+  var tabs=[['gen','Profile'],['rem','Reminders'],['acct','Account']];if(showAdm){tabs.push(['adm','Admin']);tabs.push(['kb','AI memory']);}if(showBugs){tabs.push(['bugs','Bugs & QA']);}tabs.push(['help','Help']);
+  var st=ui.stab||'gen';if((st==='adm'||st==='kb')&&!showAdm)st=showBugs&&st==='bugs'?'bugs':'gen';if(st==='bugs'&&!showBugs)st='gen';
   var bar='<div class="stabs" role="tablist">'+tabs.map(function(t){return '<button class="chip stab'+(st===t[0]?' on':'')+'" data-act="stab" data-s="'+t[0]+'">'+t[1]+'</button>';}).join('')+'</div>';
-  if(ui.allSec)return secGen+secRem+secAcct+secAdm+kbCard()+secHelp;
-  var map={gen:secGen,rem:secRem,acct:secAcct,adm:secAdm,kb:kbCard(),help:secHelp};
+  if(ui.allSec)return secGen+secRem+secAcct+secAdm+secBugs+kbCard()+secHelp;
+  var map={gen:secGen,rem:secRem,acct:secAcct,adm:secAdm,bugs:secBugs,kb:kbCard(),help:secHelp};
   return bar+map[st];
 }
 
@@ -3161,7 +3313,7 @@ function hwItemHtml(P,k,it,day,dd){
     }else h+='<div style="margin-top:8px"><span class="chip ok">Done • '+it.sc+'/'+it.mx+(it.ai?' • checked':'')+'</span> '+ref+'</div>'+(it.fb?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(it.fb)+'</div>':'')+(it.et&&ETY[it.et]?'<div class="mut" style="margin-top:4px">Main reason for lost marks: '+ETY[it.et]+'</div>':'')+(typeof it.ps==='number'?'<div class="mut" style="margin-top:4px">Presentation: '+it.ps+'/5'+(it.pt?' \u2022 '+esc(it.pt):'')+' (AI guidance, not an ICAI mark)</div>':'');
   }
   if(!it.done)h+=dd?'<div style="margin-top:8px"><button class="btn sec sm" data-act="hwdrop" data-k="'+k+'" data-d="'+dd+'">Remove from pending</button></div>':'<div style="margin-top:8px"><button class="btn sec sm" data-act="hwskip" data-k="'+k+'">I have not studied this topic yet</button></div>';
-  if(AIOPEN||(cloud.user&&cloud.isAdmin)){
+  if(isProUser()){
     h+='<div style="margin-top:8px"><button class="btn sec sm" data-act="hwai" data-k="'+k+'"'+(HWAI[k]&&HWAI[k].busy?' disabled':'')+'>'+(HWAI[k]&&HWAI[k].busy?'Thinking...':'AI: one new similar question')+'</button></div>';
     if(HWAI[k]&&HWAI[k].txt)h+='<div class="card" style="margin-top:8px"><div style="white-space:pre-wrap;line-height:1.5">'+esc(HWAI[k].txt)+'</div></div>';
   }
@@ -3551,7 +3703,7 @@ function ytSave(){try{localStorage.setItem('studify-yt',JSON.stringify(YTL.slice
 function ytSecs(t){var p=String(t||'').split(':').map(Number);if(p.some(isNaN))return 0;return p.length===3?p[0]*3600+p[1]*60+p[2]:(p.length===2?p[0]*60+p[1]:0);}
 function ytLink(id,t){return 'https://www.youtube.com/watch?v='+encodeURIComponent(id)+'&t='+ytSecs(t)+'s';}
 function viewYT(c){
-  var h='<style>.ntfl{margin:8px 0}.ntbx{border:2px solid var(--ac);border-radius:10px;padding:8px 10px;font-weight:600;display:flex;gap:8px;align-items:center;background:var(--card)}.ntn{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--ac);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center}.ntar{text-align:center;color:var(--ac);font-size:18px;line-height:1.1}</style><div class="card"><h3>Video notes</h3><div class="mut">Paste a link of a public YouTube lecture and choose its length. The AI watches it and makes chapters, notes and practice questions. Long lectures (up to 12 hours) are read in parts of 25 minutes, one after another. Every 2 hours of video uses about 1 of your daily AI questions.</div>';
+  var h='<div class="card"><h3>Video notes</h3><div class="mut">Paste a link of a public YouTube lecture and choose its length. The AI watches it and makes chapters, notes and practice questions. Long lectures (up to 12 hours) are read in parts of 25 minutes, one after another. Every 2 hours of video uses about 1 of your daily AI questions.</div>';
   if(!cloud.user)return h+'<div class="warnbox" style="margin-top:8px">Sign in first (Settings > Account).</div></div>';
   h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><input id="yt-u" placeholder="https://youtu.be/..." style="flex:1;min-width:180px" value="'+esc(ui.ytU||'')+'"><select id="yt-len" data-chg="ytlen">'+[[40,'Up to 40 min'],[60,'About 1 hour'],[120,'About 2 hours'],[180,'About 3 hours'],[240,'About 4 hours'],[360,'About 6 hours'],[480,'About 8 hours'],[720,'About 12 hours']].map(function(x){return '<option value="'+x[0]+'"'+((ui.ytLen||40)===x[0]?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select><button class="btn" data-act="ytmake"'+(ui.ytBusy?' disabled':'')+'>'+(ui.ytBusy?'Working...':'Make notes')+'</button></div>'+(ui.ytBusy?'<div class="mut" style="margin-top:6px">'+(ui.ytProg?'Reading part '+ui.ytProg.i+' of '+ui.ytProg.n+' (about 1 minute each). Keep this screen open. Finished parts are saved below as they come.':'This can take 1 to 2 minutes. Keep this screen open.')+'</div>'+(ui.ytProg?'<div style="margin-top:6px"><button class="btn sec sm" data-act="ytstop">Stop and keep what is ready</button></div>':''):'')+(ui.ytNote?'<div class="warnbox" style="margin-top:8px">'+esc(ui.ytNote)+'</div>':'')+'</div>';
   if(YTL.length){
@@ -3562,7 +3714,7 @@ function viewYT(c){
   h+='<div class="card"><b>'+esc(v.title||'Lecture')+'</b>'+(v.summary?'<div class="mut" style="margin-top:6px">'+esc(v.summary)+'</div>':'')+
    '<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">'+[['ch','Chapters ('+v.chapters.length+')'],['nt','Notes ('+v.notes.length+')'],['qs','Questions ('+v.questions.length+')']].map(function(x){return '<button class="btn '+(tb===x[0]?'':'sec')+' sm" data-act="ytab" data-t="'+x[0]+'">'+x[1]+'</button>';}).join('')+'<button class="btn sec sm" data-act="ytpdf">Save as PDF</button></div></div>';
   if(tb==='ch')h+='<div class="card">'+v.chapters.map(function(x){return '<div class="row" style="gap:8px;margin-top:6px"><a href="'+ytLink(v.id,x.at)+'" target="_blank" rel="noopener noreferrer" style="min-width:64px">'+esc(x.at||'')+'</a><span>'+esc(x.title||'')+'</span></div>';}).join('')+'<div class="mut" style="margin-top:8px">Tap a time to open the video at that point.</div></div>';
-  else if(tb==='nt')h+=v.notes.map(function(n){return '<div class="card"><b>'+esc(n.h||'')+'</b><div style="margin-top:6px;white-space:pre-wrap">'+esc(n.b||'')+'</div>'+((n.flow&&n.flow.length)?ntFlow({title:'Flow',steps:n.flow.map(String)}):'')+(n.ex?'<div class="blk" style="margin-top:8px"><div><b>Example</b><div style="white-space:pre-wrap">'+esc(n.ex)+'</div></div></div>':'')+(n.tip?'<div class="blk" style="margin-top:8px;background:var(--ac2)"><div><b>Exam tip</b><div>'+esc(n.tip)+'</div></div></div>':'')+((n.f&&n.f.length)?'<div style="margin-top:6px;background:var(--bg2,#f1f3f7);border-radius:8px;padding:6px 8px;font-family:monospace;white-space:pre-wrap">'+n.f.map(esc).join('\n')+'</div>':'')+'</div>';}).join('')+((v.tips&&v.tips.length)?'<div class="card"><b>Shortcuts mentioned</b><ul>'+v.tips.map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ul></div>':'');
+  else if(tb==='nt')h+=v.notes.map(function(n){return '<div class="card"><b>'+esc(n.h||'')+'</b><div style="margin-top:6px;white-space:pre-wrap">'+esc(n.b||'')+'</div>'+((n.f&&n.f.length)?'<div style="margin-top:6px;background:var(--bg2,#f1f3f7);border-radius:8px;padding:6px 8px;font-family:monospace;white-space:pre-wrap">'+n.f.map(esc).join('\n')+'</div>':'')+'</div>';}).join('')+((v.tips&&v.tips.length)?'<div class="card"><b>Shortcuts mentioned</b><ul>'+v.tips.map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ul></div>':'');
   else h+=v.questions.map(function(x,i){return '<div class="card"><b>Q'+(i+1)+'. '+esc(x.q||'')+'</b><details style="margin-top:6px"><summary>Show answer</summary><div style="margin-top:4px;white-space:pre-wrap">'+esc(x.a||'')+'</div>'+(x.at?'<div class="mut" style="margin-top:4px">Explained at <a href="'+ytLink(v.id,x.at)+'" target="_blank" rel="noopener noreferrer">'+esc(x.at)+'</a></div>':'')+'</details></div>';}).join('');
   h+='<div class="mut" style="margin:8px 0">Made by AI from the video. It can make mistakes: check important points in your book.</div>';
   return h;
@@ -3607,15 +3759,8 @@ function ytAct(a,d){
   if(a==='ytdel'){YTL.splice(Number(d.i),1);ytSave();if(ui.ytI>=YTL.length)ui.ytI=0;renderKeep();return;}
   if(a==='ytab'){ui.ytT=d.t;renderKeep();return;}
   if(a==='ytpdf'){var v=YTL[ui.ytI];if(!v)return;
-    var h='<html><head><meta charset="utf-8"><title>'+esc(v.title||'Lecture notes')+'</title><style>@page{size:A4;margin:12mm}body{font-family:Arial,sans-serif;color:#111;line-height:1.5}h1{font-size:20px}h2{font-size:15px;margin:14px 0 4px;break-after:avoid}.n{break-inside:avoid;margin-bottom:8px}pre{background:#f1f3f7;padding:6px;white-space:pre-wrap}.hint{background:#fff7d6;padding:8px;font-size:13px}@media print{.hint{display:none}}</style></head><body><div class="hint">Choose <b>Save as PDF</b> in the print window.</div><h1>'+esc(v.title||'')+'</h1><p>'+esc(v.summary||'')+'</p><h2>Chapters</h2>'+v.chapters.map(function(x){return '<div>'+esc(x.at||'')+' – '+esc(x.title||'')+'</div>';}).join('')+'<h2>Notes</h2>'+v.notes.map(function(n){return '<div class="n"><b>'+esc(n.h||'')+'</b><div style="white-space:pre-wrap">'+esc(n.b||'')+'</div>'+((n.flow&&n.flow.length)?'<div><i>Flow:</i> '+n.flow.map(esc).join(' &rarr; ')+'</div>':'')+(n.ex?'<div><i>Example:</i> '+esc(n.ex)+'</div>':'')+(n.tip?'<div><i>Exam tip:</i> '+esc(n.tip)+'</div>':'')+((n.f&&n.f.length)?'<pre>'+n.f.map(esc).join('\n')+'</pre>':'')+'</div>';}).join('')+'<h2>Questions</h2>'+v.questions.map(function(x,i){return '<div class="n"><b>Q'+(i+1)+'. '+esc(x.q||'')+'</b><div>Ans: '+esc(x.a||'')+'</div></div>';}).join('')+'<script>window.onload=function(){setTimeout(function(){window.print()},400)}<\/script></body></html>';
-    printHtml(h);return;}
-}
-function printHtml(h){
-  try{var old=document.getElementById('prn-fr');if(old)old.remove();
-    var f=document.createElement('iframe');f.id='prn-fr';f.setAttribute('aria-hidden','true');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0';
-    f.onload=function(){setTimeout(function(){try{f.contentWindow.focus();f.contentWindow.print();}catch(e){toast('Could not open print. Press Ctrl+P instead.');}},300);};
-    document.body.appendChild(f);f.srcdoc=h.replace(/<script>[\s\S]*?<\/script>/,'').replace('<div class="hint">','<div class="hint" style="display:none">');
-  }catch(e){var w=window.open('','_blank');if(!w){toast('Allow pop-ups, then try again');return;}w.document.write(h);w.document.close();}
+    var h='<html><head><meta charset="utf-8"><title>'+esc(v.title||'Lecture notes')+'</title><style>@page{size:A4;margin:12mm}body{font-family:Arial,sans-serif;color:#111;line-height:1.5}h1{font-size:20px}h2{font-size:15px;margin:14px 0 4px;break-after:avoid}.n{break-inside:avoid;margin-bottom:8px}pre{background:#f1f3f7;padding:6px;white-space:pre-wrap}.hint{background:#fff7d6;padding:8px;font-size:13px}@media print{.hint{display:none}}</style></head><body><div class="hint">Choose <b>Save as PDF</b> in the print window.</div><h1>'+esc(v.title||'')+'</h1><p>'+esc(v.summary||'')+'</p><h2>Chapters</h2>'+v.chapters.map(function(x){return '<div>'+esc(x.at||'')+' – '+esc(x.title||'')+'</div>';}).join('')+'<h2>Notes</h2>'+v.notes.map(function(n){return '<div class="n"><b>'+esc(n.h||'')+'</b><div style="white-space:pre-wrap">'+esc(n.b||'')+'</div>'+((n.f&&n.f.length)?'<pre>'+n.f.map(esc).join('\n')+'</pre>':'')+'</div>';}).join('')+'<h2>Questions</h2>'+v.questions.map(function(x,i){return '<div class="n"><b>Q'+(i+1)+'. '+esc(x.q||'')+'</b><div>Ans: '+esc(x.a||'')+'</div></div>';}).join('')+'<script>window.onload=function(){setTimeout(function(){window.print()},400)}<\/script></body></html>';
+    var w=window.open('','_blank');if(!w){toast('Allow pop-ups, then try again');return;}w.document.write(h);w.document.close();return;}
 }
 
 /* ===== v1.14: AI-made MCQ bank (shared) ===== */
@@ -3670,14 +3815,15 @@ function mqCard(){
   var q=ui.mq;
   if(q&&q.list&&q.i<q.list.length){
     var x=q.list[q.i];
-    h+='<div class="mut" style="margin-top:8px">'+(q.rapid?'\u26a1 Rapid-fire \u2022 ':'')+'Question '+(q.i+1)+' of '+q.list.length+' \u2022 Score '+q.sc+(q.rapid&&!q.done?' \u2022 <b id="mq-tm">\u23f1 60 s</b>':'')+'</div>'+(x.x?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(x.x)+'</div>':'')+'<div style="margin-top:6px"><b>'+esc(x.q)+'</b></div>';
+    var tmChip=q.rapid?'<span class="chip warn" style="margin-left:6px">⚡ Rapid-Fire <b id="icq-timer">'+(q.left!==undefined?q.left:'--')+'</b>s</span>':'';
+    h+='<div class="mut" style="margin-top:8px">Question '+(q.i+1)+' of '+q.list.length+' • Score '+q.sc+tmChip+'</div>'+(x.x?'<div class="mut" style="margin-top:6px;white-space:pre-wrap">'+esc(x.x)+'</div>':'')+'<div style="margin-top:6px"><b>'+esc(x.q)+'</b></div>';
     x.o.forEach(function(o,k){var st='',m='';
       if(q.done){if(x.a===k){st=' style="border-color:var(--ok)"';m=' ✓';}else if(q.sel===k&&x.a>=0){st=' style="border-color:var(--bad,#c0392b)"';m=' ✗';}else if(q.sel===k){m=' (your pick)';}}
       h+='<button class="btn sec" data-act="icqpick" data-k="'+k+'"'+(q.done?' disabled':'')+st+' style="display:block;width:100%;text-align:left;margin-top:6px">'+'abcd'.charAt(k)+') '+esc(o)+m+'</button>';});
-    if(q.done){h+='<div class="mut" style="margin-top:8px">'+(x.a>=0?(q.sel===x.a?'Correct.':'Correct answer: '+'abcd'.charAt(x.a)+')'):'Answer is not available in the PDF.')+'<br>Source: '+esc(x.s)+'</div>'+mqTagRow(x)+'<button class="btn" style="margin-top:8px" data-act="icqnext">Next</button>';}
+    if(q.done){h+='<div class="mut" style="margin-top:8px">'+(q.timeout?'<span class="chip warn">Time up!</span> ':'')+(x.a>=0?(q.sel===x.a?'Correct.':'Correct answer: '+'abcd'.charAt(x.a)+')'):'Answer is not available in the PDF.')+'<br>Source: '+esc(x.s)+'</div>'+mqTagRow(x)+'<button class="btn" style="margin-top:8px" data-act="icqnext">Next</button>';}
     h+='<button class="btn sec sm" style="margin-top:8px" data-act="icqstop">Stop</button></div>';return h;
   }
-  if(q&&q.list&&q.i>=q.list.length){var rfs='';if(q.rapid&&q.times&&q.times.length){var avg=Math.round(q.times.reduce(function(a,b){return a+b;},0)/q.times.length);rfs='<div class="mut" style="margin-top:6px">Average '+avg+' s per question \u2022 '+(q.to||0)+' ran out of time. In the exam you get about 72 s for a 1-mark MCQ, so aim to stay under that.</div>';}h+='<div style="margin-top:8px"><b>Done: '+q.sc+' / '+q.n+' correct</b> (only questions with answers are scored)</div>'+rfs+'<button class="btn" style="margin-top:8px" data-act="icqstop">Back</button></div>';return h;}
+  if(q&&q.list&&q.i>=q.list.length){h+='<div style="margin-top:8px"><b>Done: '+q.sc+' / '+q.n+' correct</b> (only questions with answers are scored)</div><button class="btn" style="margin-top:8px" data-act="icqstop">Back</button></div>';return h;}
   var srcs={};(MQC[lv]||[]).concat(MQC.misc||[]).forEach(function(x){srcs[x.s]=(srcs[x.s]||0)+1;});
   var sk=Object.keys(srcs).sort();
   h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><select data-chg="icqlv">'+LVORD.map(function(v){return '<option value="'+v+'"'+(v===lv?' selected':'')+'>'+esc(LVNAME[v])+'</option>';}).join('')+'</select><select data-chg="icqsrc"><option value="">All sources</option>'+sk.map(function(k){return '<option value="'+esc(k)+'"'+(k===(ui.mqSrc||'')?' selected':'')+'>'+esc(k)+' ('+srcs[k]+')</option>';}).join('')+'</select></div>';
@@ -3685,23 +3831,50 @@ function mqCard(){
   var P1=cur(),nl=0;if(P1&&P1.mqt)Object.keys(P1.mqt).forEach(function(k){if(P1.mqt[k]==='L')nl++;});
   h+='<label style="display:block;margin-top:8px"><input type="checkbox" data-chg="icqlrn"'+(ui.mqLrn?' checked':'')+'> Only my "Still learning" questions ('+nl+')</label>';
   h+='<div class="mut" style="margin-top:8px">'+(ld?pool.length+' questions available':'Loading…')+'</div>';
-  if(ld&&pool.length)h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn" data-act="icqstart">Start 20 random questions</button><button class="btn sec" data-act="icqrapid">\u26a1 Rapid-fire (60 s per question)</button></div>';
+  if(ld&&pool.length)h+='<div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn" data-act="icqstart">Start 20 questions</button><button class="btn sec" data-act="icqrapid">⚡ Rapid-Fire (60s / Q)</button></div>';
   else if(ld)h+='<div class="mut" style="margin-top:6px">Nothing yet for this level. The sync adds more after each run.</div>';
   return h+'</div>';
 }
+var ICQTM=null;
+function icqTick(){
+  var q=ui.mq;if(!q||!q.rapid||q.done){clearInterval(ICQTM);ICQTM=null;return;}
+  var left=Math.max(0,q.limit-Math.round((Date.now()-q.t0)/1000));
+  q.left=left;
+  var el=document.getElementById('icq-timer');
+  if(el)el.textContent=left;
+  if(left<=0){
+    clearInterval(ICQTM);ICQTM=null;
+    q.sel=-1;q.done=true;q.timeout=true;
+    renderKeep();
+  }
+}
 function icqAct(a,d){
   var q=ui.mq;
-  if(a==='icqrapid'){var pr=mqShuf(mqPool()).slice(0,20);if(!pr.length)return;ui.mq={list:pr,i:0,sc:0,n:pr.filter(function(x){return x.a>=0;}).length,done:false,sel:-1,rapid:true,t0:Date.now(),times:[],to:0};renderKeep();return;}
-  if(a==='icqstart'){var p=mqShuf(mqPool()).slice(0,20);if(!p.length)return;ui.mq={list:p,i:0,sc:0,n:p.filter(function(x){return x.a>=0;}).length,done:false,sel:-1};renderKeep();return;}
+  if(a==='icqstart'||a==='icqrapid'){
+    clearInterval(ICQTM);ICQTM=null;
+    var p=mqShuf(mqPool()).slice(0,20);if(!p.length)return;
+    var isR=a==='icqrapid';
+    ui.mq={list:p,i:0,sc:0,n:p.filter(function(x){return x.a>=0;}).length,done:false,sel:-1,rapid:isR,limit:60,left:60,t0:Date.now()};
+    if(isR){ICQTM=setInterval(icqTick,1000);setTimeout(icqTick,50);}
+    renderKeep();return;
+  }
   if(!q)return;
-  if(a==='icqpick'&&!q.done){var k=Number(d.k),x=q.list[q.i];q.sel=k;q.done=true;if(q.rapid)q.times.push(Math.min(60,Math.round((Date.now()-q.t0)/1000)));if(x.a>=0&&k===x.a)q.sc++;renderKeep();return;}
+  if(a==='icqpick'&&!q.done){
+    clearInterval(ICQTM);ICQTM=null;
+    var k=Number(d.k),x=q.list[q.i];q.sel=k;q.done=true;if(x.a>=0&&k===x.a)q.sc++;renderKeep();return;
+  }
   if(a==='icqtag'){var x2=q.list[q.i],P2=cur();if(!x2||!P2)return;P2.mqt=P2.mqt||{};if(P2.mqt[x2.i]===d.t)delete P2.mqt[x2.i];else P2.mqt[x2.i]=d.t;
     P2.cards=P2.cards||[];var sr='mq:'+x2.i,hv=P2.cards.some(function(c){return c.src===sr;});
     if(P2.mqt[x2.i]==='L'&&!hv&&x2.a>=0&&x2.o[x2.a]){P2.cards.push({id:uid(),k:'',src:sr,front:String(x2.q).slice(0,200),back:('Answer: '+'abcd'.charAt(x2.a)+') '+x2.o[x2.a]+' ('+(x2.s||'ICAI')+')').slice(0,600),box:0,due:iso(today())});toast('Saved as a flash card too');}
     else if(P2.mqt[x2.i]!=='L'&&hv)P2.cards=P2.cards.filter(function(c){return c.src!==sr;});
     P2.dirty=true;save();schedSync();renderKeep();return;}
-  if(a==='icqnext'){q.i++;q.done=false;q.sel=-1;if(q.rapid)q.t0=Date.now();renderKeep();return;}
-  if(a==='icqstop'){ui.mq=null;renderKeep();return;}
+  if(a==='icqnext'){
+    clearInterval(ICQTM);ICQTM=null;
+    q.i++;q.done=false;q.sel=-1;delete q.timeout;
+    if(q.rapid){q.t0=Date.now();q.left=q.limit;ICQTM=setInterval(icqTick,1000);setTimeout(icqTick,50);}
+    renderKeep();return;
+  }
+  if(a==='icqstop'){clearInterval(ICQTM);ICQTM=null;ui.mq=null;renderKeep();return;}
 }
 function icqChg(k,el){
   if(k==='icqlv'){ui.mqLv=el.value;ui.mqSrc='';}
@@ -3800,100 +3973,6 @@ function viewIcai(c){
   }
   h+='</div>';
   return h+mqCard()+gdDocs(P);
-}
-
-/* ===== Study notes: AI-written simple notes with flowcharts, made by the GitHub notes pipeline ===== */
-function ntSt(){if(!ui.nt)ui.nt={idx:null,cur:null,err:'',ans:{},ld:0};return ui.nt;}
-function ntLoad(){var n=ntSt();if(n.idx||n.ld)return;n.ld=1;
-  fetch('papers/notes/index.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){n.idx=j||[];n.ld=0;if(ui.tab==='nt')renderKeep();}).catch(function(){n.idx=[];n.ld=0;if(ui.tab==='nt')renderKeep();});}
-function ntOpen(id){var n=ntSt();n.err='';n.cur={loading:true,id:id};renderKeep();
-  fetch('papers/notes/'+encodeURIComponent(id)+'.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){n.cur=j;n.ans={};renderKeep();window.scrollTo(0,0);}).catch(function(){n.cur=null;n.err='Could not open these notes. Check your internet and try again.';renderKeep();});}
-function ntDone(P,id,t){return !!(P.ntDone&&P.ntDone[id+':'+t]);}
-function ntFlow(f){
-  if(!f||!f.steps||!f.steps.length)return '';
-  var h='<div class="ntfl">'+(f.title?'<div class="mut" style="margin-bottom:6px"><b>'+esc(f.title)+'</b></div>':'');
-  f.steps.forEach(function(s,i){h+='<div class="ntbx"><span class="ntn">'+(i+1)+'</span>'+esc(s)+'</div>'+(i<f.steps.length-1?'<div class="ntar">↓</div>':'');});
-  return h+'</div>';
-}
-function ntTopic(P,u,t,ti){
-  var done=ntDone(P,u.id,t.id),h='<div class="card" style="'+(done?'border-color:var(--ok,#2e9d5b)':'')+'"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><h3 style="margin:0">'+(ti+1)+'. '+esc(t.title)+'</h3>'+(t.section?'<span class="chip">'+esc(t.section)+'</span>':'')+'</div>';
-  h+='<ul style="margin:8px 0 8px 18px;padding:0">'+t.explain.map(function(x){return '<li style="margin:4px 0">'+esc(x)+'</li>';}).join('')+'</ul>';
-  h+=ntFlow(t.flow);
-  if(t.example)h+='<div class="blk" style="margin-top:8px"><div><b>Example</b><div>'+esc(t.example)+'</div></div></div>';
-  if(t.remember&&t.remember.length)h+='<div class="blk" style="margin-top:8px;background:var(--ac2)"><div><b>Remember</b><ul style="margin:4px 0 0 18px;padding:0">'+t.remember.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div></div>';
-  if(t.mistakes&&t.mistakes.length)h+='<div class="mut" style="margin-top:8px"><b>Common mistakes</b><ul style="margin:4px 0 0 18px;padding:0">'+t.mistakes.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>';
-  (t.quiz||[]).forEach(function(q,qi){var k=u.id+':'+t.id+':'+qi,a=ui.nt.ans[k];
-    h+='<div style="margin-top:10px"><b>Check: '+esc(q.q)+'</b>';
-    q.o.forEach(function(o,oi){var st=a==null?'':(oi===q.a?'background:#d9f5e4;':(oi===a?'background:#fde0e0;':''));
-      h+='<div><button class="btn sec sm" style="margin-top:4px;text-align:left;'+st+'" data-act="ntans" data-k="'+esc(k)+'" data-o="'+oi+'"'+(a!=null?' disabled':'')+'>'+esc(o)+'</button></div>';});
-    if(a!=null)h+='<div class="mut" style="margin-top:4px">'+(a===q.a?'Correct. ':'Not quite. ')+esc(q.why||'')+'</div>';
-    h+='</div>';});
-  h+='<button class="btn '+(done?'sec':'')+' sm" style="margin-top:10px" data-act="ntdone" data-u="'+esc(u.id)+'" data-t="'+esc(t.id)+'">'+(done?'✓ Done (tap to undo)':'Mark topic as done')+'</button></div>';
-  return h;
-}
-function viewNT(c){
-  var P=c.P,n=ntSt();ntLoad();
-  var css='<style>.ntfl{margin:8px 0}.ntbx{border:2px solid var(--ac);border-radius:10px;padding:8px 10px;font-weight:600;display:flex;gap:8px;align-items:center;background:var(--card)}.ntn{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--ac);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center}.ntar{text-align:center;color:var(--ac);font-size:18px;line-height:1.1}</style>';
-  if(n.cur&&n.cur.loading)return css+'<div class="card"><h3>Study notes</h3><div class="mut">Opening...</div></div>';
-  if(n.cur){var u=n.cur,dn=u.topics.filter(function(t){return ntDone(P,u.id,t.id);}).length;
-    return css+'<button class="btn sec sm" data-act="ntback" style="margin-bottom:8px">← All notes</button><div class="card"><h3>'+esc(u.unit)+'</h3><div class="mut">'+esc(u.course)+' • '+esc(u.paper)+' • '+esc(u.chapter)+'</div><div class="mut" style="margin-top:6px">'+dn+' of '+u.topics.length+' topics done. '+esc(u.note||'')+'</div></div>'+u.topics.map(function(t,i){return ntTopic(P,u,t,i);}).join('');}
-  var h=css+'<div class="card"><h3>Study notes</h3><div class="mut">Learn a chapter from zero, in simple words. Each topic has a short explanation, a flowchart, an example and a quick check. Written by AI from ICAI study material, so confirm exact wording in the original.</div></div>';
-  if(n.err)h+='<div class="card"><div class="mut">'+esc(n.err)+'</div></div>';
-  if(!n.idx)return h+'<div class="card"><div class="mut">Loading...</div></div>';
-  if(!n.idx.length)return h+'<div class="card"><div class="mut">Notes are being prepared. New chapters appear here every day.</div></div>';
-  var RK={foundation:0,inter:1,final:2},LV=[['foundation','Foundation'],['inter','Intermediate'],['final','Final']];
-  var my=RK[P.level]!=null?RK[P.level]:0;
-  var lv=n.lv;if(lv==null||RK[lv]==null||RK[lv]>my)lv=(RK[P.level]!=null?P.level:'foundation');n.lv=lv;
-  var q=n.q||'';
-  h+='<div class="card"><input type="text" id="nt-q" placeholder="Search chapter or unit..." value="'+esc(q)+'" autocomplete="off"></div>';
-  h+='<div id="nt-res" style="display:'+(q?'block':'none')+'">'+(q?ntSearchHtml(q,P):'')+'</div><div id="nt-nav" style="display:'+(q?'none':'block')+'">';
-  h+='<div class="card"><div class="mut" style="margin-bottom:6px">Level</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+LV.map(function(l){
-    if(RK[l[0]]>my)return '<button class="btn sec sm" data-act="ntlock" data-lv="'+l[0]+'" style="opacity:.6">🔒 '+l[1]+'</button>';
-    var ct=n.idx.filter(function(x){return ntLv(x)===l[0];}).length;
-    return '<button class="btn '+(lv===l[0]?'':'sec')+' sm" data-act="ntlv" data-lv="'+l[0]+'">'+l[1]+(ct?' ('+ct+')':'')+'</button>';}).join('')+'</div></div>';
-  var shown=n.idx.filter(function(x){return ntLv(x)===lv;});
-  if(!shown.length)return h+'<div class="card"><div class="mut">No notes for this level yet. New chapters are added every day.</div></div></div>';
-  var papers=[],pm={};shown.forEach(function(x){if(!pm[x.paper]){pm[x.paper]={name:x.paper,it:[]};papers.push(pm[x.paper]);}pm[x.paper].it.push(x);});
-  if(n.pp&&!pm[n.pp]){n.pp=null;n.cc=null;}
-  if(!n.pp){
-    h+='<h3 style="margin:4px 2px 8px">Subjects</h3>'+papers.map(function(pp){return '<button class="btn sec" style="width:100%;text-align:left;margin-bottom:8px;padding:14px" data-act="ntpp" data-v="'+encodeURIComponent(pp.name)+'"><b>'+esc(pp.name)+'</b> <span class="mut">('+pp.it.length+' ready)</span></button>';}).join('');
-    return h+'</div>';
-  }
-  var chs=ntChaps(pm[n.pp].it),ch=null;chs.forEach(function(c2){if(c2.t===n.cc)ch=c2;});
-  if(n.cc&&!ch)n.cc=null;
-  if(!ch){
-    h+='<button class="btn sec sm" data-act="ntup" data-to="pp" style="margin-bottom:8px">← All subjects</button><div class="card"><h3>'+esc(n.pp)+'</h3><div class="mut">Choose a chapter</div></div>';
-    h+=chs.map(function(c2){var tp=c2.it.reduce(function(a2,x){return a2+x.topics;},0);
-      return c2.direct?'<button class="btn sec" style="width:100%;text-align:left;margin-bottom:8px" data-act="ntopen" data-id="'+esc(c2.it[0].id)+'">'+esc(c2.t)+' <span class="mut">('+tp+' topics)</span></button>'
-       :'<button class="btn sec" style="width:100%;text-align:left;margin-bottom:8px" data-act="ntcc" data-v="'+encodeURIComponent(c2.t)+'">'+esc(c2.t)+' <span class="mut">('+c2.it.length+' units)</span></button>';}).join('');
-    return h+'</div>';
-  }
-  h+='<button class="btn sec sm" data-act="ntup" data-to="cc" style="margin-bottom:8px">← '+esc(n.pp)+'</button><div class="card"><h3>'+esc(ch.t)+'</h3><div class="mut">Choose a unit</div></div>';
-  h+=ch.it.map(function(x){return '<button class="btn sec" style="width:100%;text-align:left;margin-bottom:8px" data-act="ntopen" data-id="'+esc(x.id)+'">'+esc(x.unit)+' <span class="mut">('+x.topics+' topics)</span></button>';}).join('');
-  return h+'</div>';
-}
-function ntLv(x){var c=String(x.course||'').toLowerCase();return c.indexOf('found')===0?'foundation':(c.indexOf('inter')===0?'inter':(c.indexOf('final')===0?'final':'other'));}
-function ntChaps(items){var out=[],m={};items.forEach(function(x){var direct=!/^Ch\s*\d/i.test(x.chapter),t=direct?x.unit:x.chapter;
-  if(!m[t]){m[t]={t:t,direct:direct,it:[]};out.push(m[t]);}m[t].it.push(x);});return out;}
-function ntSearchHtml(q,P){var n=ntSt(),RK={foundation:0,inter:1,final:2},my=RK[P.level]!=null?RK[P.level]:0;
-  var words=String(q).toLowerCase().split(/\s+/).filter(Boolean);
-  var r=(n.idx||[]).filter(function(x){if(RK[ntLv(x)]==null||RK[ntLv(x)]>my)return false;var hay=(x.course+' '+x.paper+' '+x.chapter+' '+x.unit).toLowerCase();return words.every(function(w){return hay.indexOf(w)>=0;});}).slice(0,40);
-  if(!r.length)return '<div class="card"><div class="mut">No chapter or unit found. Notes for more chapters are added every day.</div></div>';
-  return r.map(function(x){return '<button class="btn sec" style="width:100%;text-align:left;margin-bottom:8px" data-act="ntopen" data-id="'+esc(x.id)+'">'+esc(x.unit)+'<div class="mut">'+esc(x.course)+' • '+esc(x.paper)+(/^Ch\s*\d/i.test(x.chapter)?' • '+esc(x.chapter):'')+'</div></button>';}).join('');}
-document.addEventListener('input',function(e){var t=e.target;if(!t||t.id!=='nt-q')return;var n=ntSt();n.q=t.value;
-  var res=document.getElementById('nt-res'),nav=document.getElementById('nt-nav');if(!res||!nav)return;var c=cur();
-  res.innerHTML=n.q?ntSearchHtml(n.q,c.P||c):'';res.style.display=n.q?'block':'none';nav.style.display=n.q?'none':'block';});
-function ntAct(a,d,P){
-  var n=ntSt();
-  if(a==='ntopen'){ntOpen(d.id);return;}
-  if(a==='ntlv'){n.lv=d.lv;n.pp=null;n.cc=null;n.q='';renderKeep();return;}
-  if(a==='ntlock'){toast((d.lv==='final'?'Final':'Intermediate')+' notes open after you move to that level.');return;}
-  if(a==='ntpp'){n.pp=decodeURIComponent(d.v);n.cc=null;renderKeep();window.scrollTo(0,0);return;}
-  if(a==='ntcc'){n.cc=decodeURIComponent(d.v);renderKeep();window.scrollTo(0,0);return;}
-  if(a==='ntup'){if(d.to==='cc')n.cc=null;else{n.pp=null;n.cc=null;}renderKeep();window.scrollTo(0,0);return;}
-  if(a==='ntback'){n.cur=null;renderKeep();window.scrollTo(0,0);return;}
-  if(a==='ntans'){n.ans[d.k]=Number(d.o);renderKeep();return;}
-  if(a==='ntdone'){if(!P.ntDone)P.ntDone={};var k=d.u+':'+d.t;if(P.ntDone[k])delete P.ntDone[k];else P.ntDone[k]=1;P.dirty=true;commit();return;}
 }
 function viewGuide(c){
   var P=c.P;
@@ -4363,6 +4442,7 @@ function viewGate(){
     return '<div class="wrap" style="max-width:460px;margin:0 auto;padding:16px">'+logo+'<div class="card" style="text-align:center"><h3>Loading your profile\u2026</h3><div class="mut">'+esc(cloud.syncMsg||'Please wait')+'</div></div></div>';
   }
   if(cloud.user)return '';
+  if(window.renderStudifyLanding)return window.renderStudifyLanding({mk:mk,autoOpenAuth:!!cloud.msg});
   return '<div class="wrap" style="max-width:460px;margin:0 auto;padding:16px">'+logo+'<div class="card"><h3>Sign in</h3><div class="mut">Sign in first. If you already made a profile on another device, it opens here automatically.</div>'+mk+
     '<label>Email</label><input type="text" id="cl-email" autocomplete="email">'+
     '<label>Password (min 6 characters)</label><input type="password" id="cl-pw" autocomplete="current-password">'+
@@ -4372,7 +4452,8 @@ function viewGate(){
 function render(){
   var app=document.getElementById('app'),P=cur();
   document.documentElement.dataset.theme=theme();applyFs();accApply();
-  if(!P&&!ui.onb&&!ui.skipLogin){var gt=viewGate();if(gt){app.innerHTML=gt;applyLang(app);return;}}
+  if(!P&&!ui.onb&&!ui.skipLogin){var gt=viewGate();if(gt){app.style.maxWidth=(cloud.sessChecked&&!cloud.user&&window.renderStudifyLanding)?'1140px':'';app.innerHTML=gt;if(cloud.sessChecked&&!cloud.user&&window.bindStudifyLanding)window.bindStudifyLanding(render);applyLang(app);return;}}
+  app.style.maxWidth='';
   if(!P||ui.onb){app.innerHTML=head(P)+viewOnboard();applyLang(app);return;}
   normP(P);
   var A=analyse(P),X=activeInfo(P,A),I=planInfo(P,A,X),c={P:P,A:A,X:X,I:I},body='';
@@ -4385,7 +4466,6 @@ function render(){
   else if(ui.tab==='guide')body=viewGuide(c);
   else if(ui.tab==='calc')body=viewCalc(c);
   else if(ui.tab==='icai')body=viewIcai(c);
-  else if(ui.tab==='nt')body=viewNT(c);
   else if(ui.tab==='yt')body=viewYT(c);
   else if(ui.tab==='papers')body=viewPapers(c);
   else if(ui.tab==='results')body=hwPerfCard(P)+insightCards(P)+viewResults(c);
@@ -4438,7 +4518,6 @@ function act(a,d){
   if(a==='icmore'){ui.annN=(ui.annN||12)+12;renderKeep();return;}
   if(a.indexOf('gd')===0){gdAct(a,d,P);return;}
   if(a.indexOf('clc')===0){clcAct(a);return;}
-  if(a.indexOf('nt')===0&&a.length>2&&a!=='ntab'){ntAct(a,d,P);return;}
   if(a.indexOf('yt')===0){ytAct(a,d);return;}
   if(a==='xdadd'||a==='xddel'){xdAct(a,d,P);return;}
   if(a==='accstop'){try{speechSynthesis.cancel();}catch(e){}return;}
@@ -5053,6 +5132,7 @@ function startOnb(){
 }
 
 function chg(k,d,el){
+  if(k==='proplan'){ui.proPlan=el.value;ui.proCode=readv('pro-code')||ui.proCode;render();return;}
   if(k==='ytlen'){ui.ytLen=Number(el.value)||40;return;}
   if(k.indexOf('hw')===0){hwChg(k,d,el);return;}
   if(k.indexOf('rp')===0){rpChg(k,d,el);return;}
@@ -5168,7 +5248,6 @@ setInterval(function(){try{var ae=document.activeElement,tg=ae&&ae.tagName;if(ui
 setInterval(function(){var e=document.getElementById('tm-el'),t=tmGet();if(e&&t)e.textContent=tmText(t);try{tmTick();}catch(x){}},500);
 setInterval(function(){try{if(!document.hidden)tmPull();}catch(x){}},8000);
 setInterval(simTick,1000);
-setInterval(function(){try{rfTick();}catch(e){}},500);
 setInterval(function(){try{gcPoll();}catch(e){}},45000);
 window.addEventListener('beforeinstallprompt',function(e){try{e.preventDefault();}catch(x){}ui.inst=e;renderKeep();});
 window.addEventListener('appinstalled',function(){ui.inst=null;});
@@ -5177,8 +5256,105 @@ window.addEventListener('online',function(){
   try{if(cloud.cfg)loadLib();if(cloud.user)syncAll().then(refreshPartner).catch(function(){});}catch(e){}
   renderKeep();
 });
-window.addEventListener('error',function(e){logErr((e&&e.message)||'error');});
-window.addEventListener('unhandledrejection',function(e){logErr((e&&e.reason&&e.reason.message)||'promise');});
+var _stLastErrAt=0,_stLastErrMsg='';
+function stFallbackShot(note){
+  try{
+    var cv=document.createElement('canvas');cv.width=700;cv.height=340;
+    var cx=cv.getContext('2d');
+    cx.fillStyle='#0f1220';cx.fillRect(0,0,700,340);
+    cx.fillStyle='#4f46e5';cx.font='bold 20px system-ui';cx.fillText('Studify CA Auto Snapshot',24,42);
+    cx.fillStyle='#94a3b8';cx.font='13px monospace';
+    cx.fillText('Time: '+new Date().toLocaleString('en-IN')+' | Tab: '+ui.tab,24,74);
+    cx.fillText('URL: '+location.href.slice(0,70),24,98);
+    cx.fillStyle='#f87171';cx.font='14px monospace';
+    String(note||'').slice(0,220).match(/.{1,60}/g)?.forEach(function(ln,i){cx.fillText(ln,24,145+i*22);});
+    return cv.toDataURL('image/jpeg',0.72);
+  }catch(e){return '';}
+}
+async function stCaptureShot(note){
+  try{
+    if(!window.html2canvas){
+      await new Promise(function(res,rej){
+        var s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        s.onload=res;s.onerror=rej;setTimeout(rej,2500);
+        document.head.appendChild(s);
+      });
+    }
+    if(window.html2canvas){
+      var cv=await window.html2canvas(document.body,{scale:0.6,useCORS:true,logging:false});
+      return cv.toDataURL('image/jpeg',0.62);
+    }
+  }catch(e){}
+  return stFallbackShot(note);
+}
+async function stReportBug(payload){
+  if(!cloud.client||!cloud.user)return null;
+  try{
+    var r=await cloud.client.functions.invoke('bug-alert',{body:Object.assign({page_url:location.href},payload)});
+    if(!r.error&&r.data&&r.data.ok)return r.data;
+  }catch(e){}
+  try{
+    var ins=await cloud.client.from('bug_reports').insert({
+      reporter_id:cloud.user.id,reporter_email:cloud.user.email||'',reporter_role:cloud.teamRole||'student',
+      source:payload.source||'auto',severity:payload.severity||'error',
+      title:String(payload.title||'Error').slice(0,240),details:String(payload.details||''),
+      page_url:location.href,screenshot_data:payload.screenshot_data||'',status:'open'
+    }).select('id').single();
+    return {ok:!ins.error,bug_id:ins.data&&ins.data.id,emailed:false,email_hint:'Saved in Admin Inbox (deploy bug-alert function for email alerts).'};
+  }catch(e){return null;}
+}
+async function runStudifyQaBot(sendTest){
+  ui.qaBusy=true;ui.qaRes=[];render();
+  var res=[];
+  for(var i=0;i<['./','landing.js','privacy.html','sw.js','manifest.webmanifest','library.json'].length;i++){
+    var p=['./','landing.js','privacy.html','sw.js','manifest.webmanifest','library.json'][i];
+    try{var hr=await fetch(p,{method:'HEAD',cache:'no-store'});res.push({name:'Asset '+p,ok:hr.ok,info:'HTTP '+hr.status});}
+    catch(e){res.push({name:'Asset '+p,ok:false,info:String(e)});}
+  }
+  try{var ps=await rpc('my_pro_status',{});res.push({name:'Supabase Pro/Team RPC',ok:!!ps,info:'team_role: '+((ps&&ps.team_role)||'ok')});}
+  catch(e){res.push({name:'Supabase Pro/Team RPC',ok:false,info:(e&&e.message)||'Run 19_pro_roles_bugs.sql'});}
+  try{
+    var P0=cur();if(P0){var A0=analyse(P0);res.push({name:'Planner & Weightage Engine',ok:!!A0,info:'Done '+A0.doneH+'h / '+A0.needH+'h'});}
+    else res.push({name:'Planner Engine',ok:true,info:'Ready'});
+  }catch(e){res.push({name:'Planner Engine',ok:false,info:String(e)});}
+  ui.qaRes=res;
+  var fails=res.filter(function(x){return !x.ok;});
+  if(fails.length||sendTest){
+    var shot=await stCaptureShot(fails.length?fails.map(function(f){return f.name+': '+f.info;}).join('; '):'Studify QA Bot Test');
+    var br=await stReportBug({
+      source:'qa_bot',severity:fails.length?'error':'info',
+      title:fails.length?('QA Bot caught '+fails.length+' issue(s)'):('QA Bot Health Check ('+res.length+'/'+res.length+' Passed)'),
+      details:res.map(function(x){return (x.ok?'PASS':'FAIL')+' | '+x.name+' | '+x.info;}).join('\n'),
+      screenshot_data:shot,send_email:true
+    });
+    toast(br&&br.emailed?'Bug alert emailed with screenshot!':((br&&br.email_hint)||'Logged in Bug Inbox'));
+  }else toast('All '+res.length+' QA checks passed!');
+  ui.qaBusy=false;await loadAdmin();render();
+}
+function openStudifyBugPrompt(){
+  var t=prompt('Bug title (e.g. Button glitch on Papers tab):');
+  if(!t||!t.trim())return;
+  var det=prompt('Details / steps (optional):')||'';
+  toast('Capturing screenshot...');
+  stCaptureShot(t).then(async function(shot){
+    var br=await stReportBug({source:'manual',severity:'error',title:t.trim(),details:det,screenshot_data:shot,send_email:true});
+    await loadAdmin();render();
+    toast(br&&br.emailed?'Bug emailed with screenshot!':((br&&br.email_hint)||'Bug saved to Inbox'));
+  });
+}
+window.addEventListener('error',function(e){
+  var m=(e&&e.message)||'error';logErr(m);
+  if(!cloud.user||(m===_stLastErrMsg&&Date.now()-_stLastErrAt<30000))return;
+  _stLastErrAt=Date.now();_stLastErrMsg=m;
+  stCaptureShot(m).then(function(shot){stReportBug({source:'auto',severity:'error',title:m,details:(e.filename||'')+':'+(e.lineno||0)+'\n'+(e.error&&e.error.stack||''),screenshot_data:shot});});
+});
+window.addEventListener('unhandledrejection',function(e){
+  var m=(e&&e.reason&&e.reason.message)||'promise';logErr(m);
+  if(!cloud.user||(m===_stLastErrMsg&&Date.now()-_stLastErrAt<30000))return;
+  _stLastErrAt=Date.now();_stLastErrMsg=m;
+  stCaptureShot(m).then(function(shot){stReportBug({source:'auto',severity:'error',title:m,details:String((e&&e.reason&&e.reason.stack)||e&&e.reason||''),screenshot_data:shot});});
+});
 window.__so={dsk:dsk,GC:GC,gcOpen:gcOpen,gcClose:gcClose,gcSend:gcSend,gcFetch:gcFetch,gcText:gcText,tm:{get:tmGet,tick:tmTick,pull:tmPull,opts:tmOpts,check:tmCheck,push:tmPush},refreshPartner:refreshPartner,applyRemote:applyRemote,act:act,starter:starter,newsFeed:newsFeed,feedOk:feedOk,newsList:newsList,newsCard:newsCard,newsOk:newsOk,pywParse:pywParse,pywFilesOk:pywFilesOk,regOk:regOk,regRegion:regRegion,pwAll:pwAll,bulkParse:bulkParse,bulkPrompt:bulkPrompt,bulkCard:bulkCard,fbAdminCard:fbAdminCard,privacyCard:privacyCard,libCard:libCard,libFilesOk:libFilesOk,loadPdfs:loadPdfs,idCard:idCard,adminHub:adminHub,viewAI:viewAI,focus3:focus3,focusCard:focusCard,weekFix:weekFix,weekPlus:weekPlus,wkBanner:wkBanner,hyIds:hyIds,pywCard:pywCard,simBudgets:simBudgets,simParse:simParse,simCard:simCard,simTick:simTick,chkCard:chkCard,bakBanner:bakBanner,kalBanner:kalBanner,kalRow:kalRow,kalGoals:kalGoals,helpCard:helpCard,offBanner:offBanner,mmss:mmss,fsGet:fsGet,pushPrefs:pushPrefs,pushCard:pushCard,groupCard:groupCard,nudgeBanner:nudgeBanner,boardToday:boardToday,b64u:b64u,buildSummary:buildSummary,badgeList:badgeList,checkBadges:checkBadges,burnoutInfo:burnoutInfo,cardsDue:cardsDue,tr:tr,getLang:getLang,attemptOptions:attemptOptions,canTick:canTick,tmCheck:tmCheck,misDue:misDue,tmMs:tmMs,priorScore:priorScore,weak:weak,canStart:canStart,directOK:directOK,histA:histA,CAL:function(){return CAL;},SYLV:function(){return SYLVER;},icaiStart:icaiStart,applyRemote:applyRemote,applySyl:applySyl,sylDiff:sylDiff,weakChapters:weakChapters,weekText:weekText,icsText:icsText,streakDays:streakDays,normP:normP,onbDate:onbDate,tmSet:tmSet,cloud:cloud,SYL:SYL,S:function(){return S;},analyse:analyse,activeInfo:activeInfo,planInfo:planInfo,newProfile:newProfile,todayPlan:todayPlan,roadmap:roadmap,makeRevs:makeRevs,render:render,ui:ui,aIdx:aIdx,aLabel:aLabel,cur:cur,save:save};
 try{var qs0=new URLSearchParams(location.search),go0=qs0.get('go'),rf0=qs0.get('ref');
   if(rf0&&/^[A-Za-z0-9]{4,8}$/.test(rf0))try{localStorage.setItem('studify_ref',rf0.toUpperCase());}catch(e){}
