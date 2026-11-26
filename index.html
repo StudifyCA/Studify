@@ -5399,7 +5399,7 @@ async function runStudifyQaBot(sendTest){
   try{var ps=await rpc('my_pro_status',{});res.push({name:'Supabase Pro/Team RPC',ok:!!ps,info:'team_role: '+((ps&&ps.team_role)||'ok')});}
   catch(e){res.push({name:'Supabase Pro/Team RPC',ok:false,info:(e&&e.message)||'Run 19_pro_roles_bugs.sql'});}
   try{
-    var P0=cur();if(P0){var A0=analyse(P0);res.push({name:'Planner & Weightage Engine',ok:!!A0,info:'Done '+A0.doneH+'h / '+A0.needH+'h'});}
+    var P0=cur();if(P0){var A0=analyse(P0),X0=activeInfo(P0,A0),I0=planInfo(P0,A0,X0);res.push({name:'Planner & Weightage Engine',ok:!!(A0&&I0),info:'Days: '+Math.max(0,I0.days||0)+' • Papers: '+X0.study.length});}
     else res.push({name:'Planner Engine',ok:true,info:'Ready'});
   }catch(e){res.push({name:'Planner Engine',ok:false,info:String(e)});}
   ui.qaRes=res;
@@ -5417,15 +5417,25 @@ async function runStudifyQaBot(sendTest){
   ui.qaBusy=false;await loadAdmin();render();
 }
 function openStudifyBugPrompt(){
-  var t=prompt('Bug title (e.g. Button glitch on Papers tab):');
-  if(!t||!t.trim())return;
-  var det=prompt('Details / steps (optional):')||'';
-  toast('Capturing screenshot...');
-  stCaptureShot(t).then(async function(shot){
-    var br=await stReportBug({source:'manual',severity:'error',title:t.trim(),details:det,screenshot_data:shot,send_email:true});
-    await loadAdmin();render();
-    toast(br&&br.emailed?'Bug emailed with screenshot!':((br&&br.email_hint)||'Bug saved to Inbox'));
-  });
+  var old=document.getElementById('st-bug-ov');if(old)old.remove();
+  var ov=document.createElement('div');ov.id='st-bug-ov';ov.className='ov';
+  ov.innerHTML='<div class="modal"><h3>\ud83d\udcf8 Report Bug + Auto Screenshot</h3>'+
+    '<div class="mut">Works on Desktop App & Browser. Captures your current screen and sends email alert.</div>'+
+    '<label>Bug Title *</label><input type="text" id="st-bg-t" placeholder="e.g. Button alignment or error on Papers tab">'+
+    '<label>Severity</label><select id="st-bg-s"><option value="error">Error (Emails Alert)</option><option value="critical">Critical (Urgent Email)</option><option value="warning">Warning</option></select>'+
+    '<label>Details / Steps (optional)</label><textarea id="st-bg-d" rows="3" placeholder="Describe what happened..."></textarea>'+
+    '<div class="row" style="margin-top:10px"><button class="btn" id="st-bg-go">Capture Shot & Report</button><button class="btn sec" onclick="this.closest(\'.ov\').remove()">Cancel</button></div></div>';
+  document.body.appendChild(ov);
+  document.getElementById('st-bg-go').onclick=function(){
+    var t=readv('st-bg-t').trim(),s=readv('st-bg-s')||'error',det=readv('st-bg-d').trim();
+    if(!t){toast('Enter a bug title');return;}
+    ov.remove();toast('Capturing screenshot...');
+    stCaptureShot(t).then(async function(shot){
+      var br=await stReportBug({source:'manual',severity:s,title:t,details:det,screenshot_data:shot,send_email:true});
+      await loadAdmin();render();
+      toast(br&&br.emailed?'Bug emailed with screenshot!':((br&&br.email_hint)||'Bug saved to Inbox'));
+    });
+  };
 }
 window.addEventListener('error',function(e){
   var m=(e&&e.message)||'error';logErr(m);
