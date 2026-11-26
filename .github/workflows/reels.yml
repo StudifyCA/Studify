@@ -1,7 +1,6 @@
 name: Daily Reel
 on:
-  schedule:
-    - cron: '35 12 * * *'   # 18:05 IST (with GitHub queue delay runs ~18:45-19:05 IST)
+  # Triggered daily at 18:57 IST via cron-job.org (GitHub schedule removed to avoid ~1hr queue lag / double post)
   workflow_dispatch:
     inputs:
       day:
