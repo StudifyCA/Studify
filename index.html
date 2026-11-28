@@ -3964,6 +3964,68 @@ function ntLoad(){var n=ntSt();if(n.idx||n.ld)return;n.ld=1;
 function ntOpen(id){var n=ntSt();n.err='';n.cur={loading:true,id:id};renderKeep();
   fetch('papers/notes/'+encodeURIComponent(id)+'.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){n.cur=j;n.ans={};renderKeep();window.scrollTo(0,0);}).catch(function(){n.cur=null;n.err='Could not open these notes. Check your internet and try again.';renderKeep();});}
 function ntDone(P,id,t){return !!(P.ntDone&&P.ntDone[id+':'+t]);}
+function ntTmMs(t){return (t.acc||0)+(t.paused||!t.t0?0:Math.max(0,Date.now()-t.t0));}
+function ntTmText(t){
+  var s=Math.floor(ntTmMs(t)/1000),m=Math.floor(s/60),sec=s%60;
+  if(m<60)return p2(m)+':'+p2(sec);
+  return p2(Math.floor(m/60))+':'+p2(m%60)+':'+p2(sec);
+}
+function ntFindCh(P,u){
+  if(!P||!P.papers||!u)return null;
+  var pk=null,keys=Object.keys(P.papers);
+  for(var i=0;i<keys.length;i++){
+    var k=keys[i];
+    if(u.id&&u.id.toLowerCase().indexOf(k.toLowerCase())===0){pk=k;break;}
+  }
+  if(!pk){
+    var up=String(u.paper||'').toLowerCase();
+    for(var i=0;i<keys.length;i++){
+      var k=keys[i],pn=String(PAPERS[k]&&PAPERS[k].n||'').toLowerCase();
+      if(pn&&(up.indexOf(pn)>=0||pn.indexOf(up)>=0)){pk=k;break;}
+      var numMatch=/Paper\s*(\d+)/i.exec(up);
+      if(numMatch&&k.indexOf(numMatch[1])>=0){pk=k;break;}
+    }
+  }
+  if(!pk&&keys.length)pk=keys[0];
+  if(!pk||!P.papers[pk])return null;
+  var list=P.papers[pk].ch||[];
+  var uch=String(u.chapter||'').toLowerCase().replace(/^ch\s*\d+[\s:–-]*/i,'').trim();
+  var uun=String(u.unit||'').toLowerCase().replace(/^unit\s*\d+[\s:–-]*/i,'').trim();
+  var best=null,bestScore=0;
+  for(var j=0;j<list.length;j++){
+    var c=list[j];
+    var cname=String(c.name||'').toLowerCase();
+    var clbl=String(lblOf(c)||'').toLowerCase();
+    if(cname===uch||clbl===uch||cname===uun||clbl===uun){return {k:pk,ch:c};}
+    if(uch&&(cname.indexOf(uch)>=0||uch.indexOf(cname)>=0)){
+      var sc=Math.min(cname.length,uch.length);
+      if(sc>bestScore){bestScore=sc;best={k:pk,ch:c};}
+    }
+    if(uun&&(cname.indexOf(uun)>=0||uun.indexOf(cname)>=0)){
+      var sc=Math.min(cname.length,uun.length);
+      if(sc>bestScore){bestScore=sc;best={k:pk,ch:c};}
+    }
+  }
+  if(best)return best;
+  return list.length?{k:pk,ch:list[0]}:null;
+}
+function ntTimerCard(P,u,n){
+  var tm=n.tm&&n.tm.uId===u.id?n.tm:null;
+  var rev=(P.ntRev&&P.ntRev[u.id])||null;
+  var h='<div class="card" style="border:1.5px solid var(--ac);background:var(--card);margin-bottom:12px">';
+  h+='<div class="row sp" style="align-items:center"><div><b>⏱ Chapter Revision Timer</b><div class="mut">Time your study to set your next AI speed-run goal</div></div><div id="nt-tm-el" style="font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ac)">'+(tm?ntTmText(tm):'00:00')+'</div></div>';
+  h+='<div class="row" style="margin-top:10px;gap:8px">'+(!tm?'<button class="btn sm" data-act="nttmstart" data-u="'+esc(u.id)+'">▶ Start Revision Timer</button>':((tm.paused?'<button class="btn sm" data-act="nttmresume">▶ Resume</button>':'<button class="btn sec sm" data-act="nttmpause">⏸ Pause</button>')+'<button class="btn sm" data-act="nttmstop" data-u="'+esc(u.id)+'">⏹ Stop & Set AI Target</button><button class="btn sec sm" data-act="nttmreset">✕ Reset</button>'))+'</div>';
+  if(rev){
+    var est=rev.pct>0&&rev.pct<100?' • Full chapter: ~'+Math.round(rev.lastMin*(100/rev.pct))+' min':'';
+    h+='<div style="margin-top:12px;padding:10px 12px;border-radius:8px;background:var(--ac2,#eef2ff);border-left:4px solid var(--ac)">';
+    h+='<div class="row sp"><b style="color:var(--tx)">✨ AI Revision Goal</b><span class="chip ok">Revision #'+rev.revCount+'</span></div>';
+    h+='<div class="mut" style="margin-top:4px;font-size:13px">Last revision: <b>'+rev.lastMin+' mins</b> ('+(rev.pct||10)+'% covered on '+esc(rev.date)+est+')</div>';
+    h+='<div style="margin-top:6px;font-size:15px;color:var(--tx)">🎯 <b>Next Target: '+rev.targetMin+' mins</b> <span class="chip" style="font-size:11px">10% faster active recall</span></div>';
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
+}
 function ntFlow(f){
   if(!f||!f.steps||!f.steps.length)return '';
   var h='<div class="ntfl">'+(f.title?'<div class="mut" style="margin-bottom:6px"><b>'+esc(f.title)+'</b></div>':'');
@@ -3990,8 +4052,20 @@ function viewNT(c){
   var P=c.P,n=ntSt();ntLoad();
   var css='<style>.ntfl{margin:8px 0}.ntbx{border:2px solid var(--ac);border-radius:10px;padding:8px 10px;font-weight:600;display:flex;gap:8px;align-items:center;background:var(--card)}.ntn{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--ac);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center}.ntar{text-align:center;color:var(--ac);font-size:18px;line-height:1.1}</style>';
   if(n.cur&&n.cur.loading)return css+'<div class="card"><h3>Study notes</h3><div class="mut">Opening...</div></div>';
-  if(n.cur){var u=n.cur,dn=u.topics.filter(function(t){return ntDone(P,u.id,t.id);}).length;
-    return css+'<button class="btn sec sm" data-act="ntback" style="margin-bottom:8px">← All notes</button><div class="card"><h3>'+esc(u.unit)+'</h3><div class="mut">'+esc(u.course)+' • '+esc(u.paper)+' • '+esc(u.chapter)+'</div><div class="mut" style="margin-top:6px">'+dn+' of '+u.topics.length+' topics done. '+esc(u.note||'')+'</div></div>'+u.topics.map(function(t,i){return ntTopic(P,u,t,i);}).join('');}
+  if(n.cur){
+    var u=n.cur,dn=u.topics.filter(function(t){return ntDone(P,u.id,t.id);}).length;
+    var tot=u.topics.length||1,pct=Math.round(dn/tot*100);
+    var allDone=dn===tot;
+    var match=ntFindCh(P,u);
+    var chName=match&&match.ch?lblOf(match.ch):u.chapter;
+    var stBadge=allDone?'<span class="chip ok">✓ Chapter Finished</span>':(dn>0?'<span class="chip warn">'+pct+'% in progress</span>':'<span class="chip">Not started</span>');
+    return css+'<button class="btn sec sm" data-act="ntback" style="margin-bottom:8px">← All notes</button>'+
+      '<div class="card"><div class="row sp"><h3>'+esc(u.unit)+'</h3>'+stBadge+'</div>'+
+      '<div class="mut">'+esc(u.course)+' • '+esc(u.paper)+' • '+esc(chName)+'</div>'+
+      '<div class="mut" style="margin-top:6px">'+dn+' of '+u.topics.length+' topics done ('+pct+'% of chapter). '+(allDone?'✓ Full chapter completed and revisions scheduled automatically.':esc(u.note||''))+'</div></div>'+
+      ntTimerCard(P,u,n)+
+      u.topics.map(function(t,i){return ntTopic(P,u,t,i);}).join('');
+  }
   var h=css+'<div class="card"><h3>Study notes</h3><div class="mut">Learn a chapter from zero, in simple words. Each topic has a short explanation, a flowchart, an example and a quick check. Written by AI from ICAI study material, so confirm exact wording in the original.</div></div>';
   if(n.err)h+='<div class="card"><div class="mut">'+esc(n.err)+'</div></div>';
   if(!n.idx)return h+'<div class="card"><div class="mut">Loading...</div></div>';
@@ -4053,7 +4127,90 @@ function ntAct(a,d,P){
   if(a==='ntup'){if(d.to==='cc')n.cc=null;else{n.pp=null;n.cc=null;}renderKeep();window.scrollTo(0,0);return;}
   if(a==='ntback'){n.cur=null;renderKeep();window.scrollTo(0,0);return;}
   if(a==='ntans'){n.ans[d.k]=Number(d.o);renderKeep();return;}
-  if(a==='ntdone'){if(!P.ntDone)P.ntDone={};var k=d.u+':'+d.t;if(P.ntDone[k])delete P.ntDone[k];else P.ntDone[k]=1;P.dirty=true;commit();return;}
+  if(a==='nttmstart'){
+    n.tm={uId:d.u,t0:Date.now(),acc:0,paused:false};
+    try{if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(function(){});}catch(e){}
+    renderKeep();return;
+  }
+  if(a==='nttmpause'){
+    if(n.tm&&!n.tm.paused){n.tm.acc=(n.tm.acc||0)+Math.max(0,Date.now()-n.tm.t0);n.tm.t0=0;n.tm.paused=true;}
+    renderKeep();return;
+  }
+  if(a==='nttmresume'){
+    if(n.tm&&n.tm.paused){n.tm.t0=Date.now();n.tm.paused=false;}
+    renderKeep();return;
+  }
+  if(a==='nttmreset'){
+    if(confirm('Discard this revision timer?')){n.tm=null;renderKeep();}
+    return;
+  }
+  if(a==='nttmstop'){
+    var tm=n.tm;if(!tm)return;
+    var ms=ntTmMs(tm),mins=Math.max(1,Math.round(ms/60000));
+    var u=n.cur;if(!u){n.tm=null;renderKeep();return;}
+    var tot=u.topics?u.topics.length:1;
+    var dn=u.topics?u.topics.filter(function(t){return ntDone(P,u.id,t.id);}).length:0;
+    var pct=Math.round(dn/tot*100);
+    if(dn===0)pct=10;
+
+    var match=ntFindCh(P,u);
+    var pk=match?match.k:(allKeys(P)[0]||'IN1');
+    var ch=match?match.ch:null;
+    var chName=ch?ch.name:(u.chapter||u.unit);
+
+    var sess={id:uid(),date:iso(today()),paper:pk,min:mins,chapter:chName,timer:true,t0:Date.now()-mins*60000,t1:Date.now()};
+    P.sessions.push(sess);
+
+    var targetMin=Math.max(1,Math.round(mins*0.90));
+    if(!P.ntRev)P.ntRev={};
+    var prev=P.ntRev[u.id]||null;
+    P.ntRev[u.id]={lastMin:mins,pct:pct,topicsDone:dn,topicsTotal:tot,targetMin:targetMin,prevTarget:prev?prev.targetMin:null,date:iso(today()),revCount:(prev?prev.revCount:0)+1};
+
+    if(dn===tot&&tot>0&&ch){
+      setDone(P,pk,ch);
+    }else if(dn>0&&ch){
+      if(ch.status==='todo')ch.status='learning';
+      ch.ntTopicsDone=dn;ch.ntTopicsTotal=tot;
+    }
+
+    var estFull=pct>0&&pct<100?Math.round(mins*(100/pct)):mins;
+    var beat=(prev&&prev.targetMin&&mins<=prev.targetMin);
+    var bodyMsg=(beat?'🔥 Shabaash! Target beaten! Pichla target '+prev.targetMin+' min tha aur aapne '+mins+' min me hi revise kar liya!\n\n':'')+
+      '⏱ Aapne '+mins+' minute padha ('+pct+'% syllabus cover hua).\n\n'+
+      '🎯 AI Agla Revision Target: '+targetMin+' minute!\n'+
+      'Agli baar itna portion '+targetMin+' min me revise karne ka target rakho (active recall se 10% tezi).\n'+
+      (pct>0&&pct<100?'• Is speed se poora chapter revise karne ka estimated time: ~'+estFull+' min\n':'')+
+      '\n✓ Session logged ('+mins+' min) • Streak & Study hours me add ho gaya.';
+
+    ui.modal={type:'msg',title:'✨ AI Revision Goal Set ('+(ch?lblOf(ch):(u.chapter||u.unit))+')',body:bodyMsg};
+    n.tm=null;commit();return;
+  }
+  if(a==='ntdone'){
+    if(!P.ntDone)P.ntDone={};
+    var k=d.u+':'+d.t;
+    if(P.ntDone[k])delete P.ntDone[k];else P.ntDone[k]=1;
+    P.dirty=true;
+    var u=n.cur;
+    if(u&&u.topics&&u.topics.length){
+      var dn=u.topics.filter(function(t){return ntDone(P,u.id,t.id);}).length;
+      var tot=u.topics.length;
+      var match=ntFindCh(P,u);
+      if(match&&match.ch){
+        var ch=match.ch;
+        ch.ntTopicsDone=dn;ch.ntTopicsTotal=tot;
+        if(dn===tot){
+          setDone(P,match.k,ch);
+          toast('🎉 Chapter done! All '+tot+' topics finished • Revisions scheduled');
+        }else if(dn>0){
+          if(ch.status==='todo')ch.status='learning';
+          toast('Topic marked done ('+dn+'/'+tot+' • '+Math.round(dn/tot*100)+'% of chapter)');
+        }else{
+          if(ch.status==='done')ch.status='learning';
+        }
+      }
+    }
+    commit();return;
+  }
 }
 function viewGuide(c){
   var P=c.P;
@@ -5328,7 +5485,7 @@ tmCheck();
 if(DSK){try{DSK.onActive(dskOnActive);}catch(e){}try{var da=localStorage.getItem('ca_studyos_dskauto');if(da!==null)DSK.setAutoStart(da==='1');}catch(e){}}
 initCloud();
 setInterval(function(){try{var ae=document.activeElement,tg=ae&&ae.tagName;if(ui.tab==='partner'&&cloud.user&&!document.hidden&&!ui.modal&&!/INPUT|TEXTAREA|SELECT/.test(tg||''))refreshPartner();}catch(e){}},60000);
-setInterval(function(){var e=document.getElementById('tm-el'),t=tmGet();if(e&&t)e.textContent=tmText(t);try{tmTick();}catch(x){}},500);
+setInterval(function(){var e=document.getElementById('tm-el'),t=tmGet();if(e&&t)e.textContent=tmText(t);try{tmTick();}catch(x){}try{var nte=document.getElementById('nt-tm-el');if(nte&&ui.nt&&ui.nt.tm)nte.textContent=ntTmText(ui.nt.tm);}catch(x){}},500);
 setInterval(function(){try{if(!document.hidden)tmPull();}catch(x){}},8000);
 setInterval(simTick,1000);
 setInterval(function(){try{rfTick();}catch(e){}},500);
