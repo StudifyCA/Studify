@@ -3214,7 +3214,7 @@ function hwKeys(P){var pf=LVPFX[P.level];return Object.keys(P.papers).filter(fun
 function hwS(P){if(!P.hw)P.hw={strict:false,dl:0,days:{},seen:{}};if(!P.hw.days)P.hw.days={};if(!P.hw.seen)P.hw.seen={};return P.hw;}
 function hwLoad(k){
   if(HWQ[k])return Promise.resolve(HWQ[k]);
-  return fetch(SBASE+'qbank/qb-'+k+'.json',{cache:'no-cache'}).then(function(r){return r.ok?r:fetch(SBASE+'qb-'+k+'.json',{cache:'no-cache'});}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){j.map={};(j.q||[]).forEach(function(x){j.map[x.i]=x;});HWQ[k]=j;aiMerge(k);return j;}).catch(function(){HWQ[k]={q:[],rep:[],map:{},bad:1};return HWQ[k];});
+  return fetch(SBASE+'qbank/qb-'+k+'.json',{cache:'no-cache'}).then(function(r){return r.ok?r:fetch(SBASE+'qb-'+k+'.json',{cache:'no-cache'});}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(j){j.map={};(j.q||[]).forEach(function(x){if(x&&x.t==='m'&&Array.isArray(x.o)){x.o=x.o.map(hwOptClean);}j.map[x.i]=x;});HWQ[k]=j;aiMerge(k);return j;}).catch(function(){HWQ[k]={q:[],rep:[],map:{},bad:1};return HWQ[k];});
 }
 function hwLoadAll(P,cb){var ks=hwKeys(P),need=ks.filter(function(k){return !HWQ[k];});if(!need.length)return;Promise.all(need.map(hwLoad)).then(function(){try{renderKeep();}catch(e){}});}
 function hRand(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0)/4294967296;}
@@ -3270,6 +3270,16 @@ function hwPerfCard(P){
 }
 /* ===== v1.24: clean question text ===== */
 function hwOk(q){return !(q&&q.t==='d'&&/^[a-z]/.test(String(q.q||'').trim()));}
+function hwOptClean(opt){
+  var o=String(opt||'').trim();
+  o=o.replace(/\s*[\(\[]\s*(?:\d+\s*(?:MCQs?\s*of\s*)?)?\d+(?:\s*x\s*\d+)?\s*marks?(?:\s*each)?[^\)\]]*[\)\]].*$/i,'');
+  o=o.replace(/\s*(?:(?:Case\s*Scenario|case\s*scenario)[^a-zA-Z0-9]*.*)$/i,'');
+  o=o.replace(/\s*(?:(?:Division\s*[A-Z]|Multiple\s*Choice\s*Questions|Independent\s*case\s*scenario)[^a-zA-Z0-9]*.*)$/i,'');
+  o=o.replace(/\s*(?:(?:Read\s+the\s+following|Following\s+information\s+is\s+given|Read\s+the\s+information|Based\s+on\s+the\s+(?:above|information)|Answer\s+(?:the\s+following|any))[^\n]*.*)$/i,'');
+  o=o.replace(/\s*\(\d{1,2}[-–]\d{1,2}\.?\)\s*.*$/i,'');
+  o=o.replace(/\s+\d+\s*$/,'');
+  return o.trim();
+}
 function hwFmt(t){
   t=String(t||'').replace(/[ \t\r\f]+/g,' ').replace(/\n{3,}/g,'\n\n').trim();
   t=t.replace(/([.?:;)])\s\d{1,2}\s(?=\((?:i|ii|iii|iv|v|vi|vii|viii|ix|x|xi|xii)\)\s)/g,'$1 ');
@@ -3280,11 +3290,26 @@ function hwFmt(t){
   return t;
 }
 function hwSplit(q){
-  var t=String((q&&q.q)||''),ctx='',main=t;
+  var t=String((q&&q.q)||'').trim(),ctx='',main=t;
   if(q&&q.t==='m'){
-    var re=/(?:^|\s)(\d{1,2})\.\s+(?=[A-Z])/g,m,idx=-1;
-    while((m=re.exec(t)))idx=m.index+(m[0].charAt(0)===' '?1:0);
-    if(idx>0){var pre=t.slice(0,idx);if(/\([A-D]\)/.test(pre)||/case scenario|following question/i.test(pre)){ctx=pre.trim();main=t.slice(idx).trim();}}
+    var cands=[];
+    var re=/(?:^|[\s\n])(\d{1,2})\.\s+(?=[A-Z])/g,m;
+    while((m=re.exec(t)))cands.push(m.index+(m[0].charAt(0)===' '||m[0].charAt(0)==='\n'?1:0));
+    var fr=/(?:^|[\s\n])\([A-D]\)(?:\s*The\s*reductio[a-z]*|\s*[\w\s]{0,25}?\.\.\.|\s*)\s+(?=[A-Z][a-zA-Z0-9])/gi;
+    while((m=fr.exec(t)))cands.push(m.index+m[0].length);
+    var lr=/(?:^|[\s\n])\([A-D]\s+(?=[A-Z][a-z])/gi;
+    while((m=lr.exec(t)))cands.push(m.index+m[0].length);
+    cands.sort(function(a,b){return a-b;});
+    var best=-1;
+    for(var i=0;i<cands.length;i++){if(cands[i]>=40)best=cands[i];}
+    if(best>0){
+      ctx=t.slice(0,best).trim();
+      main=t.slice(best).trim();
+      ctx=ctx.replace(/\s*\([A-D]\)(?:\s*The\s*reductio[a-z]*|\s*[\w\s]{0,25}?\.\.\.|\s*)$/i,'').replace(/\s*\([A-D]$/i,'');
+    }
+    main=main.replace(/^\([A-D]\)(?:\s*The\s*reductio[a-z]*|\s*[\w\s]{0,25}?\.\.\.|\s*)\s+/i,'');
+    main=main.replace(/^\([A-D]\s+/i,'');
+    main=main.replace(/^The\s+reductio\w*\s+/i,'');
   }
   return {ctx:ctx,main:main};
 }
@@ -3304,7 +3329,7 @@ function hwItemHtml(P,k,it,day,dd){
     q.o.forEach(function(o,i){
       var sty='text-align:left;margin-top:6px;display:block;width:100%';
       if(it.done){if(L[i]===q.a)sty+=';border-color:var(--ok);background:rgba(60,160,90,.18)';else if(i===it.ans)sty+=';border-color:#c44;background:rgba(200,70,70,.18)';}
-      h+='<button class="btn sec" style="'+sty+'"'+(it.done?' disabled':' data-act="hwopt" data-k="'+k+'" data-o="'+i+'"'+dq)+'><b>'+L[i].toUpperCase()+'.</b> '+esc(o)+'</button>';
+      h+='<button class="btn sec" style="'+sty+'"'+(it.done?' disabled':' data-act="hwopt" data-k="'+k+'" data-o="'+i+'"'+dq)+'><b>'+L[i].toUpperCase()+'.</b> '+esc(hwOptClean(o))+'</button>';
     });
     if(it.done)h+='<div style="margin-top:8px"><span class="chip '+(it.ok?'ok':'bad')+'">'+(it.ok?'Correct':'Wrong. Right answer: '+q.a.toUpperCase())+'</span> '+ref+'</div>';
   }else{
@@ -4368,7 +4393,7 @@ async function rpRefText(r){
   if(RPREF[r.id]!==undefined)return RPREF[r.id];
   var t=await hwRef(r.id.split('-')[0],{s:r.ms||'',q:r.q});RPREF[r.id]=t||'';return RPREF[r.id];
 }
-function rpOptText(r,i){return r.o&&r.o[i]!==undefined?r.o[i]:'';}
+function rpOptText(r,i){return r.o&&r.o[i]!==undefined?hwOptClean(r.o[i]):'';}
 function rpCard(P,k,r,isS){
   var e=(P.rp&&P.rp[r.id])||{n:0,done:false,log:[]},id=r.id,la=e.last,show=!!RPSHOW[id];
   var h='<div class="card"'+(e.done?' style="opacity:.8"':'')+'><div class="row sp"><span class="chip warn">Repeated in '+r.n+' papers</span><span class="mut">'+(isS?'★ ':'')+esc(r.c.split(' › ').pop().split(' – ').pop())+'</span></div>';
@@ -4377,7 +4402,7 @@ function rpCard(P,k,r,isS){
   if(r.qi)h+=shImg(r.qi,'Question from the paper',r.qf,r.qp)+(r.qf?'<div class="mut" style="margin-top:4px">Page '+r.qp+' of '+esc(r.ms||'')+' • <a href="'+esc(sUrl(r.qf))+'#page='+r.qp+'" target="_blank" rel="noopener">Open PDF</a></div>':'');
   else h+='<div class="mut" style="margin-top:4px">'+r.s.slice(0,4).map(esc).join(' • ')+'</div>';
   if(r.o){
-    h+='<div style="margin-top:8px">'+r.o.map(function(o,i){var cl='btn sec',L=['a','b','c','d'][i];if(la&&la.o!==undefined){if(L===r.a)cl='btn ok';else if(i===la.o)cl='btn bad';}return '<div style="margin-top:6px"><button class="'+cl+'" style="width:100%;text-align:left;white-space:normal" data-act="rpopt" data-id="'+id+'" data-o="'+i+'">('+L+') '+esc(o)+'</button></div>';}).join('')+'</div>';
+    h+='<div style="margin-top:8px">'+r.o.map(function(o,i){var cl='btn sec',L=['a','b','c','d'][i];if(la&&la.o!==undefined){if(L===r.a)cl='btn ok';else if(i===la.o)cl='btn bad';}return '<div style="margin-top:6px"><button class="'+cl+'" style="width:100%;text-align:left;white-space:normal" data-act="rpopt" data-id="'+id+'" data-o="'+i+'">('+L+') '+esc(hwOptClean(o))+'</button></div>';}).join('')+'</div>';
     if(la&&la.o!==undefined)h+='<div style="margin-top:6px" class="'+(la.ok?'':'')+'">'+(la.ok?'✅ Correct':'❌ Wrong. Correct answer: ('+r.a+') '+esc(rpOptText(r,['a','b','c','d'].indexOf(r.a))))+'</div>';
   }else{
     var busy=RPBUSY[id];
@@ -4496,14 +4521,14 @@ function viewPT(c){
     var r=pt.run;
     if(!r.res){
       h+='<div class="card"><div class="row sp"><h3>Practice test</h3>'+(r.limit?'<span class="chip warn">Time left <b id="pt-timer">--</b></span>':'')+'</div><div class="mut">'+esc(pfull(r.k))+' • '+r.qs.length+' questions</div></div>';
-      r.qs.forEach(function(q,i){h+='<div class="card"><div class="mut">Q'+(i+1)+' • '+(r.ch==='MIX'?'Chapter hidden':esc(q.c.split(' › ').pop()))+' • '+q.mk+' mark'+(q.mk>1?'s':'')+'</div>'+hwQHtml(q,'margin-top:6px')+''+q.o.map(function(o,j){return '<label style="display:flex;gap:8px;margin-top:8px;align-items:flex-start;color:var(--tx)"><input type="radio" name="ptq'+i+'" data-chg="ptans" data-i="'+i+'" data-o="'+j+'"'+(r.ans[i]===j?' checked':'')+'><span>('+['a','b','c','d'][j]+') '+esc(o)+'</span></label>';}).join('')+'</div>';});
+      r.qs.forEach(function(q,i){h+='<div class="card"><div class="mut">Q'+(i+1)+' • '+(r.ch==='MIX'?'Chapter hidden':esc(q.c.split(' › ').pop()))+' • '+q.mk+' mark'+(q.mk>1?'s':'')+'</div>'+hwQHtml(q,'margin-top:6px')+''+q.o.map(function(o,j){return '<label style="display:flex;gap:8px;margin-top:8px;align-items:flex-start;color:var(--tx)"><input type="radio" name="ptq'+i+'" data-chg="ptans" data-i="'+i+'" data-o="'+j+'"'+(r.ans[i]===j?' checked':'')+'><span>('+['a','b','c','d'][j]+') '+esc(hwOptClean(o))+'</span></label>';}).join('')+'</div>';});
       h+='<div class="card"><button class="btn" data-act="ptsub">Submit test</button> <button class="btn sec" data-act="ptquit">Cancel</button></div>';
       if(r.limit&&!PTTM)PTTM=setInterval(ptTick,1000);
       setTimeout(ptTick,50);
     }else{
       var pc=r.res.tot?Math.round(r.res.sc/r.res.tot*100):0;
       h+='<div class="card" style="border-color:var(--ac)"><h3>Result: '+r.res.sc+' / '+r.res.tot+' ('+pc+'%)</h3><div class="mut">'+esc(pfull(r.k))+' • '+fdt(Date.now())+'</div><div style="margin-top:8px"><button class="btn" data-act="ptagain">Another test</button> <button class="btn sec" data-act="ptquit">Back</button></div></div>'+(r.ch==='MIX'?ptMixNote(r):'');
-      r.qs.forEach(function(q,i){var a=r.ans[i],ok=a!==undefined&&['a','b','c','d'][a]===q.a,ci=['a','b','c','d'].indexOf(q.a);h+='<div class="card"><div class="row sp"><span class="chip '+(ok?'ok':'warn')+'">'+(ok?'Correct':(a===undefined?'Not answered':'Wrong'))+'</span><span class="mut">Q'+(i+1)+' • '+esc(q.c.split(' › ').pop())+'</span></div>'+hwQHtml(q,'margin-top:6px')+'<div style="margin-top:6px">Correct: ('+q.a+') '+esc(q.o[ci]||'')+'</div>'+(a!==undefined&&!ok?'<div class="mut">You chose: ('+['a','b','c','d'][a]+') '+esc(q.o[a])+'</div>':'')+(q.e?'<div class="mut" style="margin-top:4px">Why: '+esc(q.e)+'</div>':'')+'<div class="mut" style="margin-top:4px">'+esc(q.s)+(q.r?' • <a href="'+esc(sUrl(q.r))+'" target="_blank" rel="noopener">Answers PDF</a>':'')+'</div></div>';});
+      r.qs.forEach(function(q,i){var a=r.ans[i],ok=a!==undefined&&['a','b','c','d'][a]===q.a,ci=['a','b','c','d'].indexOf(q.a);h+='<div class="card"><div class="row sp"><span class="chip '+(ok?'ok':'warn')+'">'+(ok?'Correct':(a===undefined?'Not answered':'Wrong'))+'</span><span class="mut">Q'+(i+1)+' • '+esc(q.c.split(' › ').pop())+'</span></div>'+hwQHtml(q,'margin-top:6px')+'<div style="margin-top:6px">Correct: ('+q.a+') '+esc(hwOptClean(q.o[ci]||''))+'</div>'+(a!==undefined&&!ok?'<div class="mut">You chose: ('+['a','b','c','d'][a]+') '+esc(hwOptClean(q.o[a]))+'</div>':'')+(q.e?'<div class="mut" style="margin-top:4px">Why: '+esc(q.e)+'</div>':'')+'<div class="mut" style="margin-top:4px">'+esc(q.s)+(q.r?' • <a href="'+esc(sUrl(q.r))+'" target="_blank" rel="noopener">Answers PDF</a>':'')+'</div></div>';});
     }
     return h;
   }
