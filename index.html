@@ -1030,7 +1030,7 @@ function viewOnboard(){
   var gate=canStart(o);
   if(o.level!=='foundation')jr+='<div class="'+(gate.ok?'mut':'warnbox')+'" style="margin-top:8px">'+esc(gate.msg)+'</div>';
   var rest='<option value="-1"'+(o.rest==-1?' selected':'')+'>No rest day</option>'+DAYN.map(function(d,i){return '<option value="'+i+'"'+(o.rest==i?' selected':'')+'>'+d+'</option>';}).join('');
-  return '<div style="text-align:center"><img src="logo.jpg" alt="Studify CA" width="150" height="150" style="border-radius:26px"></div><div class="tagline">Your playlist got the vibe. Studify gets the grades.</div><div class="card"><h3>Create your plan</h3><div class="mut">Everything is saved only in this browser on this device. Your partner can open the same link on her own phone or laptop and make her own profile.</div>'+
+  return '<div style="text-align:center"><img src="logo.jpg" alt="Studify CA" width="150" height="150" style="border-radius:26px" onerror="this.onerror=null;this.src=\'icon-192.png\'"></div><div class="tagline">Your playlist got the vibe. Studify gets the grades.</div><div class="card"><h3>Create your plan</h3><div class="mut">Everything is saved only in this browser on this device. Your partner can open the same link on her own phone or laptop and make her own profile.</div>'+
     '<label>Your name</label><input type="text" data-ob="name" value="'+esc(o.name)+'" placeholder="Name">'+
     '<label>Level</label><div class="opt" data-lv>'+lv+'</div>'+jr+gr+
     '<label>Exam attempt you are preparing for</label><select data-chg="onattempt">'+nextAttemptOptions(o.idx)+'</select>'+
@@ -1863,7 +1863,7 @@ function helpCard(){
 }
 var SUPPORT_EMAIL='studifyca.support@gmail.com',OFFICIAL_EMAIL='studifyca.official@gmail.com',SUPPORT_WA='919509707043',PAY_UPI='9509707043@upi';
 function aboutCard(){
-  return '<div class="card"><h3>About</h3><div style="text-align:center"><img src="logo.jpg" alt="Studify CA" width="110" height="110" style="border-radius:20px"></div><div class="tagline" style="margin-top:6px">Your playlist got the vibe. Studify gets the grades.</div><div class="tagline2">Study with vibe.</div><div class="mut">Studify CA is a smart study planner for CA Foundation, Intermediate and Final. It is not an ICAI product. Chapter lists and exam dates can be wrong, so always confirm on icai.org.</div><div class="mut" style="margin-top:6px">We do not sell or show your data to anyone. Your study data stays on your device unless you sign in. If you share with a partner or a group, only the items you switch on are visible.</div></div>';
+  return '<div class="card"><h3>About</h3><div style="text-align:center"><img src="logo.jpg" alt="Studify CA" width="110" height="110" style="border-radius:20px" onerror="this.onerror=null;this.src=\'icon-192.png\'"></div><div class="tagline" style="margin-top:6px">Your playlist got the vibe. Studify gets the grades.</div><div class="tagline2">Study with vibe.</div><div class="mut">Studify CA is a smart study planner for CA Foundation, Intermediate and Final. It is not an ICAI product. Chapter lists and exam dates can be wrong, so always confirm on icai.org.</div><div class="mut" style="margin-top:6px">We do not sell or show your data to anyone. Your study data stays on your device unless you sign in. If you share with a partner or a group, only the items you switch on are visible.</div></div>';
 }
 function privacyCard(){
   var h='<div class="card"><h3>Privacy and your data</h3>';
@@ -3278,6 +3278,7 @@ function hwOptClean(opt){
   o=o.replace(/\s*(?:(?:Read\s+the\s+following|Following\s+information\s+is\s+given|Read\s+the\s+information|Based\s+on\s+the\s+(?:above|information)|Answer\s+(?:the\s+following|any))[^\n]*.*)$/i,'');
   o=o.replace(/\s*\(\d{1,2}[-–]\d{1,2}\.?\)\s*.*$/i,'');
   o=o.replace(/\s+\d+\s*$/,'');
+  o=o.replace(/`\s*/g,'₹ ');
   return o.trim();
 }
 function hwFmt(t){
@@ -3287,6 +3288,7 @@ function hwFmt(t){
   if((t.match(rn)||[]).length>=2)t=t.replace(rn,'\n');
   if((t.match(an)||[]).length>=2)t=t.replace(an,'\n');
   t=t.replace(/\s(?=(?:You are required to|Required:|Case Scenario|Case scenario)\b)/g,'\n\n');
+  t=t.replace(/`\s*/g,'₹ ');
   return t;
 }
 function hwSplit(q){
