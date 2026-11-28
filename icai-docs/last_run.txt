@@ -1,60 +1,60 @@
-saved 87702bos-aps2158-ch5u1-fdae4f.pdf 967073
-saved 87703bos-aps2158-ch5u2-275a0d.pdf 1101584
-saved 87704bos-aps2158-ch5u3-30159a.pdf 1076435
-saved 87705bos-aps2158-ch5u4-123ee4.pdf 1275537
-saved 87706bos-aps2158-ch5u5-302319.pdf 1067835
-saved 87707bos-aps2158-ch5u6-70d87a.pdf 932268
-saved 87708bos-aps2158-ch5u7-7f087c.pdf 988305
-saved 87709bos-aps2158-ch6u1-a70194.pdf 974433
-saved 87710bos-aps2158-ch6u2-f93f3f.pdf 1013272
-saved 87711bos-aps2158-ch7u1-e0a411.pdf 834932
-saved 87712bos-aps2158-ch7u2-be527d.pdf 936791
-saved 87713bos-aps2158-ch7u3-68e36d.pdf 1153015
-saved 87714bos-aps2158-ch7u4-1e96e2.pdf 1090432
-saved 87715bos-aps2158-ch8u1-c7b925.pdf 1111717
-saved 87716bos-aps2158-ch8u2-b2ce7d.pdf 931053
-saved 87718bos-aps2158-ch9u2-297988.pdf 875732
-saved 87719bos-aps2158-ch10u1-835ec0.pdf 2049837
-saved 87720bos-aps2158-ch10u2-33aa33.pdf 1062615
-saved 87721bos-aps2158-ch10u3-d22b71.pdf 1399672
-saved 87723bos-aps2158-ch11u1-90782e.pdf 1548063
-saved 87724bos-aps2158-ch11u2-9e2fea.pdf 1469989
-saved 87725bos-aps2158-ch12-0024e2.pdf 1506825
-saved 87726bos-aps2158-ch13-ce93a4.pdf 1785396
-saved 87727bos-aps2158-ch14-4ccea5.pdf 1477032
-saved 88910bos-aps2801-m1-ch1-24a133.pdf 1178543
-saved 88911bos-aps2801-m1-ch2-f239df.pdf 1021230
-saved 88912bos-aps2801-m1-ch3-b9f0c5.pdf 1163437
-saved 88913bos-aps2801-m1-ch4u1-bcefc7.pdf 775136
-saved 88914bos-aps2801-m1-ch4u2-51457a.pdf 1076472
-saved 88915bos-aps2801-m1-ch4u3-a9426a.pdf 1458588
-saved 88916bos-aps2801-m1-ch4u4-d1a0ac.pdf 983293
-saved 88917bos-aps2801-m1-ch4u5-04ec50.pdf 764094
-saved 88918bos-aps2801-m1-ch4u6-62d8c2.pdf 553184
-saved 88919bos-aps2801-m1-ch4u7-d5031c.pdf 1049694
-saved 88921bos-aps2801-m2-ch5u1-f9de61.pdf 1600499
-saved 88922bos-aps2801-m2-ch5u2-716321.pdf 2061330
-saved 88923bos-aps2801-m2-ch5u3-fc909b.pdf 2531526
-saved 88924bos-aps2801-m2-ch5u4-adf91b.pdf 2078305
-saved 88925bos-aps2801-m2-ch5u5-e8f05d.pdf 1758658
-saved 88926bos-aps2801-m2-ch5u6-aa0cf9.pdf 1807106
-saved 88927bos-aps2801-m2-ch5u7-34fb6f.pdf 1937840
-saved 88928bos-aps2801-m2-ch6u1-fcc389.pdf 1680497
-saved 88929bos-aps2801-m2-ch6u2-69e618.pdf 1476773
-saved 88930bos-aps2801-m2-ch7u1-7cf1ed.pdf 1320369
-saved 88931bos-aps2801-m2-ch7u2-4e885b.pdf 1399230
-saved 88932bos-aps2801-m2-ch7u3-d2d167.pdf 1739499
-saved 88933bos-aps2801-m2-ch7u4-f045a0.pdf 1463824
-saved 88934bos-aps2801-m2-ch8u1-c9a930.pdf 2707236
-saved 88935bos-aps2801-m2-ch8u2-38a5dc.pdf 1563675
-saved 88946bos-aps2801-m2-ch9u2-4981f3.pdf 1449437
-saved 88947bos-aps2801-m2-ch10u1-b61561.pdf 2889646
-saved 88948bos-aps2801-m2-ch10u2-872aa3.pdf 1746311
-saved 88949bos-aps2801-m2-ch10u3-718495.pdf 1854353
-saved 89070bos-aps2801-m3-ch11u1-bff7d4.pdf 2574250
-saved 89071bos-aps2801-m3-ch11u2-98e405.pdf 2289692
-saved 89072bos-aps2801-m3-ch12-87420e.pdf 2532291
-saved 89073bos-aps2801-m3-ch13-d68161.pdf 3057610
-saved 89074bos-aps2801-m3-ch14-7673ab.pdf 2312118
+  pdfs on https://www.icai.org/post/sm-final-paper2-archives : 1
+  pdfs on https://www.icai.org/post/sm-final-p3-may2027 : 25
+  pdfs on https://www.icai.org/post/sm-final-p3-may2026 : 23
+  pdfs on https://www.icai.org/post/sm-final-p3-may2025 : 23
+  pdfs on https://www.icai.org/post/sm-final-paper3-archives : 1
+  pdfs on https://www.icai.org/post/sm-final-p4-may-nov2027 : 37
+  pdfs on https://www.icai.org/post/sm-final-p4-may-nov2026 : 35
+  pdfs on https://www.icai.org/post/sm-final-p4-may-nov2025 : 34
+  pdfs on https://www.icai.org/post/sm-final-paper4-archives : 3
+  pdfs on https://www.icai.org/post/sm-final-p5-may-nov-2027 : 36
+  pdfs on https://www.icai.org/post/sm-final-p5-may-nov-2025 : 36
+  pdfs on https://www.icai.org/post/sm-final-p5-may-aug-2025 : 38
+  pdfs on https://www.icai.org/post/sm-final-paper5-archives : 5
+page failed https://nextca.in/ca-foundation-mcq-quiz/${escapeHtml(b.siteUrl)} HTTP Error 404: Not Found
+page failed https://nextca.in/ca-foundation-mcq-quiz/${escapeHtml(b.telegram)} HTTP Error 404: Not Found
+page failed https://nextca.in/ca-foundation-mcq-quiz/${escapeHtml(b.instagram)} HTTP Error 404: Not Found
+  pdfs on https://www.icai.org/post/sm-foundation-p1-may2026-hindi-medium : 38
+  pdfs on https://www.icai.org/post/sm-foundation-p1-may2025 : 38
+  pdfs on https://www.icai.org/post/sm-foundation-p2-may2026-hindi-medium : 21
+  pdfs on https://www.icai.org/post/sm-foundation-p3-may2026-hindi-medium : 22
+  pdfs on https://www.icai.org/post/sm-intermediate-paper1-sep24-jan25 : 40
+  pdfs on https://www.icai.org/post/sm-inter-p2-may2026-hindi-medium : 18
+  pdfs on https://www.icai.org/post/sm-intermediate-paper3-secb-may26-hindi-medium : 17
+page failed https://www.icai.org/post/sm-inter-p4-may2027-hindi-medium HTTP Error 404: Not Found
+  pdfs on https://www.icai.org/post/sm-inter-p4-may2026-hindi-medium : 17
+  pdfs on https://www.icai.org/post/sm-inter-p6a-may2026-hindi-medium : 18
+page failed https://www.icai.org/post/sm-inter-p6b-may2027-hindi-medium HTTP Error 404: Not Found
+  pdfs on https://www.icai.org/post/sm-inter-p6b-may2026-hindi-medium : 6
+  pdfs on https://www.icai.org/post/sm-final-p1-may2026-hindi-medium : 63
+  pdfs on https://www.icai.org/post/sm-final-p1-may2025-hindi-medium : 63
+  pdfs on https://www.icai.org/post/sm-final-p2-may2025-hindi-medium : 17
+  pdfs on https://www.icai.org/post/sm-final-p2-may2026-hindi-medium : 16
+  pdfs on https://www.icai.org/post/sm-final-p3-may2026-hindi-version : 23
+  pdfs on https://www.icai.org/post/sm-final-p3-may2025-hindi-version : 23
+  pdfs on https://www.icai.org/post/sm-final-p5-hindi-medium-2026 : 38
+page failed https://nextca.in/probability-ca-foundation/ HTTP Error 404: Not Found
+page failed https://www.icai.org/post.html?post_id=19872 <urlopen error [Errno 111] Connection refused>
+  pdfs on https://www.icai.org/post/exam-jan-2027 : 13
+  pdfs on https://www.icai.org/post/exam-sep-nov-2026 : 18
+  pdfs on https://www.icai.org/post/exam-sep-2025 : 11
+  pdfs on https://www.icai.org/post/exam-services-archives : 14
+  pdfs on https://www.icai.org/category/examination-students/2 : 13
+  pdfs on https://www.icai.org/category/examination-students/3 : 13
+  pdfs on https://www.icai.org/category/examination-students/4 : 11
+  pdfs on https://www.icai.org/category/examination-students/5 : 8
+  pdfs on https://www.icai.org/category/examination-students/6 : 7
+  pdfs on https://www.icai.org/category/examination-students/7 : 15
+  pdfs on https://www.icai.org/category/examination-students/8 : 15
+pages read: 220 | pdf links found: 2146
+skip https://resource.cdn.icai.org/86493bos-aps1065-rtp-fnd-sep2025-qa.pdf HTTP Error 404: Not Found
+skip https://resource.cdn.icai.org/86494bos-aps1065-rtp-fnd-sep2025-be.pdf HTTP Error 404: Not Found
+skip https://resource.cdn.icai.org/79522bos63500-p3.pdf HTTP Error 404: Not Found
+skip https://resource.cdn.icai.org/79523bos63500-p4.pdf HTTP Error 404: Not Found
+skip https://resource.cdn.icai.org/91127exam-aps4306-guidance-January2027-final.pdf HTTP Error 404: Not Found
+skip https://resource.cdn.icai.org/91129exam-aps4306-guidance-January2027-int.pdf HTTP Error 404: Not Found
+skip https://resource.cdn.icai.org/90792exam-priya100226-permanent-January2027.pdf HTTP Error 404: Not Found
+skip https://resource.cdn.icai.org/90607exam-aps3980-final-January2027.pdf HTTP Error 404: Not Found
+skip https://resource.cdn.icai.org/90596exam-aps3980-city-master-January2027.pdf HTTP Error 404: Not Found
 link-only items: 9
 announcements: 23 | new this run: 0
